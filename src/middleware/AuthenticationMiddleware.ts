@@ -6,15 +6,15 @@ import ErrorMessages from "../Utils/Error";
 import { findUserByAccessTokenAndUserId } from "../Service/Authentication/AuthService";
 const checkAuthority = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
+    if (req.originalUrl.startsWith("/public")) {
+      return next();
+    }
     const { authorization } = req.headers;
     if (!authorization) {
-    return res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: "no token provided or in-valid Bearer Key",
       });
-    }
-    if (req.originalUrl.startsWith("/public")) {
-      return next();
     }
     const token = authorization.split(" ")[1];
     let decoded;
@@ -34,7 +34,6 @@ const checkAuthority = asyncHandler(
     if (!user || !(user.accessToken === token)) {
       throw new ApiError(401, ErrorMessages.USER_TOKEN_IS_INVALID);
     }
-    console.log({ checkAuthority: true });
     const currentUser = {
       userInfo: decoded,
       token,

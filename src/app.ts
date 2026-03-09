@@ -2,7 +2,6 @@ import cors from "cors";
 import express, { Application } from "express";
 import { Request, Response, NextFunction } from "express";
 import { globalErrorHandling } from "./Utils/ErrorHandling";
-import cookieParser from "cookie-parser";
 import RouterEnum from "./Utils/Routes";
 import authenticationRouter from "./Router/Authentication/AuthRouter";
 import {
@@ -20,17 +19,11 @@ import wishlistRouter from "./Router/Wishlist/WishlistRouter";
 import shippingRouter from "./Router/Shipping/ShippingRouter";
 import OrderRouter from "./Router/Order/OrderRouter";
 import { getCorsOptions } from "./config";
-//import { blockScrapers, enforcePublicApiRestrictions } from "./middleware/Security";
 const app: Application = express();
 app.use(express.json());
-app.use(cors({
-  origin: '*',
-}));
-app.options('*', cors());
-
-//  app.use(cors(getCorsOptions()));
+app.use(cors(getCorsOptions()));
+app.options("*", cors(getCorsOptions()));
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.get("/", async (_, res) => {
   return res.json("Hello world!");
 });

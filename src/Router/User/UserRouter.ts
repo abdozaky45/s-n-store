@@ -28,5 +28,4 @@ userRouter.get(
   "/user-information",
   UserController.getUserInformationById
 );
-userRouter.post("/logout", UserController.logout);
 export default userRouter;

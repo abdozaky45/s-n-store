@@ -1,8 +1,6 @@
 export default interface IUserAuthentication {
-  email: string;
-  activeCode: string;
-  isConfirmed: boolean;
-  status: string;
+  email?: string;
+  activeCode?: string;
   role: string;
-  codeCreatedAt: number;
+  codeCreatedAt?: number;
 }

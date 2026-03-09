@@ -4,9 +4,16 @@ interface categoryImage {
     mediaId: string;
   }
   export default interface ICategory {
-    categoryName: string;
+    categoryName: {
+      ar: string;
+      en: string;
+    };
+    description?: {
+      ar?: string;
+      en?: string;
+    };
+    isNew: boolean;
     image: categoryImage;
-    slug: string;
     createdBy:Types.ObjectId | string;
     createdAt: number;
     isDeleted?: boolean;

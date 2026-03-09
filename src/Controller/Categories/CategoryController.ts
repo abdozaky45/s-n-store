@@ -13,10 +13,23 @@ import {
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
   async (req: Request, res: Response) => {
-    const { categoryName, imageUrl } = req.body;
+    const {
+      categoryNameAr,
+      categoryNameEn,
+      descriptionAr,
+      descriptionEn,
+      imageUrl,
+    } = req.body;
     const mediaId =  extractMediaId(imageUrl);
     const category = await createCategory({
-      categoryName,
+      categoryName: {
+        ar: categoryNameAr,
+        en: categoryNameEn,
+      },
+      description: {
+        ar: descriptionAr,
+        en: descriptionEn,
+      },
       mediaUrl: imageUrl,
       mediaId,
       createdBy: req.body.currentUser.userInfo._id,
@@ -33,11 +46,23 @@ export const updateCategory = asyncHandler(
     if (!Category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
-    const updates = await prepareCategoryUpdates(
-      Category,
-      req.body.categoryName,
-      req.body.imageUrl
-    );
+    const {
+      categoryNameAr,
+      categoryNameEn,
+      descriptionAr,
+      descriptionEn,
+      imageUrl,
+    } = req.body;
+    const updates = await prepareCategoryUpdates(Category,
+      {
+        ar: categoryNameAr,
+        en: categoryNameEn,
+      },
+      {
+        ar: descriptionAr,
+        en: descriptionEn,
+      },
+      imageUrl);
     if (updates) {
       await Category.save();
       return res.json(
