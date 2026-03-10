@@ -88,7 +88,7 @@ export const updateProduct = asyncHandler(
       defaultImage,
       albumImages,
     } = req.body;
-    const { productId } = req.params;
+    const { productId } = req.params as { productId: string };
     const product = await findProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     const Category = await findCategoryById(categoryId);
@@ -133,7 +133,7 @@ export const updateProduct = asyncHandler(
 );
 export const deleteProduct = asyncHandler(
   async (req: Request, res: Response) => {
-    const { productId } = req.params;
+    const { productId } = req.params as { productId: string };
     const product = await findProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     await deleteOneProduct(productId);
@@ -142,7 +142,7 @@ export const deleteProduct = asyncHandler(
 );
 export const getProductById = asyncHandler(
   async (req: Request, res: Response) => {
-    const { productId } = req.params;
+    const { productId } = req.params as { productId: string };
     const { user } = req.query;
     const product = await findProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
@@ -204,7 +204,7 @@ export const getProductBySoldOut = asyncHandler(async (req: Request, res: Respon
   return res.json(new ApiResponse(200, { products }, "Success"));
 });
 export const getAllProductsByCategoryId = asyncHandler(async (req: Request, res: Response) => {
-  const { categoryId } = req.params;
+  const { categoryId } = req.params as { categoryId: string };
   const { sort, priceRange ,page } = req.query;
   const pageNumber = Number(page);
   const checkCategory = await findCategoryById(categoryId);

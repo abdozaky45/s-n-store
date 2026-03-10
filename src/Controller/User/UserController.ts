@@ -28,7 +28,7 @@ export const addUserInformation = asyncHandler(
 export const updateUserInformation = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { _id } = req.body.currentUser.userInfo;
-    const { userId } = req.params;
+    const { userId } = req.params as { userId: string };
     const checkUser = await userService.findUserInformationById(userId);
     if (!checkUser) {
       return next(new ApiError(404, ErrorMessages.USER_NOT_FOUND));
@@ -55,7 +55,7 @@ export const updateUserInformation = asyncHandler(
 export const deleteUserInformation = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { _id } = req.body.currentUser.userInfo;
-    const { userId } = req.params;
+    const { userId } = req.params as { userId: string };
     const checkUser = await userService.findUserInformationById(userId);
     if (!checkUser) {
       return next(new ApiError(404, ErrorMessages.USER_NOT_FOUND));

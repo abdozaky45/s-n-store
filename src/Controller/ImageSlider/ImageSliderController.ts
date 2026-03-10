@@ -67,7 +67,7 @@ export const updateOneHeroSection = asyncHandler(
 );
 export const deleteHeroSection = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {id} = req.params;
+    const {id} = req.params as { id: string };
     const media = await findMediaId(id);
     if (!media) throw new ApiError(404, ErrorMessages.IMAGE_NOT_FOUND);
     const images = [media.images.image1, media.images.image2];
@@ -90,7 +90,7 @@ export const getHeroSection = asyncHandler(
 );
 export const getHeroSectionById = asyncHandler(
   async (req: Request, res: Response) => {
-    const imageSlider = await findMediaId(req.params.id);
+    const imageSlider = await findMediaId(req.params.id as string);
     if (!imageSlider) throw new ApiError(404, ErrorMessages.IMAGE_NOT_FOUND);
     return res.json(
       new ApiResponse(200, { imageSlider }, SuccessMessage.IMAGE_SLIDER_FETCHED)

@@ -23,7 +23,7 @@ export const getShipping = asyncHandler(
 );
 export const getShippingById = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const shippingId = req.params.id;
+        const shippingId = req.params.id as string;
         const shipping = await ShippingService.getShippingById(shippingId);
         if (!shipping) {
             throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
@@ -37,7 +37,7 @@ export const updateShipping = asyncHandler(
             category: req.body.category,
             cost: req.body.cost
         }
-        const shippingId = req.params.id;
+        const shippingId = req.params.id as string;
         const checkShipping = await ShippingService.getShippingById(shippingId);
         if (!checkShipping) {
             throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
@@ -48,7 +48,7 @@ export const updateShipping = asyncHandler(
 );
 export const deleteShipping = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const shippingId = req.params.id;
+        const shippingId = req.params.id as string;
         const checkShipping = await ShippingService.getShippingById(shippingId);
         if (!checkShipping) {
             throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);

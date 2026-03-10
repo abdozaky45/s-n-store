@@ -29,7 +29,7 @@ export const createWishlist = asyncHandler(
 );
 export const getWishlistByUserId = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {wishlistId} = req.params;
+    const {wishlistId} = req.params as { wishlistId: string };
     const userId = req.body.currentUser.userInfo._id;
     const wishlist = await  wishlistService.getWishlistById(userId,wishlistId);
     if (!wishlist) throw new ApiError(404, ErrorMessages.WISHLIST_NOT_FOUND);
@@ -41,7 +41,7 @@ export const getWishlistByUserId = asyncHandler(
 export const deleteWishlist = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.body.currentUser.userInfo._id;
-    const {productId} = req.params;
+    const {productId} = req.params as { productId: string };
     if (!productId) throw new ApiError(404, ErrorMessages.DATA_IS_REQUIRED);
     const wishlist = await wishlistService.removeProductFromFavorites(userId, productId);
     if (!wishlist) throw new ApiError(404, ErrorMessages.WISHLIST_NOT_FOUND);

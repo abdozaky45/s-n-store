@@ -163,7 +163,7 @@ class OrderController {
     return res.json(new ApiResponse(200, orders, SuccessMessage.ORDER_FETCHED));
   });
   getOrderById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const { orderId } = req.params;
+    const { orderId } = req.params as { orderId: string };
     const order = await OrderService.getOrderById(orderId);
     if (!order) throw new ApiError(404, ErrorMessages.ORDER_NOT_FOUND);
     return res.json(new ApiResponse(200, { order }, SuccessMessage.ORDER_FETCHED));

@@ -36,7 +36,7 @@ export const CreateNewCategory = asyncHandler(
 );
 export const updateCategory = asyncHandler(
   async (req: Request, res: Response) => {
-    const Category = await findCategoryById(req.params._id);
+    const Category = await findCategoryById(req.params._id as string);
     if (!Category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
@@ -72,11 +72,11 @@ export const updateCategory = asyncHandler(
 );
 export const deleteOneCategory = asyncHandler(
   async (req: Request, res: Response) => {
-    const Category = await findCategoryById(req.params._id);
+    const Category = await findCategoryById(req.params._id as string);
     if (!Category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
-    const result = await deleteCategory(req.params._id);
+    const result = await deleteCategory(req.params._id as string);
     if (!result) {
       throw new ApiError(
         404,
@@ -99,7 +99,7 @@ export const getCategoryById = asyncHandler(
     if(!req.params.categoryId) {
       throw new ApiError(400, ErrorMessages.DATA_IS_REQUIRED);
     }
-  const category = await findCategoryById(req.params.categoryId);
+  const category = await findCategoryById(req.params.categoryId as string);
     if (!category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
