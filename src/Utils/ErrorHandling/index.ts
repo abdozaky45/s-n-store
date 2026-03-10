@@ -16,7 +16,6 @@ export const globalErrorHandling = (
     success: false,
     message: error.message,
     error: error.errors,
-    stack: error.stack,
   });
 };
 
@@ -44,7 +43,6 @@ export class ApiError extends Error {
     statusCode: number,
     message: string = "Something went wrong",
     errors: any[] = [],
-    stack: string = ""
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -52,11 +50,5 @@ export class ApiError extends Error {
     this.message = message;
     this.success = false;
     this.errors = errors;
-
-    if (stack) {
-      this.stack = stack;
-    } else {
-      Error.captureStackTrace(this, this.constructor);
-    }
   }
 }

@@ -20,7 +20,15 @@ const RequiredUniqueEmail = {
   type: String,
   required: true,
   unique: true,
-  lowerCase: true,
+  lowercase: true,
+  trim: true,
+  set: (email: string) => email.toLowerCase(),
+};
+const NotRequiredUniqueEmail = {
+  type: String,
+  unique: true,
+  sparse : true,
+  lowercase: true,
   trim: true,
   set: (email: string) => email.toLowerCase(),
 };
@@ -37,6 +45,11 @@ const RequiredBoolean = {
   type: Boolean,
   required: true,
   default: false,
+};
+const RequiredBooleanDefaultTrue = {
+  type: Boolean,
+  required: true,
+  default: true,
 };
 const NotRequiredBoolean = {
   type: Boolean,
@@ -159,6 +172,7 @@ export {
   RequiredString,
   NotRequiredString,
   RequiredBoolean,
+  RequiredBooleanDefaultTrue,
   NotRequiredBoolean,
   RequiredNumber,
   NotRequiredNumber,
@@ -166,6 +180,7 @@ export {
   RequiredUniqueNumber,
   NotRequiredTimeStamp,
   RequiredUniqueEmail,
+  NotRequiredUniqueEmail,
   RequiredUniquePhone,
   createdAtTokenModel,
   expiresAtTokenModel,

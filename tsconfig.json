@@ -5,6 +5,7 @@
     "target": "ES2020",
     "module": "CommonJS",
     "allowJs": true,
+    "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
     "noImplicitAny": true,
@@ -14,13 +15,6 @@
     "checkJs": false,
     "moduleResolution": "node"
   },
-  "include": [
-    "src/**/*",
-  ],
-  "exclude": [
-    "node_modules",
-    "./dist",
-    "./src/TDD",
-    "jest.config.js"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "./dist", "./src/TDD", "jest.config.js"]
 }

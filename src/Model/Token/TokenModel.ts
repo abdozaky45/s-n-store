@@ -9,7 +9,6 @@ import {
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 const TokenSchema = new Schema<Itoken>({
   accessToken: RequiredString,
-  refreshToken: RequiredString,
   user: RefType(SchemaTypesReference.User, true),
   userAgent: RequiredString,
   createdAt: createdAtTokenModel,

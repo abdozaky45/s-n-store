@@ -1,15 +1,16 @@
-import slugify from "slugify";
 import CategoryModel from "../../Model/Categories/CategoryModel";
 import { Types } from "mongoose";
 import s3_service from "../Aws/S3_Bucket/presignedUrl";
 export const createCategory = async ({
   categoryName,
+  description,
   mediaUrl,
   mediaId,
   createdBy,
   createdAt,
 }: {
-  categoryName: string;
+  categoryName: { ar: string; en: string };
+  description?: { ar?: string; en?: string };
   mediaUrl: string;
   mediaId: string;
   createdBy: Types.ObjectId;
@@ -17,11 +18,12 @@ export const createCategory = async ({
 }) => {
   const category = await CategoryModel.create({
     categoryName,
+    description,
+    isNew: true,
     image: {
       mediaUrl,
       mediaId,
     },
-    slug: slugify(categoryName),
     createdBy,
     createdAt,
   });
@@ -48,13 +50,15 @@ export const deletePresignedURL = async (fileName: string) => {
 };
 export const prepareCategoryUpdates = async (
   category: any,
-  categoryName?: string,
+  categoryName?: { ar?: string; en?: string },
   imageUrl?: string
 ) => {
   let updated = false;
-  if (categoryName && categoryName !== category.categoryName) {
-    category.categoryName = categoryName;
-    category.slug = slugify(categoryName);
+  if (categoryName && (categoryName.ar || categoryName.en)) {
+    category.categoryName = {
+      ar: categoryName.ar ?? category.categoryName.ar,
+      en: categoryName.en ?? category.categoryName.en,
+    };
     updated = true;
   }
   if (imageUrl && imageUrl !== category.image.mediaUrl) {

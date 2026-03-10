@@ -1,4 +1,6 @@
 enum ErrorMessages {
+  EMAIL_NOT_SENT_AR = "حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا",
+  NOT_AUTHORIZED_AR = "غير مصرح لك بالدخول",
   EMAIL_REQUIRED = "email is required",
   PHONE_REQUIRED = "phone is required",
   PHONE_ALREADY_EXISTS = "phone already exists",
@@ -28,17 +30,18 @@ enum ErrorMessages {
   EMAIL_OR_PHONE_NOT_FOUND = "Email or Phone is valid",
   PHONE_NOT_FOUND = "Phone not found",
   ALL_FIELDS_REQUIRED = "Please provide all required fields",
-  PRODUCT_NOT_FOUND= "Product not found",
+  PRODUCT_NOT_FOUND = "Product not found",
   IMAGE_NOT_FOUND = "Image not found",
   INVALID_UPDATE_HERO_SECTION = "Invalid update hero section",
   WISHLIST_NOT_FOUND = "wishlist not found",
   WISHLIST_ALREADY_EXISTS = "wishlist already exists",
   VALIDATION_ERROR = "Validation error",
-  USER_NOT_FOUND= "user not found",
+  USER_NOT_FOUND = "user not found",
   SHIPPING_NOT_FOUND = "Shipping not found",
   USER_INFORMATION_NOT_FOUND = "User information not found",
   ORDER_NOT_FOUND = "Order not found",
   NOT_PERMITTED = "You do not have permission",
   NOT_CANCELLED = "This order cannot be cancelled at this stage",
+  Token_PAYLOAD_INVALID = "no token provided or in-valid Bearer Key",
 }
 export default ErrorMessages;

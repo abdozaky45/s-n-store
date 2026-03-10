@@ -14,9 +14,6 @@ export const sendEmail = async ({
   html,
 }: EmailOptions): Promise<boolean> => {
   const transporter = nodemailer.createTransport({
-    host: 'localhost',
-    port: 465,
-    secure: true,
     service: 'gmail',
     auth: {
       user: process.env.EMAIL,
@@ -25,7 +22,7 @@ export const sendEmail = async ({
   });
 
   const info: SentMessageInfo = await transporter.sendMail({
-    from: `a.to.zaccessories <${from}>`,
+    from: `S&N Langire <${from}>`,
     to,
     subject,
     text: 'your login code',

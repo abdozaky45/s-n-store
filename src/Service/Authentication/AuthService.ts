@@ -20,7 +20,7 @@ export const sendActivationEmail = async (
   try {
     const isSent = await sendEmail({
       to: email,
-      subject: "Your Login Code",
+      subject: "Your Activation Code",
       html: activeCodeTemplate(activeCode),
     });
     return isSent;
@@ -41,23 +41,12 @@ export const findUserById = async (_id: Types.ObjectId) => {
   const user = await AuthModel.findById(_id);
   return user;
 };
-export const CreateNewAccount = async ({
-  email,
-  activeCode,
-  codeCreatedAt,
-}: {
-  email:string;
-  activeCode: string;
-  codeCreatedAt: number;
-}) => {
+export const createUserAccount = async (email: string) => {
   const user = await AuthModel.create({
     email,
-    activeCode,
-    codeCreatedAt,
   });
-
   return user;
-};
+}
 export const updateUserAndDeleteActiveCode = async (searchKey: string) => {
   const user = await AuthModel.findOneAndUpdate(
    {$or:[{ email :searchKey}, { phone:searchKey }]},
@@ -69,18 +58,16 @@ export const updateUserAndDeleteActiveCode = async (searchKey: string) => {
   );
   return user;
 };
-export const createNewAccessAndRefreshToken = async (
+export const createNewAccessTokenOrUpdate = async (
   accessToken: string,
-  refreshToken: string,
   user: Types.ObjectId,
   userAgent: string
 ) => {
-  const token = await TokenModel.create({
-    accessToken,
-    refreshToken,
-    user,
-    userAgent,
-  });
+  const token = await TokenModel.findOneAndUpdate(
+    { user },
+    { accessToken, userAgent },
+    { upsert: true, new: true }
+  );
   return token;
 };
 export const findRefreshToken = async (refreshToken: string) => {
