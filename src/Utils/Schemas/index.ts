@@ -46,6 +46,11 @@ const RequiredBoolean = {
   required: true,
   default: false,
 };
+const RequiredBooleanDefaultTrue = {
+  type: Boolean,
+  required: true,
+  default: true,
+};
 const NotRequiredBoolean = {
   type: Boolean,
   required: false,
@@ -167,6 +172,7 @@ export {
   RequiredString,
   NotRequiredString,
   RequiredBoolean,
+  RequiredBooleanDefaultTrue,
   NotRequiredBoolean,
   RequiredNumber,
   NotRequiredNumber,

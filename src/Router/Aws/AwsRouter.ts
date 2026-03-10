@@ -4,5 +4,5 @@ import { Validation } from "../../middleware/ValidationMiddleware";
 import { deletePresignedUrlValidation } from "../../Validation/Aws";
 const AwsRouter = Router();
 AwsRouter.post("/get-presigned-url", AwsController.getPresignedURL);
-AwsRouter.get("/delete-presigned-url", Validation(deletePresignedUrlValidation), AwsController.deleteImage);
+AwsRouter.delete("/delete-presigned-url", Validation(deletePresignedUrlValidation), AwsController.deleteImage);
 export default AwsRouter;

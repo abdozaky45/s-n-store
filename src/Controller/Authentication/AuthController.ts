@@ -1,5 +1,5 @@
 import {
-  createNewAccessAndRefreshToken,
+  createNewAccessTokenOrUpdate,
   createUserAccount,
   findUserByEmail,
   generateSixDigitCode,
@@ -10,14 +10,12 @@ import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import { Request, Response, NextFunction } from "express";
 import { compareActiveCode, hashActiveCode } from "../../Utils/HashAndCompare";
 import moment from "../../Utils/DateAndTime";
-import {
-  generateAccessToken
-} from "../../Utils/GenerateAndVerifyToken";
 import ErrorMessages from "../../Utils/Error";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { SendWelcomeEmail } from "../../Utils/Nodemailer/WelcomeEmailTemplate";
 import { sendEmail } from "../../Utils/Nodemailer/SendEmail";
 import { UserTypeEnum } from "../../Utils/UserType";
+import { generateAccessToken } from "../../Utils/GenerateAndVerifyToken";
 export const registerWithEmail = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const email = req.body.email.toLowerCase();
@@ -77,7 +75,7 @@ export const activeAccount = asyncHandler(
       },
     });
     const agent = req.headers["user-agent"] || "unknown";
-    await createNewAccessAndRefreshToken(
+    await createNewAccessTokenOrUpdate(
       accessToken,
       updateUser!._id,
       agent

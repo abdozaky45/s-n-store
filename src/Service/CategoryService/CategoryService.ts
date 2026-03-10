@@ -51,7 +51,6 @@ export const deletePresignedURL = async (fileName: string) => {
 export const prepareCategoryUpdates = async (
   category: any,
   categoryName?: { ar?: string; en?: string },
-  description?: { ar?: string; en?: string },
   imageUrl?: string
 ) => {
   let updated = false;
@@ -59,13 +58,6 @@ export const prepareCategoryUpdates = async (
     category.categoryName = {
       ar: categoryName.ar ?? category.categoryName.ar,
       en: categoryName.en ?? category.categoryName.en,
-    };
-    updated = true;
-  }
-  if (description && (description.ar || description.en)) {
-    category.description = {
-      ar: description.ar ?? category.description?.ar ?? "",
-      en: description.en ?? category.description?.en ?? "",
     };
     updated = true;
   }

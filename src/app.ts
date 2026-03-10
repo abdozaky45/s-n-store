@@ -31,22 +31,23 @@ app.use(`/${RouterEnum.authentication}`, authenticationRouter);
 //app.use(`/${RouterEnum.public}`, enforcePublicApiRestrictions, blockScrapers, publicRouter);
 app.use(`/${RouterEnum.public}`, publicRouter);
 app.use(checkAuthority);
-app.use(
-  `/${RouterEnum.user}`,
-  checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
-  userRouter
-);
+app.use(`/${RouterEnum.aws}`, checkRole([UserTypeEnum.ADMIN]), AwsRouter);
 app.use(
   `/${RouterEnum.category}`,
   checkRole([UserTypeEnum.ADMIN]),
   categoryRouter
 );
+// app.use(
+//   `/${RouterEnum.user}`,
+//   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
+//   userRouter
+// );
+
 app.use(
   `/${RouterEnum.product}`,
   checkRole([UserTypeEnum.ADMIN]),
   ProductRouter
 );
-app.use(`/${RouterEnum.aws}`, checkRole([UserTypeEnum.ADMIN]), AwsRouter);
 app.use(
   `/${RouterEnum.imageSlider}`,
   checkRole([UserTypeEnum.ADMIN]),

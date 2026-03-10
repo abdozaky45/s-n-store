@@ -16,19 +16,13 @@ export const CreateNewCategory = asyncHandler(
     const {
       categoryNameAr,
       categoryNameEn,
-      descriptionAr,
-      descriptionEn,
-      imageUrl,
+      imageUrl
     } = req.body;
     const mediaId =  extractMediaId(imageUrl);
     const category = await createCategory({
       categoryName: {
         ar: categoryNameAr,
         en: categoryNameEn,
-      },
-      description: {
-        ar: descriptionAr,
-        en: descriptionEn,
       },
       mediaUrl: imageUrl,
       mediaId,
@@ -49,18 +43,12 @@ export const updateCategory = asyncHandler(
     const {
       categoryNameAr,
       categoryNameEn,
-      descriptionAr,
-      descriptionEn,
       imageUrl,
     } = req.body;
     const updates = await prepareCategoryUpdates(Category,
       {
         ar: categoryNameAr,
         en: categoryNameEn,
-      },
-      {
-        ar: descriptionAr,
-        en: descriptionEn,
       },
       imageUrl);
     if (updates) {

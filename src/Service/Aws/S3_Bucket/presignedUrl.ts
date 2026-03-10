@@ -28,8 +28,7 @@ export default class s3_service {
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: key,
-      ContentType: contentType,
-      ACL: "public-read-write",
+      ContentType: contentType
     });
     return await getSignedUrl(client, command, { expiresIn: 360000 });
   };

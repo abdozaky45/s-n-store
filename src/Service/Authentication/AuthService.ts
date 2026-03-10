@@ -58,16 +58,16 @@ export const updateUserAndDeleteActiveCode = async (searchKey: string) => {
   );
   return user;
 };
-export const createNewAccessAndRefreshToken = async (
+export const createNewAccessTokenOrUpdate = async (
   accessToken: string,
   user: Types.ObjectId,
   userAgent: string
 ) => {
-  const token = await TokenModel.create({
-    accessToken,
-    user,
-    userAgent,
-  });
+  const token = await TokenModel.findOneAndUpdate(
+    { user },
+    { accessToken, userAgent },
+    { upsert: true, new: true }
+  );
   return token;
 };
 export const findRefreshToken = async (refreshToken: string) => {

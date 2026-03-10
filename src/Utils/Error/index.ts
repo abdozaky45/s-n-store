@@ -42,5 +42,6 @@ enum ErrorMessages {
   ORDER_NOT_FOUND = "Order not found",
   NOT_PERMITTED = "You do not have permission",
   NOT_CANCELLED = "This order cannot be cancelled at this stage",
+  Token_PAYLOAD_INVALID = "no token provided or in-valid Bearer Key",
 }
 export default ErrorMessages;

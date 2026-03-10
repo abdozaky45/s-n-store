@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { asyncHandler } from "../Utils/ErrorHandling";
+import { ApiResponse, asyncHandler } from "../Utils/ErrorHandling";
 import { ApiError } from "../Utils/ErrorHandling";
 import { verifyToken } from "../Utils/GenerateAndVerifyToken";
 import ErrorMessages from "../Utils/Error";
@@ -11,20 +11,14 @@ const checkAuthority = asyncHandler(
     }
     const { authorization } = req.headers;
     if (!authorization) {
-      return res.status(401).json({
-        success: false,
-        message: "no token provided or in-valid Bearer Key",
-      });
+      return res.status(401).json(new ApiResponse(401, null, ErrorMessages.Token_PAYLOAD_INVALID));
     }
     const token = authorization.split(" ")[1];
     let decoded;
     try {
       decoded = verifyToken({ token });
     } catch (error) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid token or expired",
-      });
+      return res.status(401).json(new ApiResponse(401, null, ErrorMessages.Token_PAYLOAD_INVALID));
     }
 
     if (!decoded?._id) {
