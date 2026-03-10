@@ -18,8 +18,7 @@ export const createCategory = async ({
 }) => {
   const category = await CategoryModel.create({
     categoryName,
-    description,
-    isNew: true,
+    isNewArrival: true,
     image: {
       mediaUrl,
       mediaId,
