@@ -9,7 +9,7 @@ import {
   findCategoryById,
   prepareCategoryUpdates,
   getAllCategories,
-} from "../../Service/CategoryService/CategoryService";
+} from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
   async (req: Request, res: Response) => {

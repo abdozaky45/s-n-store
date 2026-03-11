@@ -3,14 +3,12 @@ import { Types } from "mongoose";
 import s3_service from "../Aws/S3_Bucket/presignedUrl";
 export const createCategory = async ({
   categoryName,
-  description,
   mediaUrl,
   mediaId,
   createdBy,
   createdAt,
 }: {
   categoryName: { ar: string; en: string };
-  description?: { ar?: string; en?: string };
   mediaUrl: string;
   mediaId: string;
   createdBy: Types.ObjectId;

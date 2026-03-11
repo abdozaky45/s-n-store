@@ -1,6 +1,6 @@
 import {Schema , model} from "mongoose";
 import ICategory from "./Icategory";
-import { ImageSchema, NotRequiredBoolean,RefType,RequiredBoolean,RequiredBooleanDefaultTrue,RequiredNumber,RequiredString } from "../../Utils/Schemas";
+import { ImageSchema, NotRequiredBoolean,RefType,RequiredBooleanDefaultTrue,RequiredNumber,RequiredString } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 const CategorySchema = new Schema<ICategory>({
     categoryName: {
@@ -8,16 +8,18 @@ const CategorySchema = new Schema<ICategory>({
       en: RequiredString,
     },
     isNewArrival:RequiredBooleanDefaultTrue,
-    isOnSale:NotRequiredBoolean,
-    subCategories: {
-      type: [Schema.Types.ObjectId],
-      ref: SchemaTypesReference.SubCategory,
-      default: []
-    },
     image:ImageSchema,
     createdBy:RefType(SchemaTypesReference.User,true),
     createdAt: RequiredNumber,
     isDeleted:NotRequiredBoolean
+},{
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
 });
+CategorySchema.virtual(SchemaTypesReference.SubCategory,{
+  ref: SchemaTypesReference.SubCategory,
+  localField: "_id",
+  foreignField:SchemaTypesReference.Category,
+})
 const CategoryModel = model(SchemaTypesReference.Category,CategorySchema);
 export default CategoryModel;
