@@ -7,10 +7,7 @@ const SubCategorySchema = new Schema<ISubCategory>({
       ar: RequiredString,
       en: RequiredString,
     },
-    description: {
-      ar: NotRequiredString,
-      en: NotRequiredString,
-    },
+    category: RefType(SchemaTypesReference.Category, true),
     isNewArrival:NotRequiredBoolean,
     isOnSale:NotRequiredBoolean,
     image:ImageSchema,

@@ -8,7 +8,6 @@ interface categoryImage {
       ar: string;
       en: string;
     };
-    subCategories?: Types.ObjectId[] | string[];
     isNewArrival: boolean;
     isOnSale?: boolean;
     image: categoryImage;

@@ -20,7 +20,6 @@ const checkAuthority = asyncHandler(
     } catch (error) {
       return res.status(401).json(new ApiResponse(401, null, ErrorMessages.Token_PAYLOAD_INVALID));
     }
-
     if (!decoded?._id) {
       throw new ApiError(401, ErrorMessages.INVALID_PAYLOAD);
     }
@@ -32,6 +31,7 @@ const checkAuthority = asyncHandler(
       userInfo: decoded,
       token,
     };
+    if (!req.body) req.body = {};
     req.body.currentUser = currentUser;
     next();
   }
