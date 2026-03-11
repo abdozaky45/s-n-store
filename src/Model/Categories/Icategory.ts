@@ -9,7 +9,6 @@ interface categoryImage {
       en: string;
     };
     isNewArrival: boolean;
-    isOnSale?: boolean;
     image: categoryImage;
     createdBy:Types.ObjectId | string;
     createdAt: number;

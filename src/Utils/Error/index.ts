@@ -22,6 +22,8 @@ enum ErrorMessages {
   INVALID_FILE_NAME = "Invalid file name",
   INVALID_CATEGORY_DATA = "Invalid category data",
   CATEGORY_NOT_FOUND = "Category not found",
+  SUBCATEGORY_NOT_FOUND = "SubCategory not found",
+  SUBCATEGORY_NOT_FOUND_OR_ALREADY_DELETED = "SubCategory not found or already deleted",
   UNAUTHORIZED_ACCESS = "Unauthorized access",
   CATEGORY_NOT_FOUND_OR_EALREADY_DELETED = "Category not found or already deleted",
   NO_FILES_PROVIDED = "No files provided",

@@ -8,7 +8,6 @@ const CategorySchema = new Schema<ICategory>({
       en: RequiredString,
     },
     isNewArrival:RequiredBooleanDefaultTrue,
-    isOnSale:NotRequiredBoolean,
     image:ImageSchema,
     createdBy:RefType(SchemaTypesReference.User,true),
     createdAt: RequiredNumber,

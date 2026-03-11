@@ -4,7 +4,7 @@ import ErrorMessages from "../../Utils/Error";
 import {
   extractMediaId,
   findCategoryById,
-} from "../../Service/CategoryService/CategoryService";
+} from "../../Service/Category/CategoryService";
 import slugify from "slugify";
 import moment from "../../Utils/DateAndTime";
 import {

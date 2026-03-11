@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import _ from "lodash";
 import ProductModel from "../../Model/Product/ProductModel";
-import { extractMediaId } from "../CategoryService/CategoryService";
+import { extractMediaId } from "../Category/CategoryService";
 import { paginate } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import Fuse from "fuse.js";

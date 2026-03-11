@@ -1,7 +1,7 @@
 import {
   deletePresignedURL,
   extractMediaId,
-} from "../../Service/CategoryService/CategoryService";
+} from "../../Service/Category/CategoryService";
 import {
   createImageSlider,
   deleteImageSlider,

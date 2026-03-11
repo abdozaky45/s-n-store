@@ -10,7 +10,7 @@ import {
 } from "./middleware/AuthenticationMiddleware";
 import userRouter from "./Router/User/UserRouter";
 import { UserTypeEnum } from "./Utils/UserType";
-import categoryRouter from "./Router/Categories/CategoryRouter";
+import categoryRouter from "./Router/Category/CategoryRouter";
 import publicRouter from "./Router/PublicRouters/PublicRouter";
 import AwsRouter from "./Router/Aws/AwsRouter";
 import ProductRouter from "./Router/Product/ProductRouter";
@@ -19,6 +19,7 @@ import wishlistRouter from "./Router/Wishlist/WishlistRouter";
 import shippingRouter from "./Router/Shipping/ShippingRouter";
 import OrderRouter from "./Router/Order/OrderRouter";
 import { getCorsOptions } from "./config";
+import subCategoryRouter from "./Router/SubCategory/SubCategoryRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -36,6 +37,11 @@ app.use(
   `/${RouterEnum.category}`,
   checkRole([UserTypeEnum.ADMIN]),
   categoryRouter
+);
+app.use(
+  `/${RouterEnum.subCategory}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  subCategoryRouter
 );
 // app.use(
 //   `/${RouterEnum.user}`,

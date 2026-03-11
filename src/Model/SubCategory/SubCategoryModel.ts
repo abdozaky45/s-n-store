@@ -9,7 +9,6 @@ const SubCategorySchema = new Schema<ISubCategory>({
     },
     category: RefType(SchemaTypesReference.Category, true),
     isNewArrival:NotRequiredBoolean,
-    isOnSale:NotRequiredBoolean,
     image:ImageSchema,
     createdBy:RefType(SchemaTypesReference.User,true),
     createdAt: RequiredNumber,

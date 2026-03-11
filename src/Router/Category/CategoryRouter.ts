@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as categoryController from "../../Controller/Categories/CategoryController";
+import * as categoryController from "../../Controller/Category/CategoryController";
 import { Validation } from "../../middleware/ValidationMiddleware";
 import * as CategoryValidation from "../../Validation/Category/CategoryValidation";
 const categoryRouter = Router();

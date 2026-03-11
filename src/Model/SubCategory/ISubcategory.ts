@@ -10,7 +10,6 @@ export default interface ISubCategory {
   };
   category: Types.ObjectId | string;
   isNewArrival: boolean;
-  isOnSale?: boolean;
   image: SubCategoryImage;
   createdBy: Types.ObjectId | string;
   createdAt: number;
