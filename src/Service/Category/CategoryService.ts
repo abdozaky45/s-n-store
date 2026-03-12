@@ -83,3 +83,9 @@ export const getAllCategories = async () => {
   const categories = await CategoryModel.find({ isDeleted: false }).populate("subCategory").select("-isDeleted -__v");
   return categories;
 };
+export const getNewArrivalCategories = async () => {
+  const categories = await CategoryModel.find({ isDeleted: false, isNewArrival: true })
+    .populate("subCategory")
+    .select("-isDeleted -__v");
+  return categories;
+}

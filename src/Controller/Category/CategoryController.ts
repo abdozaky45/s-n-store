@@ -9,6 +9,7 @@ import {
   findCategoryById,
   prepareCategoryUpdates,
   getAllCategories,
+  getNewArrivalCategories,
 } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
@@ -107,5 +108,11 @@ export const getCategoryById = asyncHandler(
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     return res.json(new ApiResponse(200, { category }));
+  }
+);
+export const getAllNewArrivalCategories = asyncHandler(
+  async (req: Request, res: Response) => {
+    const categories = await getNewArrivalCategories();
+    return res.json(new ApiResponse(200, { categories }));
   }
 );

@@ -77,3 +77,9 @@ export const getAllSubCategories = async () => {
   const subCategories = await SubCategoryModel.find({isDeleted:false}).populate("category").select("-isDeleted -__v");
   return subCategories;
 };
+export const getNewArrivalSubCategories = async () => {
+  const subCategories = await SubCategoryModel.find({ isDeleted: false, isNewArrival: true })
+    .populate("category")
+    .select("-isDeleted -__v");
+  return subCategories;
+}
