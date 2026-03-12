@@ -3,5 +3,5 @@ import { getAllNewArrivalCategories, getCategories, getCategoryById } from "../.
 const categoryPublicRouter = Router();
 categoryPublicRouter.get("/get-all-categories",getCategories);
 categoryPublicRouter.get("/get-one-category/:categoryId",getCategoryById);
-categoryPublicRouter.get("/categories-new-arrival",getAllNewArrivalCategories );
+categoryPublicRouter.get("/get-all-categories-new-arrival",getAllNewArrivalCategories );
 export default categoryPublicRouter;
