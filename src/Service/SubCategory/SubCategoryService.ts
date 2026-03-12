@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { extractMediaId } from "../Category/CategoryService";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import ISubCategory from "../../Model/SubCategory/ISubcategory";
+import moment from "../../Utils/DateAndTime";
 export const createSubCategory = async ({
   subCategoryName,
   category,
@@ -31,14 +32,15 @@ export const createSubCategory = async ({
   return SubCategory;
 };
 export const findSubCategoryById = async (_id: string) => {
-  const subCategory = await SubCategoryModel.findById(_id);
+  const subCategory = await SubCategoryModel.findById(_id).populate("category").select("-isDeleted -__v");
   return subCategory;
 };
 export const prepareSubCategoryUpdates = async (
   subCategory: ISubCategory,
   subCategoryName?: { ar?: string; en?: string },
   category?: Types.ObjectId | string,
-  imageUrl?: string
+  imageUrl?: string,
+  isNewArrival?: boolean
 ) => {
   let updated = false;
   if (category && category.toString() !== subCategory.category.toString()) {
@@ -52,6 +54,11 @@ export const prepareSubCategoryUpdates = async (
     };
     updated = true;
   }
+    if (typeof isNewArrival === "boolean" && isNewArrival !== subCategory.isNewArrival) {
+    subCategory.isNewArrival = isNewArrival;
+    subCategory.createdAt = moment().valueOf();
+    updated = true;
+    }
   if (imageUrl && imageUrl !== subCategory.image.mediaUrl) {
     const mediaId = extractMediaId(imageUrl);
     if (mediaId !== subCategory.image.mediaId) {
@@ -67,6 +74,6 @@ export const deleteSubCategory = async (_id: string) => {
   return subCategory;
 };
 export const getAllSubCategories = async () => {
-  const subCategories = await SubCategoryModel.find({isDeleted:false}).select("-isDeleted -__v");
+  const subCategories = await SubCategoryModel.find({isDeleted:false}).populate("category").select("-isDeleted -__v");
   return subCategories;
 };

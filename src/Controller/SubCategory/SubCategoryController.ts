@@ -33,23 +33,25 @@ export const CreateNewSubCategory = asyncHandler(
 );
 export const updateSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
-     const {
+    const {
       subCategoryNameAr,
       subCategoryNameEn,
       imageUrl,
-      category
+      category,
+      isNewArrival
     } = req.body;
     const subCategory = await findSubCategoryById(req.params._id as string);
     if (!subCategory) {
       throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
-   
-    const updates = await prepareSubCategoryUpdates(subCategory ,
+
+    const updates = await prepareSubCategoryUpdates(subCategory,
       {
         ar: subCategoryNameAr,
         en: subCategoryNameEn,
       },
       category,
+      isNewArrival,
       imageUrl,
     );
     if (!updates) {

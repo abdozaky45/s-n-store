@@ -13,6 +13,7 @@ export const updateCategoryValidation = baseSchema.concat(
         categoryNameAr: joi.string().optional(),
         categoryNameEn: joi.string().optional(),
         imageUrl: joi.string().optional(),
+        isNewArrival: joi.boolean().optional(),
     }).required()
 );
 export const deleteCategoryValidation = baseSchema.concat(

@@ -44,13 +44,16 @@ export const updateCategory = asyncHandler(
       categoryNameAr,
       categoryNameEn,
       imageUrl,
+      isNewArrival
     } = req.body;
     const updates = await prepareCategoryUpdates(Category,
       {
         ar: categoryNameAr,
         en: categoryNameEn,
       },
-      imageUrl);
+      imageUrl,
+      isNewArrival
+    );
     if (updates) {
       await Category.save();
       return res.json(
@@ -80,7 +83,7 @@ export const deleteOneCategory = asyncHandler(
     if (!result) {
       throw new ApiError(
         404,
-        ErrorMessages.CATEGORY_NOT_FOUND_OR_EALREADY_DELETED
+        ErrorMessages.SUBCATEGORY_NOT_FOUND_OR_ALREADY_DELETED
       );
     }
     return res.json(
