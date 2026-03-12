@@ -4,7 +4,14 @@ import ErrorMessages from "../../Utils/Error";
 import moment from "../../Utils/DateAndTime";
 import { extractMediaId } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
-import { createSubCategory, deleteSubCategory, findSubCategoryById, getAllSubCategories, prepareSubCategoryUpdates } from "../../Service/SubCategory/SubCategoryService";
+import {
+  createSubCategory,
+  deleteSubCategory,
+  findSubCategoryById,
+  getAllSubCategories,
+  getNewArrivalSubCategories,
+  prepareSubCategoryUpdates
+} from "../../Service/SubCategory/SubCategoryService";
 export const CreateNewSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -96,5 +103,11 @@ export const getSubCategoryById = asyncHandler(
       throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
     return res.json(new ApiResponse(200, { subCategory }));
+  }
+);
+export const getAllNewArrivalSubCategories = asyncHandler(
+  async (req: Request, res: Response) => {
+    const subCategories = await getNewArrivalSubCategories();
+    return res.json(new ApiResponse(200, { subCategories }));
   }
 );
