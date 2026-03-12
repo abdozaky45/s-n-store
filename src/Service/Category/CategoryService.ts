@@ -1,6 +1,7 @@
-import CategoryModel from "../../Model/Categories/CategoryModel";
+import CategoryModel from "../../Model/Category/CategoryModel";
 import { Types } from "mongoose";
 import s3_service from "../Aws/S3_Bucket/presignedUrl";
+import moment from "../../Utils/DateAndTime";
 export const createCategory = async ({
   categoryName,
   mediaUrl,
@@ -26,7 +27,7 @@ export const createCategory = async ({
   });
   return category;
 };
-export const extractMediaId =(imageUrl: string) => {
+export const extractMediaId = (imageUrl: string) => {
   if (!imageUrl.includes("amazonaws.com/")) {
     return "Invalid image url";
   }
@@ -34,7 +35,7 @@ export const extractMediaId =(imageUrl: string) => {
   return mediaId;
 };
 export const findCategoryById = async (_id: string) => {
-  const category = await CategoryModel.findById(_id);
+  const category = await CategoryModel.findById(_id).populate("subCategory").select("-isDeleted -__v");
   return category;
 };
 export const deletePresignedURL = async (fileName: string) => {
@@ -48,7 +49,8 @@ export const deletePresignedURL = async (fileName: string) => {
 export const prepareCategoryUpdates = async (
   category: any,
   categoryName?: { ar?: string; en?: string },
-  imageUrl?: string
+  imageUrl?: string,
+  isNewArrival?: boolean
 ) => {
   let updated = false;
   if (categoryName && (categoryName.ar || categoryName.en)) {
@@ -58,21 +60,26 @@ export const prepareCategoryUpdates = async (
     };
     updated = true;
   }
+  if (typeof isNewArrival === "boolean" && isNewArrival !== category.isNewArrival) {
+    category.isNewArrival = isNewArrival;
+    category.createdAt = moment().valueOf();
+    updated = true;
+  }
   if (imageUrl && imageUrl !== category.image.mediaUrl) {
     const mediaId = extractMediaId(imageUrl);
     if (mediaId !== category.image.mediaId) {
-    category.image.mediaUrl = imageUrl;
-    category.image.mediaId = mediaId;
-    updated = true;
+      category.image.mediaUrl = imageUrl;
+      category.image.mediaId = mediaId;
+      updated = true;
     }
   }
   return updated ? category : null;
 };
 export const deleteCategory = async (_id: string) => {
-  const category = await CategoryModel.findByIdAndUpdate(_id , {isDeleted:true});
+  const category = await CategoryModel.findByIdAndUpdate(_id, { isDeleted: true });
   return category;
 };
 export const getAllCategories = async () => {
-  const categories = await CategoryModel.find({isDeleted:false}).select("-isDeleted -__v");
+  const categories = await CategoryModel.find({ isDeleted: false }).populate("subCategory").select("-isDeleted -__v");
   return categories;
 };

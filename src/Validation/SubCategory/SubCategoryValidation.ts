@@ -14,6 +14,7 @@ export const updateSubCategoryValidation = baseSchema.concat(
         subCategoryNameAr: joi.string().optional(),
         subCategoryNameEn: joi.string().optional(),
         category: joi.string().optional(),
+        isNewArrival: joi.boolean().optional(),
         imageUrl: joi.string().optional(),
     }).required()
 );
