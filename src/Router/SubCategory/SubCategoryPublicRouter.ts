@@ -3,5 +3,5 @@ import { getAllNewArrivalSubCategories, getSubCategories, getSubCategoryById } f
 const subCategoryPublicRouter = Router();
 subCategoryPublicRouter.get("/get-all-sub-categories",getSubCategories);
 subCategoryPublicRouter.get("/get-one-sub-category/:subCategoryId",getSubCategoryById);
-subCategoryPublicRouter.get("/sub-categories-new-arrival",getAllNewArrivalSubCategories);
+subCategoryPublicRouter.get("/get-all-subcategories-new-arrival",getAllNewArrivalSubCategories);
 export default subCategoryPublicRouter;
