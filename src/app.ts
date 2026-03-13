@@ -20,6 +20,7 @@ import shippingRouter from "./Router/Shipping/ShippingRouter";
 import OrderRouter from "./Router/Order/OrderRouter";
 import { getCorsOptions } from "./config";
 import subCategoryRouter from "./Router/SubCategory/SubCategoryRouter";
+import SizeCategoryRouter from "./Router/SizeCategory/SizeCategoryRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -32,7 +33,11 @@ app.use(`/${RouterEnum.authentication}`, authenticationRouter);
 //app.use(`/${RouterEnum.public}`, enforcePublicApiRestrictions, blockScrapers, publicRouter);
 app.use(`/${RouterEnum.public}`, publicRouter);
 app.use(checkAuthority);
-app.use(`/${RouterEnum.aws}`, checkRole([UserTypeEnum.ADMIN]), AwsRouter);
+app.use(
+  `/${RouterEnum.aws}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  AwsRouter
+);
 app.use(
   `/${RouterEnum.category}`,
   checkRole([UserTypeEnum.ADMIN]),
@@ -43,16 +48,10 @@ app.use(
   checkRole([UserTypeEnum.ADMIN]),
   subCategoryRouter
 );
-// app.use(
-//   `/${RouterEnum.user}`,
-//   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
-//   userRouter
-// );
-
 app.use(
-  `/${RouterEnum.product}`,
+  `/${RouterEnum.sizeCategory}`,
   checkRole([UserTypeEnum.ADMIN]),
-  ProductRouter
+  SizeCategoryRouter
 );
 app.use(
   `/${RouterEnum.imageSlider}`,
@@ -60,12 +59,36 @@ app.use(
   imageSliderRouter
 );
 app.use(
-  `/${RouterEnum.wishlist}`,
-  checkRole([UserTypeEnum.USER, UserTypeEnum.ADMIN]),
-  wishlistRouter
+  `/${RouterEnum.product}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  ProductRouter
 );
-app.use(`/${RouterEnum.shipping}`, checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]), shippingRouter);
-app.use(`/${RouterEnum.order}`, checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]), OrderRouter);
+app.use(
+  `/${RouterEnum.shipping}`,
+  checkRole([UserTypeEnum.ADMIN,
+  UserTypeEnum.USER]), // fix 
+  shippingRouter
+);
+app.use(
+  `/${RouterEnum.order}`,
+  checkRole([UserTypeEnum.ADMIN,
+  UserTypeEnum.USER]), // fix
+  OrderRouter
+);
+// app.use(
+//   `/${RouterEnum.user}`,
+//   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
+//   userRouter
+// );
+
+
+// app.use(
+//   `/${RouterEnum.wishlist}`,
+//   checkRole([UserTypeEnum.USER, UserTypeEnum.ADMIN]),
+//   wishlistRouter
+// );
+
+
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);
 });

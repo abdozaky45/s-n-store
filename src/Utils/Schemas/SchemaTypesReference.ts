@@ -3,6 +3,7 @@ enum SchemaTypesReference {
   Token = "token",  
   Category = "category",
   SubCategory = "subCategory",
+  SizeCategory = "sizeCategory",
   Product = "product",
   imageSlider= "imageSlider",
   Wishlist = "wishlist",
