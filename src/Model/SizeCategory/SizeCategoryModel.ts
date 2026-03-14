@@ -7,5 +7,6 @@ const SizeCategorySchema = new Schema<ISizeCategory>({
     size: RequiredString,
     order: RequiredNumber
 });
+SizeCategorySchema.index({ size: 1, sizeCategory: 1 }, { unique: true });
 const SizeCategoryModel = model(SchemaTypesReference.SizeCategory, SizeCategorySchema);
 export default SizeCategoryModel;
