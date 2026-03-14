@@ -20,6 +20,11 @@ export const getSizeCategoryById = baseSchema.concat(
         _id: joi.string().required(),
     })
 );
+export const getSizeCategoriesByName = baseSchema.concat(
+    joi.object({
+        name: joi.string().required(),
+    })
+);
 export const deleteSizeCategoryById = baseSchema.concat(
     joi.object({
         _id: joi.string().required(),

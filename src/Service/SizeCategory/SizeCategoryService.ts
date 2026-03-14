@@ -8,6 +8,10 @@ export const findSizeCategoryById = async (_id: string) => {
     const sizeCategory = await SizeCategoryModel.findById(_id).select("-__v");
     return sizeCategory;
 }
+export const findSizeCategoriesByName = async (sizeCategory: string) => {
+    const sizeCategories = await SizeCategoryModel.find({ sizeCategory }).select("-__v");
+    return sizeCategories;
+}
 export const findAllSizeCategories = async () => {
     const sizeCategories = await SizeCategoryModel.find().select("-__v");
     return sizeCategories;
