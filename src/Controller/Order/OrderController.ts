@@ -11,7 +11,7 @@ import SuccessMessage from '../../Utils/SuccessMessages';
 import { orderStatusType } from '../../Utils/OrderStatusType';
 import { retrieveProducts, updateStock } from '../../Service/Product/ProductService';
 import { UserTypeEnum } from '../../Utils/UserType';
-import IProduct from '../../Model/Product/Iproduct';
+import {IProduct} from '../../Model/Product/Iproduct';
 import { Types } from 'mongoose';
 import moment from "../../Utils/DateAndTime"
 

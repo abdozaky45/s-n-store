@@ -69,12 +69,12 @@ app.use(
   UserTypeEnum.USER]), // fix 
   shippingRouter
 );
-app.use(
-  `/${RouterEnum.order}`,
-  checkRole([UserTypeEnum.ADMIN,
-  UserTypeEnum.USER]), // fix
-  OrderRouter
-);
+// app.use(
+//   `/${RouterEnum.order}`,
+//   checkRole([UserTypeEnum.ADMIN,
+//   UserTypeEnum.USER]), // fix
+//   OrderRouter
+// );
 // app.use(
 //   `/${RouterEnum.user}`,
 //   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),

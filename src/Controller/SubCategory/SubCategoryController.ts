@@ -8,6 +8,7 @@ import {
   createSubCategory,
   deleteSubCategory,
   findSubCategoryById,
+  getAllSaleSubCategories,
   getAllSubCategories,
   getNewArrivalSubCategories,
   prepareSubCategoryUpdates
@@ -109,5 +110,13 @@ export const getAllNewArrivalSubCategories = asyncHandler(
   async (req: Request, res: Response) => {
     const subCategories = await getNewArrivalSubCategories();
     return res.json(new ApiResponse(200, { subCategories }));
+  }
+);
+export const findAllSaleSubCategories = asyncHandler(
+  async (req: Request, res: Response) => {
+    const categories = await getAllSaleSubCategories(
+      req.params.subCategory as string,
+       parseInt(req.query.page as string));
+    return res.json(new ApiResponse(200, { categories }));
   }
 );

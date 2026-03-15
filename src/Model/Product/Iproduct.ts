@@ -1,42 +1,57 @@
 import { Types } from "mongoose";
-interface ProductDefaultImage {
-    mediaUrl: string;
-    mediaId: string;
+
+interface ProductImage {
+  mediaUrl: string;
+  mediaId: string;
 }
-interface ProductAlbumImages {
-    mediaUrl: string;
-    mediaId: string;
+
+interface ProductSize {
+  size: string;
+  quantity: number;
 }
-export default interface IProduct {
-  productName: string;
-  productDescription: string;
+
+export  interface IProduct {
+  productName: { ar: string; en: string };
+  productDescription: { ar: string; en: string };
   price: number;
-  availableItems: number;  
   salePrice?: number;
-  discount?:number;
-  discountPercentage?: number;
-  soldItems?:number;
-  isSoldOut?: boolean;
-  expiredSale?: number;
-  isExpiredSale?: boolean;
+  finalPrice: number;
+  wholesalePrice?: number;
   isSale?: boolean;
+  saleStartDate?: number;
+  saleEndDate?: number;
+  sizeVariants: ProductSize[];
+  isSoldOut?: boolean;
+  defaultImage: ProductImage;
+  albumImages?: ProductImage[];
+  sizeChartImage?: ProductImage;
   category: Types.ObjectId | string;
+  subCategory?: Types.ObjectId | string;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
   createdBy: Types.ObjectId | string;
-  slug: string;
-  defaultImage: ProductDefaultImage;
-  albumImages?: ProductAlbumImages[];
   createdAt: number;
   isDeleted?: boolean;
-  paginate?: (page: number) => Promise<any>;
+  soldItems?: number;
 }
-   /*
-*productName
-*productDescription
-*price
-*availableItems
-*Category
-*defaultImage
-salePrice
-expiredSale
-albumImages
- */
+export interface IUpdateProductBody {
+  productNameAr?: string;
+  productNameEn?: string;
+  productDescriptionAr?: string;
+  productDescriptionEn?: string;
+  price?: number;
+  salePrice?: number;
+  finalPrice?: number;
+  wholesalePrice?: number;
+  isSale?: boolean;
+  saleStartDate?: number;
+  saleEndDate?: number;
+  sizeVariants?: { size: string; quantity: number }[];
+  category?:string;
+  subCategory?: string;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  defaultImage?: string;
+  albumImages?: string[];
+  sizeChartImage?: string;
+}

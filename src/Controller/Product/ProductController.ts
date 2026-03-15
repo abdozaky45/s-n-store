@@ -5,7 +5,6 @@ import {
   extractMediaId,
   findCategoryById,
 } from "../../Service/Category/CategoryService";
-import slugify from "slugify";
 import moment from "../../Utils/DateAndTime";
 import {
   createProduct,
@@ -26,24 +25,31 @@ import {
 } from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { getProductWishlist } from "../../Service/Wishlist/WishlistService";
-import IProduct from "../../Model/Product/Iproduct";
+import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
+import { findSubCategoryById } from "../../Service/SubCategory/SubCategoryService";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
-      productName,
-      productDescription,
+      productNameAr,
+      productNameEn,
+      productDescriptionAr,
+      productDescriptionEn,
+      wholesalePrice,
       price,
-      availableItems,
-      categoryId,
       salePrice,
-      expiredSale,
+      saleStartDate,
+      saleEndDate,
+      category,
+      subCategory,
       defaultImage,
       albumImages,
+      sizeChartImage,
+      sizeVariants
     } = req.body;
-    const category = await findCategoryById(categoryId);
-    if (!category) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
-    const mediaUrl = defaultImage;
-    const mediaId = extractMediaId(defaultImage);
+    const checkCategory = await findCategoryById(category);
+    if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
+    const checkSubCategory = subCategory ? await findSubCategoryById(subCategory) : null;
+    if (subCategory && !checkSubCategory) throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     const processedAlbumImages =
       albumImages?.map((image: any) => {
         return {
@@ -51,21 +57,23 @@ export const CreateProduct = asyncHandler(
           mediaId: extractMediaId(image),
         };
       }) || [];
-    const finalPrices = await ratioCalculatePrice(price, salePrice);
+    const finalPrices = ratioCalculatePrice(price, salePrice, saleStartDate, saleEndDate);
     const productData: IProduct = {
-      productName,
-      slug: slugify(productName),
-      productDescription,
+      productName: { ar: productNameAr, en: productNameEn },
+      productDescription: { ar: productDescriptionAr, en: productDescriptionEn },
+      wholesalePrice,
       price,
-      availableItems,
       salePrice,
-      discount: finalPrices?.discount,
-      discountPercentage: finalPrices?.discountPercentage,
+      finalPrice: finalPrices.finalPrice,
+      saleStartDate: finalPrices?.saleStartDate,
+      saleEndDate: finalPrices?.saleEndDate,
       isSale: finalPrices?.isSale,
-      expiredSale,
-      category: category._id,
-      defaultImage: { mediaUrl, mediaId },
+      category: checkCategory._id,
+      subCategory: checkSubCategory?._id,
+      defaultImage: { mediaUrl: defaultImage, mediaId: extractMediaId(defaultImage) },
       albumImages: processedAlbumImages,
+      sizeChartImage: { mediaUrl: sizeChartImage, mediaId: extractMediaId(sizeChartImage) },
+      sizeVariants,
       createdBy: req.body.currentUser!.userInfo._id,
       createdAt: moment().valueOf(),
     };
@@ -77,58 +85,47 @@ export const CreateProduct = asyncHandler(
 );
 export const updateProduct = asyncHandler(
   async (req: Request, res: Response) => {
-    const {
-      productName,
-      productDescription,
-      price,
-      availableItems,
-      salePrice,
-      expiredSale,
-      categoryId,
-      defaultImage,
-      albumImages,
-    } = req.body;
     const { productId } = req.params as { productId: string };
+
     const product = await findProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    const Category = await findCategoryById(categoryId);
-    if (!Category) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
-    const productData: Partial<IProduct> = {
-      productName,
-      productDescription,
-      price,
-      availableItems,
-      salePrice,
-      expiredSale,
-      category: categoryId,
+    const checkCategory = req.body.category
+      ? await findCategoryById(req.body.category)
+      : null;
+    if (req.body.category && !checkCategory) {
+      throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
+    }
+    const checkSubCategory = req.body.subCategory
+      ? await findSubCategoryById(req.body.subCategory)
+      : null;
+    if (req.body.subCategory && !checkSubCategory) {
+      throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
+    }
+
+    const finalPrices = ratioCalculatePrice(
+      req.body.price ?? product.price,
+      req.body.salePrice ?? product.salePrice!,
+      req.body.saleStartDate,
+      req.body.saleEndDate,
+    );
+
+    const body: IUpdateProductBody = {
+      ...req.body,
+      subCategory: checkSubCategory?._id.toString(),
+      isSale: finalPrices.isSale,
+      saleStartDate: finalPrices.saleStartDate,
+      saleEndDate: finalPrices.saleEndDate,
+      finalPrice: finalPrices.finalPrice,
     };
 
-    let finalPrices;
-    if (price !== undefined || salePrice !== undefined) {
-      const currentPrice = price !== undefined ? price : product.price;
-      const currentSalePrice =
-        salePrice !== undefined ? salePrice : product.salePrice;
-      finalPrices = await ratioCalculatePrice(currentPrice, currentSalePrice);
-      productData.discount = finalPrices.discount;
-      productData.discountPercentage = finalPrices.discountPercentage;
-      productData.isSale = finalPrices.isSale;
+    const updates = await prepareProductUpdates(product, body);
+
+    if (!updates) {
+      return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_NOT_UPDATED));
     }
 
-    const updates = await prepareProductUpdates(
-      productData,
-      product,
-      defaultImage,
-      albumImages
-    );
-    if (updates) {
-      await product.save();
-      return res.json(
-        new ApiResponse(200, { product }, SuccessMessage.PRODUCT_UPDATED)
-      );
-    }
-    return res.json(
-      new ApiResponse(200, {}, SuccessMessage.PRODUCT_NOT_UPDATED)
-    );
+    await product.save();
+    return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_UPDATED));
   }
 );
 export const deleteProduct = asyncHandler(
@@ -205,11 +202,11 @@ export const getProductBySoldOut = asyncHandler(async (req: Request, res: Respon
 });
 export const getAllProductsByCategoryId = asyncHandler(async (req: Request, res: Response) => {
   const { categoryId } = req.params as { categoryId: string };
-  const { sort, priceRange ,page } = req.query;
+  const { sort, priceRange, page } = req.query;
   const pageNumber = Number(page);
   const checkCategory = await findCategoryById(categoryId);
   if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
-  const products = await findAllProductsByCategory(sort as string, priceRange as string, pageNumber,categoryId);
+  const products = await findAllProductsByCategory(sort as string, priceRange as string, pageNumber, categoryId);
   return res.json(new ApiResponse(200, { products }, ""));
 });
 export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
@@ -217,11 +214,11 @@ export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
   return res.json(new ApiResponse(200, { analysis }, "Success"));
 });
 export const getProductsAndAvailableItems = asyncHandler(async (req: Request, res: Response) => {
-  const products = req.body.products;
-  const result = await getAvailableItems(products);
-  const response: Record<string, number> = {};
-  result.forEach(product => {
-        response[product._id.toString()] = product.availableItems;
-    });
-    return res.json(response);
+  // const products = req.body.products;
+  // const result = await getAvailableItems(products);
+  // const response: Record<string, number> = {};
+  // result.forEach(product => {
+  //   response[product._id.toString()] = product.availableItems;
+  // });
+  // return res.json(response);
 });

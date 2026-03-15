@@ -10,6 +10,7 @@ import {
   prepareCategoryUpdates,
   getAllCategories,
   getNewArrivalCategories,
+  getAllSaleCategories,
 } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
@@ -113,6 +114,14 @@ export const getCategoryById = asyncHandler(
 export const getAllNewArrivalCategories = asyncHandler(
   async (req: Request, res: Response) => {
     const categories = await getNewArrivalCategories();
+    return res.json(new ApiResponse(200, { categories }));
+  }
+);
+export const findAllSaleCategories = asyncHandler(
+  async (req: Request, res: Response) => {
+    const categories = await getAllSaleCategories(
+      req.params.categoryId as string,
+       parseInt(req.query.page as string));
     return res.json(new ApiResponse(200, { categories }));
   }
 );

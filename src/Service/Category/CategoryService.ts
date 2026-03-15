@@ -2,6 +2,7 @@ import CategoryModel from "../../Model/Category/CategoryModel";
 import { Types } from "mongoose";
 import s3_service from "../Aws/S3_Bucket/presignedUrl";
 import moment from "../../Utils/DateAndTime";
+import ProductModel from "../../Model/Product/ProductModel";
 export const createCategory = async ({
   categoryName,
   mediaUrl,
@@ -89,3 +90,23 @@ export const getNewArrivalCategories = async () => {
     .select("-isDeleted -__v");
   return categories;
 }
+export const getAllSaleCategories = async (category: string, page?: number) => {
+  let limit = 20;
+  page = !page || page < 1 || isNaN(page) ? 1 : page;
+  const skip = limit * (page - 1);
+  const [categories, totalItems] = await Promise.all([
+    ProductModel.find({ isDeleted: false, isSale: true, category })
+      .populate({ path: "category", select: "-__v" })
+      .skip(skip)
+      .limit(limit)
+      .select("-isDeleted -__v -wholesalePrice"),
+    ProductModel.countDocuments({ isDeleted: false, isSale: true, category }),
+  ]);
+
+  return {
+    categories,
+    currentPage: page,
+    totalItems,
+    totalPages: Math.ceil(totalItems / limit),
+  };
+};
