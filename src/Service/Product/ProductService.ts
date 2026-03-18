@@ -193,7 +193,15 @@ export const getUserProductsByFilters = async ({
   if (subCategory) query.subCategory = subCategory;
   if (isSale) query.isSale = true;
   if (isNewArrival) query.isNewArrival = true;
-  if (isBestSeller) query.isBestSeller = true;
+  if (isBestSeller) {
+    const hasBestSellers = await ProductModel.countDocuments({
+      ...query,
+      isBestSeller: true,
+    });
+    if (hasBestSellers > 0) {
+      query.isBestSeller = true;
+    }
+  }
   if (size) query["sizeVariants.size"] = size;
   const sortOption: any =
     sort === sortProductEnum.priceLowToHigh  ? { finalPrice: 1 } :

@@ -1,10 +1,11 @@
 import { Router } from "express";
-
 const ProductPublicRouter = Router();
 import * as ProductController from "../../Controller/Product/ProductController";
+import { Validation } from "../../middleware/ValidationMiddleware";
+import * as ProductValidation from "../../Validation/Product/ProductValidation";
 ProductPublicRouter.get("/search-product",ProductController.SearchProducts);
 ProductPublicRouter.get("/get-one-product/:productId", ProductController.findUserProductById);
-ProductPublicRouter.get("/get-all-product",ProductController.findUserAllProductsByFilters);
+ProductPublicRouter.get("/get-all-products",Validation(ProductValidation.getUserAllProductsValidation),ProductController.findUserAllProductsByFilters);
 ProductPublicRouter.post("/products-stock",ProductController.findProductsStock);
 
 

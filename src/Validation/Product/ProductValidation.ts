@@ -83,3 +83,13 @@ export const getSoldOutProductsValidation = baseSchema.concat(
         page: joi.string().required(),
     }).required()
 );
+export const getUserAllProductsValidation = joi.object({
+     category: joi.string().optional(),
+      subCategory: joi.string().optional(),
+      size: joi.string().optional(),
+      isSale: joi.boolean().optional(),
+      isNewArrival: joi.boolean().optional(),
+      isBestSeller: joi.boolean().optional(),
+      sort: joi.string().optional(),
+      page: joi.string().required(),
+}).required();
