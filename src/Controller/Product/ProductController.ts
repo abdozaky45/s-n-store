@@ -9,14 +9,8 @@ import moment from "../../Utils/DateAndTime";
 import {
   createProduct,
   deleteOneProduct,
-  findAllProducts,
-  findAllProductsByCategory,
-  findAllSaleProducts,
   getUserProductById,
-  findProductByPriceRange,
   getSoldOutProducts,
-  findProductBySort,
-  findProducts,
   getAdminProducts,
   getUserProductsByFilters,
   getAnalytics,
@@ -241,61 +235,3 @@ export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
   const analysis = await getAnalytics();
   return res.json(new ApiResponse(200, { analysis }, "Success"));
 });
-
-
-
-
-
-
-
-
-
-
-export const getAllProducts = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { page } = req.query;
-    const pageNumber = Number(page);
-    const products = await findAllProducts(pageNumber);
-    return res.json(new ApiResponse(200, { products }, ""));
-  }
-);
-export const getAllSaleProducts = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { page } = req.query;
-    const pageNumber = Number(page);
-    const products = await findAllSaleProducts(pageNumber);
-    return res.json(new ApiResponse(200, { products }, ""));
-  }
-);
-
-export const sortProduct = asyncHandler(async (req: Request, res: Response) => {
-  const { page, sort } = req.query;
-  const pageNumber = Number(page);
-  const products = await findProductBySort(sort as string, pageNumber);
-  return res.json(new ApiResponse(200, { products }, "Success"));
-});
-export const sortProductByPrice = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { page, sort } = req.query;
-    const pageNumber = Number(page);
-    const products = await findProductByPriceRange(sort as string, pageNumber);
-    return res.json(new ApiResponse(200, { products }, "Success"));
-  }
-);
-export const sortProductByRangeAndPrice = asyncHandler(async (req: Request, res: Response) => {
-  const { page, sort, priceRange } = req.query;
-  const pageNumber = Number(page);
-  const products = await findProducts(sort as string, priceRange as string, pageNumber);
-  return res.json(new ApiResponse(200, { products }, "Success"));
-});
-
-export const getAllProductsByCategoryId = asyncHandler(async (req: Request, res: Response) => {
-  const { categoryId } = req.params as { categoryId: string };
-  const { sort, priceRange, page } = req.query;
-  const pageNumber = Number(page);
-  const checkCategory = await findCategoryById(categoryId);
-  if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
-  const products = await findAllProductsByCategory(sort as string, priceRange as string, pageNumber, categoryId);
-  return res.json(new ApiResponse(200, { products }, ""));
-});
-
