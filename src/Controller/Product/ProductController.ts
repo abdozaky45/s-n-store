@@ -12,16 +12,19 @@ import {
   findAllProducts,
   findAllProductsByCategory,
   findAllSaleProducts,
-  findProductById,
+  getUserProductById,
   findProductByPriceRange,
-  findProductBySoldOut,
+  getSoldOutProducts,
   findProductBySort,
   findProducts,
+  getAdminProducts,
+  getUserProductsByFilters,
   getAnalytics,
-  getAvailableItems,
   prepareProductUpdates,
   productSearch,
   ratioCalculatePrice,
+  getAdminProductById,
+  getProductsStock,
 } from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { getProductWishlist } from "../../Service/Wishlist/WishlistService";
@@ -68,6 +71,7 @@ export const CreateProduct = asyncHandler(
       saleStartDate: finalPrices?.saleStartDate,
       saleEndDate: finalPrices?.saleEndDate,
       isSale: finalPrices?.isSale,
+      isNewArrival:true,
       category: checkCategory._id,
       subCategory: checkSubCategory?._id,
       defaultImage: { mediaUrl: defaultImage, mediaId: extractMediaId(defaultImage) },
@@ -87,7 +91,7 @@ export const updateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
 
-    const product = await findProductById(productId);
+    const product = await getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     const checkCategory = req.body.category
       ? await findCategoryById(req.body.category)
@@ -131,17 +135,86 @@ export const updateProduct = asyncHandler(
 export const deleteProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
-    const product = await findProductById(productId);
+    const product = await getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     await deleteOneProduct(productId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
   }
 );
-export const getProductById = asyncHandler(
+export const SearchProducts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { searchQuery } = req.query;
+    const products = await productSearch(searchQuery as string);
+    return res.json(new ApiResponse(200, { products }, "Success"));
+  }
+);
+export const findAdminProductById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { productId } = req.params as { productId: string };
+    const product = await getAdminProductById(productId);
+    if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
+    return res.json(new ApiResponse(200, { product },SuccessMessage.PRODUCT_FOUND));
+  }
+);
+export const getAdminProductsByFilters = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      category,
+      subCategory,
+      isSale,
+      isNewArrival,
+      isBestSeller,
+      isSoldOut,
+      isDeleted,
+      page,
+    } = req.query;
+
+    const products = await getAdminProducts({
+      category: category as string,
+      subCategory: subCategory as string,
+      isSale: isSale === "true",
+      isNewArrival: isNewArrival === "true",
+      isBestSeller: isBestSeller === "true",
+      isSoldOut: isSoldOut === "true",
+      isDeleted: isDeleted === "true",
+      page: Number(page),
+    });
+
+    return res.json(new ApiResponse(200, products, SuccessMessage.PRODUCT_FOUND));
+  }
+);
+export const findUserAllProductsByFilters = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      category,
+      subCategory,
+      size,
+      isSale,
+      isNewArrival,
+      isBestSeller,
+      sort,
+      page,
+    } = req.query;
+
+    const products = await getUserProductsByFilters({
+      category: category as string,
+      subCategory: subCategory as string,
+      size: size as string,
+      isSale: isSale === "true",
+      isNewArrival: isNewArrival === "true",
+      isBestSeller: isBestSeller === "true",
+      sort: sort as string,
+      page: Number(page),
+    });
+
+    return res.json(new ApiResponse(200, products, SuccessMessage.PRODUCT_FOUND));
+  }
+);
+export const findUserProductById = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
     const { user } = req.query;
-    const product = await findProductById(productId);
+    const product = await getUserProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     let liked = false;
     if (user) {
@@ -151,6 +224,33 @@ export const getProductById = asyncHandler(
     return res.json(new ApiResponse(200, { product, liked }, ""));
   }
 );
+export const findProductsStock = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { productIds } = req.body;
+    const products = await getProductsStock(productIds);
+    return res.json(new ApiResponse(200, { products }, SuccessMessage.PRODUCT_FOUND));
+  }
+);
+export const findSoldOutProducts = asyncHandler(async (req: Request, res: Response) => {
+  const { page } = req.query;
+  const pageNumber = Number(page);
+  const products = await getSoldOutProducts(pageNumber);
+  return res.json(new ApiResponse(200, { products }, "Success"));
+});
+export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
+  const analysis = await getAnalytics();
+  return res.json(new ApiResponse(200, { analysis }, "Success"));
+});
+
+
+
+
+
+
+
+
+
+
 export const getAllProducts = asyncHandler(
   async (req: Request, res: Response) => {
     const { page } = req.query;
@@ -167,13 +267,7 @@ export const getAllSaleProducts = asyncHandler(
     return res.json(new ApiResponse(200, { products }, ""));
   }
 );
-export const SearchProducts = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { searchQuery } = req.query;
-    const products = await productSearch(searchQuery as string);
-    return res.json(new ApiResponse(200, { products }, "Success"));
-  }
-);
+
 export const sortProduct = asyncHandler(async (req: Request, res: Response) => {
   const { page, sort } = req.query;
   const pageNumber = Number(page);
@@ -194,12 +288,7 @@ export const sortProductByRangeAndPrice = asyncHandler(async (req: Request, res:
   const products = await findProducts(sort as string, priceRange as string, pageNumber);
   return res.json(new ApiResponse(200, { products }, "Success"));
 });
-export const getProductBySoldOut = asyncHandler(async (req: Request, res: Response) => {
-  const { page } = req.query;
-  const pageNumber = Number(page);
-  const products = await findProductBySoldOut(pageNumber);
-  return res.json(new ApiResponse(200, { products }, "Success"));
-});
+
 export const getAllProductsByCategoryId = asyncHandler(async (req: Request, res: Response) => {
   const { categoryId } = req.params as { categoryId: string };
   const { sort, priceRange, page } = req.query;
@@ -209,16 +298,4 @@ export const getAllProductsByCategoryId = asyncHandler(async (req: Request, res:
   const products = await findAllProductsByCategory(sort as string, priceRange as string, pageNumber, categoryId);
   return res.json(new ApiResponse(200, { products }, ""));
 });
-export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
-  const analysis = await getAnalytics();
-  return res.json(new ApiResponse(200, { analysis }, "Success"));
-});
-export const getProductsAndAvailableItems = asyncHandler(async (req: Request, res: Response) => {
-  // const products = req.body.products;
-  // const result = await getAvailableItems(products);
-  // const response: Record<string, number> = {};
-  // result.forEach(product => {
-  //   response[product._id.toString()] = product.availableItems;
-  // });
-  // return res.json(response);
-});
+

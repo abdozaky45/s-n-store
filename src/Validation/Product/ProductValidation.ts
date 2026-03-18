@@ -1,28 +1,28 @@
 import { baseSchema } from "../baseSchema";
 import joi from "joi";
 export const createProductValidation = baseSchema.concat(
-  joi.object({
-    productNameAr: joi.string().required(),
-    productNameEn: joi.string().required(),
-    productDescriptionAr: joi.string().required(),
-    productDescriptionEn: joi.string().required(),
-    price: joi.number().required(),
-    wholesalePrice: joi.number().optional(),
-    salePrice: joi.number().optional(),
-    saleStartDate: joi.number().optional(),
-    saleEndDate: joi.number().optional(),
-    category: joi.string().required(),
-    subCategory: joi.string().optional(),
-    defaultImage: joi.string().required(),
-    albumImages: joi.array().items(joi.string()).optional(),
-    sizeChartImage: joi.string().optional(),
-    sizeVariants: joi.array().items(
-      joi.object({
-        size: joi.string().required(),
-        quantity: joi.number().required(),
-      })
-    ).required(),
-  }).required()
+    joi.object({
+        productNameAr: joi.string().required(),
+        productNameEn: joi.string().required(),
+        productDescriptionAr: joi.string().required(),
+        productDescriptionEn: joi.string().required(),
+        price: joi.number().required(),
+        wholesalePrice: joi.number().optional(),
+        salePrice: joi.number().optional(),
+        saleStartDate: joi.number().optional(),
+        saleEndDate: joi.number().optional(),
+        category: joi.string().required(),
+        subCategory: joi.string().optional(),
+        defaultImage: joi.string().required(),
+        albumImages: joi.array().items(joi.string()).optional(),
+        sizeChartImage: joi.string().optional(),
+        sizeVariants: joi.array().items(
+            joi.object({
+                size: joi.string().required(),
+                quantity: joi.number().required(),
+            })
+        ).required(),
+    }).required()
 );
 export const updateProductValidation = baseSchema.concat(
     joi.object({
@@ -41,6 +41,8 @@ export const updateProductValidation = baseSchema.concat(
         defaultImage: joi.string().optional(),
         albumImages: joi.array().items(joi.string()).optional(),
         sizeChartImage: joi.string().optional(),
+        isBestSeller: joi.boolean().optional(),
+        isNewArrival: joi.boolean().optional(),
         sizeVariants: joi.array().items(
             joi.object({
                 size: joi.string().required(),
@@ -54,7 +56,29 @@ export const deleteProductValidation = baseSchema.concat(
         productId: joi.string().required(),
     }).required()
 );
-export const getProductBySoldOutValidation = baseSchema.concat(
+export const getProductByIdValidation = baseSchema.concat(
+    joi.object({
+        productId: joi.string().required(),
+    }).required()
+);
+export const getAdminProductsValidation = baseSchema.concat(
+    joi.object({
+        category: joi.string().optional(),
+        subCategory: joi.string().optional(),
+        isSale: joi.boolean().optional(),
+        isNewArrival: joi.boolean().optional(),
+        isBestSeller: joi.boolean().optional(),
+        isSoldOut: joi.boolean().optional(),
+        isDeleted: joi.boolean().optional(),
+        page: joi.number().optional(),
+    })
+);
+export const getUserProductsValidation = baseSchema.concat(
+    joi.object({
+        page: joi.string().required(),
+    }).required()
+);
+export const getSoldOutProductsValidation = baseSchema.concat(
     joi.object({
         page: joi.string().required(),
     }).required()

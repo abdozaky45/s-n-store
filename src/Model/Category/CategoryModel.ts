@@ -7,10 +7,8 @@ const CategorySchema = new Schema<ICategory>({
       ar: RequiredString,
       en: RequiredString,
     },
-    isNewArrival:RequiredBooleanDefaultTrue,
     image:ImageSchema,
     createdBy:RefType(SchemaTypesReference.User,true),
-    createdAt: RequiredNumber,
     isDeleted:NotRequiredBoolean
 },{
   toJSON: { virtuals: true },

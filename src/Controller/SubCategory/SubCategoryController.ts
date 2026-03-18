@@ -1,16 +1,13 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
-import moment from "../../Utils/DateAndTime";
 import { extractMediaId } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import {
   createSubCategory,
   deleteSubCategory,
   findSubCategoryById,
-  getAllSaleSubCategories,
   getAllSubCategories,
-  getNewArrivalSubCategories,
   prepareSubCategoryUpdates
 } from "../../Service/SubCategory/SubCategoryService";
 export const CreateNewSubCategory = asyncHandler(
@@ -32,7 +29,6 @@ export const CreateNewSubCategory = asyncHandler(
       mediaUrl: imageUrl,
       mediaId,
       createdBy: req.body.currentUser.userInfo._id,
-      createdAt: moment().valueOf(),
     });
     return res.json(
       new ApiResponse(200, { subCategory }, SuccessMessage.SUBCATEGORY_CREATED)
@@ -46,7 +42,6 @@ export const updateSubCategory = asyncHandler(
       subCategoryNameEn,
       imageUrl,
       category,
-      isNewArrival
     } = req.body;
     const subCategory = await findSubCategoryById(req.params._id as string);
     if (!subCategory) {
@@ -59,7 +54,6 @@ export const updateSubCategory = asyncHandler(
         en: subCategoryNameEn,
       },
       category,
-      isNewArrival,
       imageUrl,
     );
     if (!updates) {
@@ -104,19 +98,5 @@ export const getSubCategoryById = asyncHandler(
       throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
     return res.json(new ApiResponse(200, { subCategory }));
-  }
-);
-export const getAllNewArrivalSubCategories = asyncHandler(
-  async (req: Request, res: Response) => {
-    const subCategories = await getNewArrivalSubCategories();
-    return res.json(new ApiResponse(200, { subCategories }));
-  }
-);
-export const findAllSaleSubCategories = asyncHandler(
-  async (req: Request, res: Response) => {
-    const categories = await getAllSaleSubCategories(
-      req.params.subCategory as string,
-       parseInt(req.query.page as string));
-    return res.json(new ApiResponse(200, { categories }));
   }
 );

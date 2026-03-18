@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
-import moment from "../../Utils/DateAndTime";
 import {
   createCategory,
   deleteCategory,
@@ -9,8 +8,6 @@ import {
   findCategoryById,
   prepareCategoryUpdates,
   getAllCategories,
-  getNewArrivalCategories,
-  getAllSaleCategories,
 } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
@@ -29,7 +26,6 @@ export const CreateNewCategory = asyncHandler(
       mediaUrl: imageUrl,
       mediaId,
       createdBy: req.body.currentUser.userInfo._id,
-      createdAt: moment().valueOf(),
     });
     return res.json(
       new ApiResponse(200, { category }, SuccessMessage.CATEGORY_CREATED)
@@ -46,7 +42,6 @@ export const updateCategory = asyncHandler(
       categoryNameAr,
       categoryNameEn,
       imageUrl,
-      isNewArrival
     } = req.body;
     const updates = await prepareCategoryUpdates(Category,
       {
@@ -54,7 +49,6 @@ export const updateCategory = asyncHandler(
         en: categoryNameEn,
       },
       imageUrl,
-      isNewArrival
     );
     if (updates) {
       await Category.save();
@@ -109,19 +103,5 @@ export const getCategoryById = asyncHandler(
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     return res.json(new ApiResponse(200, { category }));
-  }
-);
-export const getAllNewArrivalCategories = asyncHandler(
-  async (req: Request, res: Response) => {
-    const categories = await getNewArrivalCategories();
-    return res.json(new ApiResponse(200, { categories }));
-  }
-);
-export const findAllSaleCategories = asyncHandler(
-  async (req: Request, res: Response) => {
-    const categories = await getAllSaleCategories(
-      req.params.categoryId as string,
-       parseInt(req.query.page as string));
-    return res.json(new ApiResponse(200, { categories }));
   }
 );

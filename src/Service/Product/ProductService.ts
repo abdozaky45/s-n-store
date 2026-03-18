@@ -10,11 +10,6 @@ import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
 import OrderModel from "../../Model/Order/OrderModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
 import AuthModel from "../../Model/User/auth/AuthModel";
-
-export const createProduct = async (productData: IProduct) => {
-  const product = await ProductModel.create(productData);
-  return product;
-};
 export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
   if (!salePrice || salePrice === 0 || salePrice >= price) {
     return {
@@ -31,8 +26,8 @@ export const ratioCalculatePrice = (price: number, salePrice: number, saleStartD
     saleEndDate: saleEndDate ?? 0, 
   };
 };
-export const findProductById = async (id: string | Types.ObjectId) => {
-  const product = ProductModel.findOne({ _id: id, isDeleted: false });
+export const createProduct = async (productData: IProduct) => {
+  const product = await ProductModel.create(productData);
   return product;
 };
 export const prepareProductUpdates = async (
@@ -104,7 +99,72 @@ export const deleteOneProduct = async (_id: string | Types.ObjectId) => {
   });
   return product;
 };
-export const getAllProducts = async ({
+export const getAdminProductById = async (_id: string) => {
+  const product = await ProductModel.findById(_id).select("-isDeleted -__v");
+  return product;
+};
+export const productSearch = async (querySearch: string) => {
+  const products = await ProductModel.find({ isDeleted: false }).select("productName _id");;
+  const fuse = new Fuse(products, {
+       keys: ["productName.ar", "productName.en"],
+    threshold: 0.3,
+  });
+  const results = fuse.search(querySearch).map((result) => result.item);
+  return results;
+};
+export const getAdminProducts = async ({
+  category,
+  subCategory,
+  isSale,
+  isNewArrival,
+  isBestSeller,
+  isSoldOut,
+  isDeleted,
+  page,
+}: {
+  category?: string;
+  subCategory?: string;
+  isSale?: boolean;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  isSoldOut?: boolean;
+  isDeleted?: boolean;
+  page?: number;
+}) => {
+  const limit = 20;
+  page = !page || page < 1 || isNaN(page) ? 1 : page;
+  const skip = limit * (page - 1);
+  const query: any = {};
+  query.isDeleted = isDeleted === true ? true : false;
+  if (category) query.category = category;
+  if (subCategory) query.subCategory = subCategory;
+  if (isSale) query.isSale = true;
+  if (isNewArrival) query.isNewArrival = true;
+  if (isBestSeller) query.isBestSeller = true;
+  if (isSoldOut) query.isSoldOut = true;
+  const [products, totalItems] = await Promise.all([
+    ProductModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-__v")
+      .populate({ path: "category", select: "-__v" })
+      .populate({ path: "subCategory", select: "-__v" }),
+    ProductModel.countDocuments(query),
+  ]);
+
+  return {
+    products,
+    currentPage: page,
+    totalItems,
+    totalPages: Math.ceil(totalItems / limit),
+  };
+};
+export const getUserProductById = async (id: string | Types.ObjectId) => {
+  const product = ProductModel.findOne({ _id: id, isDeleted: false }).select("-wholesalePrice -isDeleted -__v");
+  return product;
+};
+export const getUserProductsByFilters = async ({
   category,
   subCategory,
   size,
@@ -158,19 +218,25 @@ export const getAllProducts = async ({
     totalPages: Math.ceil(totalItems / limit),
   };
 };
-export const productSearch = async (querySearch: string) => {
-  const products = await ProductModel.find({ isDeleted: false }).select("productName _id");;
-  const fuse = new Fuse(products, {
-       keys: ["productName.ar", "productName.en"],
-    threshold: 0.3,
-  });
-  const results = fuse.search(querySearch).map((result) => result.item);
-  return results;
+export const getProductsStock = async (productIds: string[]) => {
+  const products = await ProductModel.find({
+    _id: { $in: productIds },
+    isDeleted: false,
+  }).select("sizeVariants isSoldOut");
+
+  return products;
 };
-
-
-
-
+export const getSoldOutProducts = async (page: number) => {
+  const products = await paginate(
+    ProductModel.find({ isSoldOut: true, isDeleted: false }).sort({
+      createdAt: -1,
+    }),
+    page,
+    "categoryName image",
+    SchemaTypesReference.Category
+  );
+  return products;
+};
 
 
 
@@ -264,17 +330,7 @@ export const findProductByPriceRange = async (
   );
   return products;
 };
-export const findProductBySoldOut = async (page: number) => {
-  const products = await paginate(
-    ProductModel.find({ isSoldOut: true, isDeleted: false }).sort({
-      createdAt: -1,
-    }),
-    page,
-    "categoryName image",
-    SchemaTypesReference.Category
-  );
-  return products;
-};
+
 export const findProducts = async (
   sort: string,
   priceRange: string,
@@ -549,10 +605,4 @@ export const getAnalytics = async () => {
     totalProducts,
   };
 };
-export const getAvailableItems = async (productIds: [string]) => {
-  const products = await ProductModel.find(
-    { _id: { $in: productIds } },
-    { _id: 1, availableItems: 1 }
-  );
-  return products;
-};
+

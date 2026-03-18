@@ -8,10 +8,8 @@ interface categoryImage {
       ar: string;
       en: string;
     };
-    isNewArrival: boolean;
     image: categoryImage;
     createdBy:Types.ObjectId | string;
-    createdAt: number;
     isDeleted?: boolean;
   }
   

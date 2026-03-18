@@ -8,10 +8,8 @@ const SubCategorySchema = new Schema<ISubCategory>({
       en: RequiredString,
     },
     category: RefType(SchemaTypesReference.Category, true),
-    isNewArrival:NotRequiredBoolean,
     image:ImageSchema,
     createdBy:RefType(SchemaTypesReference.User,true),
-    createdAt: RequiredNumber,
     isDeleted:NotRequiredBoolean
 });
 const SubCategoryModel = model(SchemaTypesReference.SubCategory,SubCategorySchema);
