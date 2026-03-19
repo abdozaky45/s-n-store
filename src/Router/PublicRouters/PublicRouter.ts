@@ -3,9 +3,12 @@ import categoryPublicRouter from "../Category/CategoryPublicRouter";
 import ProductPublicRouter from "../Product/ProductPublicRouter";
 import PublicImageSliderRouter from "../ImageSlider/PublicImageSliderRouter";
 import subCategoryPublicRouter from "../SubCategory/SubCategoryPublicRouter";
+import PublicColorRouter from "../Color/PublicColorRouter";
+import RouterEnum from "../../Utils/Routes";
 const publicRouter = Router();
-publicRouter.use("/category", categoryPublicRouter);
-publicRouter.use("/sub-category", subCategoryPublicRouter);
-publicRouter.use("/product", ProductPublicRouter);
-publicRouter.use("/hero-section", PublicImageSliderRouter)
+publicRouter.use(`${RouterEnum.category}`, categoryPublicRouter);
+publicRouter.use(`${RouterEnum.subCategory}`, subCategoryPublicRouter);
+publicRouter.use(`${RouterEnum.product}`, ProductPublicRouter);
+publicRouter.use(`${RouterEnum.color}`, PublicColorRouter);
+publicRouter.use(`${RouterEnum.imageSlider}`, PublicImageSliderRouter);
 export default publicRouter;
