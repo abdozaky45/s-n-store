@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createColor, deleteColor, findColorById, getAllColors } from "../../Service/Color/ColorService";
+import { createColor, deleteColor, findColorById, getAllColors, updateColor } from "../../Service/Color/ColorService";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import ErrorMessages from "../../Utils/Error";
@@ -10,6 +10,15 @@ export const createColorController = asyncHandler(
         const color = await createColor({ name: { ar: colorAr, en: colorEn }, hex });
         return res.status(201).json(new ApiResponse(201, { color }, SuccessMessage.COLOR_CREATED));
     }
+);
+export const updateColorController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { colorId } = req.params as { colorId: string };
+    const { colorAr, colorEn, hex } = req.body;
+    const color = await updateColor(colorId, { name: { ar: colorAr, en: colorEn }, hex });
+    if (!color) throw new ApiError(404, ErrorMessages.COLOR_NOT_FOUND);
+    return res.json(new ApiResponse(200, { color }, SuccessMessage.COLOR_UPDATED));
+  }
 );
 export const getAllColorsController = asyncHandler(
     async (req: Request, res: Response) => {

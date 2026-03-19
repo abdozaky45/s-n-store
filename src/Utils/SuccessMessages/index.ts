@@ -42,9 +42,10 @@ WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
   ORDER_UPDATED = "Order updated successfully",
   ORDER_FETCHED = "Orders fetched successfully",
   COLOR_CREATED = "Color created successfully",
+  COLOR_UPDATED = "Color updated successfully",
   COLOR_FOUND = "Color found successfully",
   COLOR_DELETED = "Color deleted successfully",
-  
+
   NULL = "NULL",
 
 }
