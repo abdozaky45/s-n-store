@@ -47,6 +47,7 @@ enum ErrorMessages {
   Token_PAYLOAD_INVALID = "no token provided or in-valid Bearer Key",
   SIZE_CATEGORY_NOT_FOUND = "Size category not found",
   COLOR_NOT_FOUND = "Color not found",
+  VARIANT_NOT_FOUND = "Variant not found",
   
 
 }

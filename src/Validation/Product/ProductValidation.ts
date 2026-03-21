@@ -16,12 +16,6 @@ export const createProductValidation = baseSchema.concat(
         defaultImage: joi.string().required(),
         albumImages: joi.array().items(joi.string()).optional(),
         sizeChartImage: joi.string().optional(),
-        sizeVariants: joi.array().items(
-            joi.object({
-                size: joi.string().required(),
-                quantity: joi.number().required(),
-            })
-        ).required(),
     }).required()
 );
 export const updateProductValidation = baseSchema.concat(
@@ -43,12 +37,6 @@ export const updateProductValidation = baseSchema.concat(
         sizeChartImage: joi.string().optional(),
         isBestSeller: joi.boolean().optional(),
         isNewArrival: joi.boolean().optional(),
-        sizeVariants: joi.array().items(
-            joi.object({
-                size: joi.string().required(),
-                quantity: joi.number().required(),
-            })
-        ).optional(),
     }).required()
 );
 export const deleteProductValidation = baseSchema.concat(
@@ -78,11 +66,7 @@ export const getUserProductsValidation = baseSchema.concat(
         page: joi.string().required(),
     }).required()
 );
-export const getSoldOutProductsValidation = baseSchema.concat(
-    joi.object({
-        page: joi.string().required(),
-    }).required()
-);
+
 export const getUserAllProductsValidation = joi.object({
      category: joi.string().optional(),
       subCategory: joi.string().optional(),

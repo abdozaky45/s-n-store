@@ -9,12 +9,6 @@ import {
   RequiredString,
 } from "../../Utils/Schemas";
 import {IProduct} from "./Iproduct";
-
-const ProductSizeSchema = new Schema({
-  size: RequiredString,
-  quantity: RequiredNumber,
-}, { _id: false });
-
 const ProductSchema = new Schema<IProduct>(
   {
     productName: {
@@ -32,7 +26,6 @@ const ProductSchema = new Schema<IProduct>(
     isSale: NotRequiredBoolean,
     saleStartDate: NotRequiredNumber,
     saleEndDate: NotRequiredNumber,
-    sizeVariants: [ProductSizeSchema],
     isSoldOut: NotRequiredBoolean,
     soldItems: NotRequiredNumber,
     defaultImage: ImageSchema,
@@ -48,13 +41,14 @@ const ProductSchema = new Schema<IProduct>(
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+ProductSchema.virtual("variants",{  
+  ref: SchemaTypesReference.Variant,
+  localField: "_id",
+  foreignField: SchemaTypesReference.Product,
+});
 ProductSchema.virtual("discount").get(function () {
   if (!this.salePrice) return 0;
   return this.price - this.salePrice;
-});
-ProductSchema.virtual("discountPercentage").get(function () {
-  if (!this.salePrice) return 0;
-  return Math.round(((this.price - this.salePrice) / this.price) * 100);
 });
 ProductSchema.methods.isStock = function (size: string, requiredQuantity: number): boolean {
   const sizeVariant = this.sizeVariants.find(

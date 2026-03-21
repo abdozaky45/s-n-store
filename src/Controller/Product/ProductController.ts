@@ -10,7 +10,6 @@ import {
   createProduct,
   deleteOneProduct,
   getUserProductById,
-  getSoldOutProducts,
   getAdminProducts,
   getUserProductsByFilters,
   getAnalytics,
@@ -41,7 +40,6 @@ export const CreateProduct = asyncHandler(
       defaultImage,
       albumImages,
       sizeChartImage,
-      sizeVariants
     } = req.body;
     const checkCategory = await findCategoryById(category);
     if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
@@ -71,7 +69,6 @@ export const CreateProduct = asyncHandler(
       defaultImage: { mediaUrl: defaultImage, mediaId: extractMediaId(defaultImage) },
       albumImages: processedAlbumImages,
       sizeChartImage: { mediaUrl: sizeChartImage, mediaId: extractMediaId(sizeChartImage) },
-      sizeVariants,
       createdBy: req.body.currentUser!.userInfo._id,
       createdAt: moment().valueOf(),
     };
@@ -225,12 +222,6 @@ export const findProductsStock = asyncHandler(
     return res.json(new ApiResponse(200, { products }, SuccessMessage.PRODUCT_FOUND));
   }
 );
-export const findSoldOutProducts = asyncHandler(async (req: Request, res: Response) => {
-  const { page } = req.query;
-  const pageNumber = Number(page);
-  const products = await getSoldOutProducts(pageNumber);
-  return res.json(new ApiResponse(200, { products }, "Success"));
-});
 export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
   const analysis = await getAnalytics();
   return res.json(new ApiResponse(200, { analysis }, "Success"));

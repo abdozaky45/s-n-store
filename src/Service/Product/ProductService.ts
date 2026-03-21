@@ -10,6 +10,7 @@ import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
 import OrderModel from "../../Model/Order/OrderModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
 import AuthModel from "../../Model/User/auth/AuthModel";
+import VariantModel from "../../Model/Variant/VariantModel";
 export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
   if (!salePrice || salePrice === 0 || salePrice >= price) {
     return {
@@ -68,13 +69,6 @@ export const prepareProductUpdates = async (
     product.albumImages = body.albumImages.map((url: string) => ({
       mediaUrl: url,
       mediaId: extractMediaId(url),
-    }));
-    hasUpdates = true;
-  }
-  if (body.sizeVariants?.length) {
-    product.sizeVariants = body.sizeVariants.map((variant: { size: string; quantity: number }) => ({
-      size: variant.size,
-      quantity: variant.quantity,
     }));
     hasUpdates = true;
   }
@@ -202,7 +196,10 @@ export const getUserProductsByFilters = async ({
       query.isBestSeller = true;
     }
   }
-  if (size) query["sizeVariants.size"] = size;
+ if (size) {
+  const variants = await VariantModel.find({ size }).distinct(SchemaTypesReference.Product);
+  query._id = { $in: variants };
+}
   const sortOption: any =
     sort === sortProductEnum.priceLowToHigh  ? { finalPrice: 1 } :
     sort === sortProductEnum.priceHighToLow ? { finalPrice: -1 } :
@@ -227,24 +224,12 @@ export const getUserProductsByFilters = async ({
   };
 };
 export const getProductsStock = async (productIds: string[]) => {
-  const products = await ProductModel.find({
-    _id: { $in: productIds },
-    isDeleted: false,
-  }).select("sizeVariants isSoldOut");
+  const variants = await VariantModel.find({
+    product: { $in: productIds },
+  }).select("product size color quantity isSoldOut");
+  return variants;
+};
 
-  return products;
-};
-export const getSoldOutProducts = async (page: number) => {
-  const products = await paginate(
-    ProductModel.find({ isSoldOut: true, isDeleted: false }).sort({
-      createdAt: -1,
-    }),
-    page,
-    "categoryName image",
-    SchemaTypesReference.Category
-  );
-  return products;
-};
 
 
 

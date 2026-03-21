@@ -22,6 +22,7 @@ import { getCorsOptions } from "./config";
 import subCategoryRouter from "./Router/SubCategory/SubCategoryRouter";
 import SizeCategoryRouter from "./Router/SizeCategory/SizeCategoryRouter";
 import ColorRouter from "./Router/Color/ColorRouter";
+import VariantRouter from "./Router/Variant/VariantRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -64,6 +65,11 @@ app.use(
   checkRole([UserTypeEnum.ADMIN]),
   ProductRouter
 );
+app.use(
+  `/${RouterEnum.variant}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  VariantRouter
+)
 app.use(
   `/${RouterEnum.color}`,
   checkRole([UserTypeEnum.ADMIN]),

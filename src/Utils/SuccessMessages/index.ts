@@ -45,7 +45,10 @@ WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
   COLOR_UPDATED = "Color updated successfully",
   COLOR_FOUND = "Color found successfully",
   COLOR_DELETED = "Color deleted successfully",
-
+  VARIANT_CREATED = "Variant created successfully",
+  VARIANT_UPDATED = "Variant updated successfully",
+  VARIANT_FOUND = "Variant found successfully",
+  VARIANT_DELETED = "Variant deleted successfully",
   NULL = "NULL",
 
 }

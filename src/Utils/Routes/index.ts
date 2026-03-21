@@ -5,6 +5,7 @@ enum RouterEnum {
   subCategory = "sub-category",
   sizeCategory = "size-category",
   product = "product",
+  variant = "variant",
   color = "color",
   public = "public",
   aws = "aws",

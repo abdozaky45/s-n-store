@@ -1,15 +1,8 @@
 import { Types } from "mongoose";
-
 interface ProductImage {
   mediaUrl: string;
   mediaId: string;
 }
-
-interface ProductSize {
-  size: string;
-  quantity: number;
-}
-
 export  interface IProduct {
   productName: { ar: string; en: string };
   productDescription: { ar: string; en: string };
@@ -20,7 +13,6 @@ export  interface IProduct {
   isSale?: boolean;
   saleStartDate?: number;
   saleEndDate?: number;
-  sizeVariants: ProductSize[];
   isSoldOut?: boolean;
   defaultImage: ProductImage;
   albumImages?: ProductImage[];
@@ -46,7 +38,6 @@ export interface IUpdateProductBody {
   isSale?: boolean;
   saleStartDate?: number;
   saleEndDate?: number;
-  sizeVariants?: { size: string; quantity: number }[];
   category?:string;
   subCategory?: string;
   isNewArrival?: boolean;
