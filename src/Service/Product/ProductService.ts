@@ -23,13 +23,13 @@ export const ratioCalculatePrice = (price: number, salePrice: number, saleStartD
   return {
     isSale: true,
     finalPrice: salePrice,
-    saleStartDate: saleStartDate ?? 0, 
-    saleEndDate: saleEndDate ?? 0, 
+    saleStartDate: saleStartDate ?? 0,
+    saleEndDate: saleEndDate ?? 0,
   };
 };
-export const createProduct = async (productData: IProduct) => {
-  const product = await ProductModel.create(productData);
-  return product;
+export const createProduct = async (productData: IProduct, session?: mongoose.ClientSession): Promise<mongoose.HydratedDocument<IProduct>> => {
+  const product = await ProductModel.create([productData], { session });
+  return product[0];
 };
 export const prepareProductUpdates = async (
   product: IProduct & mongoose.Document,
@@ -74,7 +74,7 @@ export const prepareProductUpdates = async (
   }
   const simpleFields: (keyof IUpdateProductBody)[] = [
     "price", "salePrice", "wholesalePrice", "isSale",
-    "saleStartDate", "saleEndDate","category",
+    "saleStartDate", "saleEndDate", "category",
     "subCategory", "isNewArrival", "isBestSeller", "finalPrice"
   ];
 
@@ -100,7 +100,7 @@ export const getAdminProductById = async (_id: string) => {
 export const productSearch = async (querySearch: string) => {
   const products = await ProductModel.find({ isDeleted: false }).select("productName _id");;
   const fuse = new Fuse(products, {
-       keys: ["productName.ar", "productName.en"],
+    keys: ["productName.ar", "productName.en"],
     threshold: 0.3,
   });
   const results = fuse.search(querySearch).map((result) => result.item);
@@ -155,9 +155,16 @@ export const getAdminProducts = async ({
   };
 };
 export const getUserProductById = async (id: string | Types.ObjectId) => {
-  const product = ProductModel.findOne({ _id: id, isDeleted: false }).select("-wholesalePrice -isDeleted -__v");
+  const product = await ProductModel.findOne({ _id: id, isDeleted: false })
+    .select("-wholesalePrice -isDeleted -createdAt -createdBy -__v")
+    .populate({ path: SchemaTypesReference.Category, select: "categoryName image" })
+    .populate({ path: SchemaTypesReference.SubCategory, select: "subCategoryName image" })
+    .populate({
+      path: "variants",
+      populate: { path: SchemaTypesReference.Color, select: "-__v" }
+    })
   return product;
-};
+}
 export const getUserProductsByFilters = async ({
   category,
   subCategory,
@@ -196,14 +203,14 @@ export const getUserProductsByFilters = async ({
       query.isBestSeller = true;
     }
   }
- if (size) {
-  const variants = await VariantModel.find({ size }).distinct(SchemaTypesReference.Product);
-  query._id = { $in: variants };
-}
+  if (size) {
+    const variants = await VariantModel.find({ size }).distinct(SchemaTypesReference.Product);
+    query._id = { $in: variants };
+  }
   const sortOption: any =
-    sort === sortProductEnum.priceLowToHigh  ? { finalPrice: 1 } :
-    sort === sortProductEnum.priceHighToLow ? { finalPrice: -1 } :
-    { createdAt: -1 };
+    sort === sortProductEnum.priceLowToHigh ? { finalPrice: 1 } :
+      sort === sortProductEnum.priceHighToLow ? { finalPrice: -1 } :
+        { createdAt: -1 };
 
   const [products, totalItems] = await Promise.all([
     ProductModel.find(query)

@@ -16,6 +16,11 @@ const RequiredDefaultStringCity = {
   default: "Egypt",
   required: true
 };
+const RequiredDefaultStringSize = {
+  type: String,
+  default: "one Size",
+  required: true
+};
 const RequiredUniqueEmail = {
   type: String,
   required: true,
@@ -170,6 +175,7 @@ const ImageSlider = {
 };
 export {
   RequiredString,
+  RequiredDefaultStringSize,
   NotRequiredString,
   RequiredBoolean,
   RequiredBooleanDefaultTrue,

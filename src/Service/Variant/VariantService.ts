@@ -2,6 +2,7 @@ import VariantModel from "../../Model/Variant/VariantModel";
 import ProductModel from "../../Model/Product/ProductModel";
 import IVariant from "../../Model/Variant/IVariantModel";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
+import mongoose from "mongoose";
 
 export const updateProductSoldOutStatus = async (productId: string) => {
   const hasStock = await VariantModel.exists({
@@ -19,6 +20,12 @@ export const createVariant = async (variantData: IVariant) => {
   return variant;
 };
 
+export const createManyVariants = async (variants: IVariant[], session?: mongoose.ClientSession) => {
+  const created = await VariantModel.insertMany(variants, { session });
+  const productId = variants[0].product.toString();
+  await updateProductSoldOutStatus(productId);
+  return created;
+};
 export const getVariantsByProduct = async (productId: string) => {
   const variants = await VariantModel.find({ product: productId })
     .populate({ path: SchemaTypesReference.Color, select: "-__v" })

@@ -14,6 +14,13 @@ export const createProductValidation = baseSchema.concat(
         category: joi.string().required(),
         subCategory: joi.string().optional(),
         defaultImage: joi.string().required(),
+        variants: joi.array().items(
+            joi.object({
+                size: joi.string().default("one size"),
+                color: joi.string().required(),
+                quantity: joi.number().min(0).required(),
+            })
+        ).optional(),
         albumImages: joi.array().items(joi.string()).optional(),
         sizeChartImage: joi.string().optional(),
     }).required()
@@ -68,12 +75,12 @@ export const getUserProductsValidation = baseSchema.concat(
 );
 
 export const getUserAllProductsValidation = joi.object({
-     category: joi.string().optional(),
-      subCategory: joi.string().optional(),
-      size: joi.string().optional(),
-      isSale: joi.boolean().optional(),
-      isNewArrival: joi.boolean().optional(),
-      isBestSeller: joi.boolean().optional(),
-      sort: joi.string().optional(),
-      page: joi.string().required(),
+    category: joi.string().optional(),
+    subCategory: joi.string().optional(),
+    size: joi.string().optional(),
+    isSale: joi.boolean().optional(),
+    isNewArrival: joi.boolean().optional(),
+    isBestSeller: joi.boolean().optional(),
+    sort: joi.string().optional(),
+    page: joi.string().required(),
 }).required();

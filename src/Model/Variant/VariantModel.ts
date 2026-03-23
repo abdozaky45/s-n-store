@@ -1,10 +1,10 @@
 import { Schema, model } from "mongoose";
-import { RefType, RequiredNumber, RequiredString } from "../../Utils/Schemas";
+import { RefType, RequiredDefaultStringSize, RequiredNumber } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import IVariant from "./IVariantModel";
 const VariantSchema = new Schema<IVariant>({
   product: RefType(SchemaTypesReference.Product, true),
-  size: RequiredString,
+  size: RequiredDefaultStringSize,
   color: RefType(SchemaTypesReference.Color, true),
   quantity: RequiredNumber,
 });

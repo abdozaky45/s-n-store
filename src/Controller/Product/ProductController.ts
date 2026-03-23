@@ -23,6 +23,9 @@ import SuccessMessage from "../../Utils/SuccessMessages";
 import { getProductWishlist } from "../../Service/Wishlist/WishlistService";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
 import { findSubCategoryById } from "../../Service/SubCategory/SubCategoryService";
+import { createManyVariants } from "../../Service/Variant/VariantService";
+import IVariant from "../../Model/Variant/IVariantModel";
+import mongoose from "mongoose";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -40,6 +43,7 @@ export const CreateProduct = asyncHandler(
       defaultImage,
       albumImages,
       sizeChartImage,
+      variants,
     } = req.body;
     const checkCategory = await findCategoryById(category);
     if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
@@ -63,7 +67,7 @@ export const CreateProduct = asyncHandler(
       saleStartDate: finalPrices?.saleStartDate,
       saleEndDate: finalPrices?.saleEndDate,
       isSale: finalPrices?.isSale,
-      isNewArrival:true,
+      isNewArrival: true,
       category: checkCategory._id,
       subCategory: checkSubCategory?._id,
       defaultImage: { mediaUrl: defaultImage, mediaId: extractMediaId(defaultImage) },
@@ -72,10 +76,29 @@ export const CreateProduct = asyncHandler(
       createdBy: req.body.currentUser!.userInfo._id,
       createdAt: moment().valueOf(),
     };
-    const product = await createProduct(productData);
-    return res
-      .status(201)
-      .json(new ApiResponse(201, { product }, SuccessMessage.PRODUCT_CREATED));
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const product = await createProduct(productData ,session);
+      if (variants.length) {
+        const variantsToCreate = variants.map((variant: IVariant ) => ({
+          product: product._id,
+          size: variant.size,
+          color: variant.color,
+          quantity: variant.quantity,
+        }));
+        await createManyVariants(variantsToCreate, session);
+        await session.commitTransaction();
+        return res
+          .status(201)
+          .json(new ApiResponse(201, { product }, SuccessMessage.PRODUCT_CREATED));
+      }
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 );
 export const updateProduct = asyncHandler(
@@ -144,7 +167,7 @@ export const findAdminProductById = asyncHandler(
     const { productId } = req.params as { productId: string };
     const product = await getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    return res.json(new ApiResponse(200, { product },SuccessMessage.PRODUCT_FOUND));
+    return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_FOUND));
   }
 );
 export const getAdminProductsByFilters = asyncHandler(
@@ -206,13 +229,13 @@ export const findUserProductById = asyncHandler(
     const { productId } = req.params as { productId: string };
     const { user } = req.query;
     const product = await getUserProductById(productId);
-    if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    let liked = false;
-    if (user) {
-      const wishlistEntry = await getProductWishlist(productId, user as string);
-      liked = wishlistEntry ? true : false;
-    }
-    return res.json(new ApiResponse(200, { product, liked }, ""));
+   // if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
+   // let liked = false;
+    // if (user) {
+    //   const wishlistEntry = await getProductWishlist(productId, user as string);
+    //   liked = wishlistEntry ? true : false;
+    // }
+    return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_FOUND));
   }
 );
 export const findProductsStock = asyncHandler(

@@ -1,7 +1,6 @@
 import { Schema, model } from "mongoose";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import {
-  ImageSchema,
   NotRequiredBoolean,
   NotRequiredNumber,
   RefType,
@@ -9,6 +8,10 @@ import {
   RequiredString,
 } from "../../Utils/Schemas";
 import {IProduct} from "./Iproduct";
+export const ImageSchema = new Schema({
+  mediaUrl: { type: String, required: true },
+  mediaId: { type: String, required: true },
+}, { _id: false });
 const ProductSchema = new Schema<IProduct>(
   {
     productName: {
@@ -50,13 +53,10 @@ ProductSchema.virtual("discount").get(function () {
   if (!this.salePrice) return 0;
   return this.price - this.salePrice;
 });
-ProductSchema.methods.isStock = function (size: string, requiredQuantity: number): boolean {
-  const sizeVariant = this.sizeVariants.find(
-    (s: { size: string; quantity: number }) => s.size === size
-  );
-  if (!sizeVariant) return false;
-  return sizeVariant.quantity >= requiredQuantity;
-};
+ProductSchema.virtual("discountPercentage").get(function () {
+  if (!this.salePrice) return 0;
+  return Math.round(((this.price - this.salePrice) / this.price) * 100);
+});
 const ProductModel = model(SchemaTypesReference.Product, ProductSchema);
 export default ProductModel;
 /*
