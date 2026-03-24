@@ -1,19 +1,20 @@
 import CategoryModel from "../../Model/Category/CategoryModel";
 import { Types } from "mongoose";
 import s3_service from "../Aws/S3_Bucket/presignedUrl";
+import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 export const createCategory = async ({
-  categoryName,
+  name,
   mediaUrl,
   mediaId,
   createdBy,
 }: {
-  categoryName: { ar: string; en: string };
+  name: { ar: string; en: string };
   mediaUrl: string;
   mediaId: string;
   createdBy: Types.ObjectId;
 }) => {
   const category = await CategoryModel.create({
-    categoryName,
+    name,
     image: {
       mediaUrl,
       mediaId,
@@ -30,7 +31,7 @@ export const extractMediaId = (imageUrl: string) => {
   return mediaId;
 };
 export const findCategoryById = async (_id: string) => {
-  const category = await CategoryModel.findById(_id).populate("subCategory").select("-isDeleted -__v");
+  const category = await CategoryModel.findById(_id).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
   return category;
 };
 export const deletePresignedURL = async (fileName: string) => {
@@ -43,14 +44,14 @@ export const deletePresignedURL = async (fileName: string) => {
 };
 export const prepareCategoryUpdates = async (
   category: any,
-  categoryName?: { ar?: string; en?: string },
+  name?: { ar?: string; en?: string },
   imageUrl?: string,
 ) => {
   let updated = false;
-  if (categoryName && (categoryName.ar || categoryName.en)) {
-    category.categoryName = {
-      ar: categoryName.ar ?? category.categoryName.ar,
-      en: categoryName.en ?? category.categoryName.en,
+  if (name && (name.ar || name.en)) {
+    category.name = {
+      ar: name.ar ?? category.name.ar,
+      en: name.en ?? category.name.en,
     };
     updated = true;
   }
@@ -69,7 +70,7 @@ export const deleteCategory = async (_id: string) => {
   return category;
 };
 export const getAllCategories = async () => {
-  const categories = await CategoryModel.find({ isDeleted: false }).populate("subCategory").select("-isDeleted -__v");
+  const categories = await CategoryModel.find({ isDeleted: false }).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
   return categories;
 };
 

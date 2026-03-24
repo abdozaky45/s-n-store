@@ -8,6 +8,12 @@ const VariantSchema = new Schema<IVariant>({
   color: RefType(SchemaTypesReference.Color, true),
   quantity: RequiredNumber,
 });
+VariantSchema.set("toJSON", {
+  transform: (doc, ret) => {
+  delete (ret as any).product;
+    return ret;
+  },
+});
 VariantSchema.index({ product: 1, size: 1, color: 1 }, { unique: true });
 const VariantModel = model(SchemaTypesReference.Variant, VariantSchema);
 export default VariantModel;

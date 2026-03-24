@@ -4,7 +4,7 @@ interface categoryImage {
     mediaId: string;
   }
   export default interface ICategory {
-    categoryName: {
+    name: {
       ar: string;
       en: string;
     };

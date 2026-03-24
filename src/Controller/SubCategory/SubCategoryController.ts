@@ -21,7 +21,7 @@ export const CreateNewSubCategory = asyncHandler(
 
     const mediaId = extractMediaId(imageUrl);
     const subCategory = await createSubCategory({
-      subCategoryName: {
+      name: {
         ar: subCategoryNameAr,
         en: subCategoryNameEn,
       },
@@ -38,8 +38,10 @@ export const CreateNewSubCategory = asyncHandler(
 export const updateSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
-      subCategoryNameAr,
-      subCategoryNameEn,
+      name: {
+        ar: subCategoryNameAr,
+        en: subCategoryNameEn,
+      },
       imageUrl,
       category,
     } = req.body;

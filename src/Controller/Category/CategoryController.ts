@@ -19,7 +19,7 @@ export const CreateNewCategory = asyncHandler(
     } = req.body;
     const mediaId =  extractMediaId(imageUrl);
     const category = await createCategory({
-      categoryName: {
+      name: {
         ar: categoryNameAr,
         en: categoryNameEn,
       },

@@ -2,21 +2,22 @@ import { Types } from "mongoose";
 import { extractMediaId } from "../Category/CategoryService";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import ISubCategory from "../../Model/SubCategory/ISubcategory";
+import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 export const createSubCategory = async ({
-  subCategoryName,
+  name,
   category,
   mediaUrl,
   mediaId,
   createdBy,
 }: {
-  subCategoryName: { ar: string; en: string };
+  name: { ar: string; en: string };
   category: Types.ObjectId | string;
   mediaUrl: string;
   mediaId: string;
   createdBy: Types.ObjectId;
 }) => {
   const SubCategory = await SubCategoryModel.create({
-    subCategoryName,
+    name,
     category,
     image: {
       mediaUrl,
@@ -27,12 +28,12 @@ export const createSubCategory = async ({
   return SubCategory;
 };
 export const findSubCategoryById = async (_id: string) => {
-  const subCategory = await SubCategoryModel.findById(_id).populate("category").select("-isDeleted -__v");
+  const subCategory = await SubCategoryModel.findById(_id).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
   return subCategory;
 };
 export const prepareSubCategoryUpdates = async (
   subCategory: ISubCategory,
-  subCategoryName?: { ar?: string; en?: string },
+  name?: { ar?: string; en?: string },
   category?: Types.ObjectId | string,
   imageUrl?: string,
 ) => {
@@ -41,10 +42,10 @@ export const prepareSubCategoryUpdates = async (
     subCategory.category = category;
     updated = true;
   }
-  if (subCategoryName && (subCategoryName.ar || subCategoryName.en)) {
-    subCategory.subCategoryName = {
-      ar: subCategoryName.ar ?? subCategory.subCategoryName.ar,
-      en: subCategoryName.en ?? subCategory.subCategoryName.en,
+  if (name && (name.ar || name.en)) {
+    subCategory.name = {
+      ar: name.ar ?? subCategory.name.ar,
+      en: name.en ?? subCategory.name.en,
     };
     updated = true;
   }
@@ -63,6 +64,6 @@ export const deleteSubCategory = async (_id: string) => {
   return subCategory;
 };
 export const getAllSubCategories = async () => {
-  const subCategories = await SubCategoryModel.find({ isDeleted: false }).populate("category").select("-isDeleted -__v");
+  const subCategories = await SubCategoryModel.find({ isDeleted: false }).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
   return subCategories;
 };

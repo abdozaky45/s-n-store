@@ -4,7 +4,7 @@ interface SubCategoryImage {
   mediaId: string;
 }
 export default interface ISubCategory {
-  subCategoryName: {
+  name: {
     ar: string;
     en: string;
   };

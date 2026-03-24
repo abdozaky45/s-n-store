@@ -7,7 +7,7 @@ import {
   RequiredNumber,
   RequiredString,
 } from "../../Utils/Schemas";
-import {IProduct} from "./Iproduct";
+import { IProduct } from "./Iproduct";
 export const ImageSchema = new Schema({
   mediaUrl: { type: String, required: true },
   mediaId: { type: String, required: true },
@@ -24,7 +24,7 @@ const ProductSchema = new Schema<IProduct>(
     },
     price: RequiredNumber,
     salePrice: NotRequiredNumber,
-    finalPrice:RequiredNumber,
+    finalPrice: RequiredNumber,
     wholesalePrice: NotRequiredNumber,
     isSale: NotRequiredBoolean,
     saleStartDate: NotRequiredNumber,
@@ -42,9 +42,9 @@ const ProductSchema = new Schema<IProduct>(
     createdAt: RequiredNumber,
     isDeleted: NotRequiredBoolean,
   },
-  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { toJSON: { virtuals: true }, toObject: { virtuals: true }, id: false }
 );
-ProductSchema.virtual("variants",{  
+ProductSchema.virtual("variants", {
   ref: SchemaTypesReference.Variant,
   localField: "_id",
   foreignField: SchemaTypesReference.Product,
@@ -56,7 +56,8 @@ ProductSchema.virtual("discount").get(function () {
 ProductSchema.virtual("discountPercentage").get(function () {
   if (!this.salePrice) return 0;
   return Math.round(((this.price - this.salePrice) / this.price) * 100);
-});
+}
+);
 const ProductModel = model(SchemaTypesReference.Product, ProductSchema);
 export default ProductModel;
 /*

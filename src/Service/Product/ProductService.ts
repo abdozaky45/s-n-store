@@ -94,7 +94,12 @@ export const deleteOneProduct = async (_id: string | Types.ObjectId) => {
   return product;
 };
 export const getAdminProductById = async (_id: string) => {
-  const product = await ProductModel.findById(_id).select("-isDeleted -__v");
+  const product = await ProductModel.findById(_id)
+    .select("-createdBy -createdAt -isDeleted -__v")
+    .populate({ path: SchemaTypesReference.Category, select: "-_id name" })
+    .populate({ path: SchemaTypesReference.SubCategory, select: "-_id name" })
+    .populate({ path: "variants", select: "-_id -__v", populate: { path: SchemaTypesReference.Color, select: "-_id -__v" } })
+
   return product;
 };
 export const productSearch = async (querySearch: string) => {
@@ -157,12 +162,9 @@ export const getAdminProducts = async ({
 export const getUserProductById = async (id: string | Types.ObjectId) => {
   const product = await ProductModel.findOne({ _id: id, isDeleted: false })
     .select("-wholesalePrice -isDeleted -createdAt -createdBy -__v")
-    .populate({ path: SchemaTypesReference.Category, select: "categoryName image" })
-    .populate({ path: SchemaTypesReference.SubCategory, select: "subCategoryName image" })
-    .populate({
-      path: "variants",
-      populate: { path: SchemaTypesReference.Color, select: "-__v" }
-    })
+    .populate({ path: SchemaTypesReference.Category, select: "-_id name" })
+    .populate({ path: SchemaTypesReference.SubCategory, select: "-_id name" })
+    .populate({ path: "variants", select: "-_id -__v", populate: { path: SchemaTypesReference.Color, select: "-_id -__v" } })
   return product;
 }
 export const getUserProductsByFilters = async ({

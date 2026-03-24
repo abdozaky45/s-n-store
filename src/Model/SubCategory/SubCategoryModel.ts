@@ -3,7 +3,7 @@ import ISubCategory from "./ISubcategory";
 import { ImageSchema, NotRequiredBoolean, NotRequiredString, RefType,RequiredNumber,RequiredString } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 const SubCategorySchema = new Schema<ISubCategory>({
-    subCategoryName: {
+    name: {
       ar: RequiredString,
       en: RequiredString,
     },
@@ -11,6 +11,8 @@ const SubCategorySchema = new Schema<ISubCategory>({
     image:ImageSchema,
     createdBy:RefType(SchemaTypesReference.User,true),
     isDeleted:NotRequiredBoolean
+},{
+  id: false
 });
 const SubCategoryModel = model(SchemaTypesReference.SubCategory,SubCategorySchema);
 export default SubCategoryModel;
