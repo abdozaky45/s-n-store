@@ -14,11 +14,11 @@ export const ImageSchema = new Schema({
 }, { _id: false });
 const ProductSchema = new Schema<IProduct>(
   {
-    productName: {
+    name: {
       ar: RequiredString,
       en: RequiredString,
     },
-    productDescription: {
+    description: {
       ar: RequiredString,
       en: RequiredString,
     },
@@ -61,8 +61,8 @@ ProductSchema.virtual("discountPercentage").get(function () {
 const ProductModel = model(SchemaTypesReference.Product, ProductSchema);
 export default ProductModel;
 /*
-  productName
-  productDescription
+  name
+  description
   price
   salePrice
   wholesalePrice

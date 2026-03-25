@@ -2,10 +2,14 @@ import { baseSchema } from "../baseSchema";
 import joi from "joi";
 export const createProductValidation = baseSchema.concat(
     joi.object({
-        productNameAr: joi.string().required(),
-        productNameEn: joi.string().required(),
-        productDescriptionAr: joi.string().required(),
-        productDescriptionEn: joi.string().required(),
+        name: joi.object({
+            ar: joi.string().required(),
+            en: joi.string().required(),
+        }).required(),
+        description: joi.object({
+            ar: joi.string().required(),
+            en: joi.string().required(),
+        }).required(),
         price: joi.number().required(),
         wholesalePrice: joi.number().optional(),
         salePrice: joi.number().optional(),
@@ -28,10 +32,14 @@ export const createProductValidation = baseSchema.concat(
 export const updateProductValidation = baseSchema.concat(
     joi.object({
         productId: joi.string().required(),
-        productNameAr: joi.string().optional(),
-        productNameEn: joi.string().optional(),
-        productDescriptionAr: joi.string().optional(),
-        productDescriptionEn: joi.string().optional(),
+        name: joi.object({
+            ar: joi.string().optional(),
+            en: joi.string().optional(),
+        }).optional(),
+        description: joi.object({
+            ar: joi.string().optional(),
+            en: joi.string().optional(),
+        }).optional(),
         price: joi.number().optional(),
         wholesalePrice: joi.number().optional(),
         salePrice: joi.number().optional(),

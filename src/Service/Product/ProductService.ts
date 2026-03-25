@@ -36,17 +36,17 @@ export const prepareProductUpdates = async (
   body: IUpdateProductBody,
 ) => {
   let hasUpdates = false;
-  if (body.productNameAr || body.productNameEn) {
-    product.productName = {
-      ar: body.productNameAr ?? product.productName.ar,
-      en: body.productNameEn ?? product.productName.en,
-    };
-    hasUpdates = true;
-  }
-  if (body.productDescriptionAr || body.productDescriptionEn) {
-    product.productDescription = {
-      ar: body.productDescriptionAr ?? product.productDescription.ar,
-      en: body.productDescriptionEn ?? product.productDescription.en,
+if (body.name) {
+  product.name = {
+    ar: body.name.ar ?? product.name.ar,
+    en: body.name.en ?? product.name.en,
+  };
+  hasUpdates = true;
+}
+  if (body.description) {
+    product.description = {
+      ar: body.description.ar ?? product.description.ar,
+      en: body.description.en ?? product.description.en,
     };
     hasUpdates = true;
   }
@@ -103,9 +103,9 @@ export const getAdminProductById = async (_id: string) => {
   return product;
 };
 export const productSearch = async (querySearch: string) => {
-  const products = await ProductModel.find({ isDeleted: false }).select("productName _id");;
+  const products = await ProductModel.find({ isDeleted: false }).select("name _id");
   const fuse = new Fuse(products, {
-    keys: ["productName.ar", "productName.en"],
+    keys: ["name.ar", "name.en"],
     threshold: 0.3,
   });
   const results = fuse.search(querySearch).map((result) => result.item);

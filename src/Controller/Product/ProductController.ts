@@ -29,10 +29,8 @@ import mongoose from "mongoose";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
-      productNameAr,
-      productNameEn,
-      productDescriptionAr,
-      productDescriptionEn,
+      name,
+      description,
       wholesalePrice,
       price,
       salePrice,
@@ -58,8 +56,8 @@ export const CreateProduct = asyncHandler(
       }) || [];
     const finalPrices = ratioCalculatePrice(price, salePrice, saleStartDate, saleEndDate);
     const productData: IProduct = {
-      productName: { ar: productNameAr, en: productNameEn },
-      productDescription: { ar: productDescriptionAr, en: productDescriptionEn },
+      name: { ar: name.ar, en: name.en },
+      description: { ar: description.ar, en: description.en },
       wholesalePrice,
       price,
       salePrice,
@@ -79,9 +77,9 @@ export const CreateProduct = asyncHandler(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const product = await createProduct(productData ,session);
+      const product = await createProduct(productData, session);
       if (variants.length) {
-        const variantsToCreate = variants.map((variant: IVariant ) => ({
+        const variantsToCreate = variants.map((variant: IVariant) => ({
           product: product._id,
           size: variant.size,
           color: variant.color,
@@ -229,8 +227,8 @@ export const findUserProductById = asyncHandler(
     const { productId } = req.params as { productId: string };
     const { user } = req.query;
     const product = await getUserProductById(productId);
-   // if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-   // let liked = false;
+    // if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
+    // let liked = false;
     // if (user) {
     //   const wishlistEntry = await getProductWishlist(productId, user as string);
     //   liked = wishlistEntry ? true : false;

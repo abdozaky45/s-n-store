@@ -4,8 +4,8 @@ interface ProductImage {
   mediaId: string;
 }
 export  interface IProduct {
-  productName: { ar: string; en: string };
-  productDescription: { ar: string; en: string };
+  name: { ar: string; en: string };
+  description: { ar: string; en: string };
   price: number;
   salePrice?: number;
   finalPrice: number;
@@ -27,10 +27,8 @@ export  interface IProduct {
   soldItems?: number;
 }
 export interface IUpdateProductBody {
-  productNameAr?: string;
-  productNameEn?: string;
-  productDescriptionAr?: string;
-  productDescriptionEn?: string;
+  name?: { ar: string; en: string };
+  description?: { ar: string; en: string };
   price?: number;
   salePrice?: number;
   finalPrice?: number;
