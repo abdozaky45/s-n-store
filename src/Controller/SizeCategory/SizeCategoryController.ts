@@ -31,6 +31,8 @@ export const updateGroupSizeById = asyncHandler(async (req: Request, res: Respon
 
 export const createNewSizeCategory = asyncHandler(async (req: Request, res: Response) => {
     const sizeCategoryData: ISizeCategory = req.body;
+    const groupSize = await findGroupSizeById(sizeCategoryData.groupSize);
+    if (!groupSize) throw new ApiError(400, ErrorMessages.GROUP_SIZE_NOT_FOUND);
     const sizeCategory = await createSizeCategory(sizeCategoryData);
     return res.status(201).json(new ApiResponse(201, { sizeCategory }, SuccessMessage.SIZE_CATEGORY_CREATED));
 });
@@ -53,6 +55,10 @@ export const getSizeCategoriesByGroupId = asyncHandler(async (req: Request, res:
 export const updateSizeCategoryById = asyncHandler(async (req: Request, res: Response) => {
     const { _id } = req.params as { _id: string };
     const sizeCategoryData: Partial<ISizeCategory> = req.body;
+   if(sizeCategoryData.groupSize){
+    const groupSize = await findGroupSizeById(sizeCategoryData.groupSize);
+    if (!groupSize) throw new ApiError(400, ErrorMessages.GROUP_SIZE_NOT_FOUND);
+   }
     const sizeCategory = await findSizeCategoryById(_id);
     if (!sizeCategory) throw new ApiError(400, ErrorMessages.SIZE_CATEGORY_NOT_FOUND);
     const updatedSizeCategory = await updateSizeCategory(_id, sizeCategoryData);

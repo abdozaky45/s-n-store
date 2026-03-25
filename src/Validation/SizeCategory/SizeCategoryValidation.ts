@@ -18,7 +18,7 @@ export const getGroupSizeById = baseSchema.concat(
 );
 export const createSizeCategory = baseSchema.concat(
    joi.object({
-       sizeCategory: joi.string().required(),
+       groupSize: joi.string().required(),
        size: joi.string().required(),   
          order: joi.number().required() 
     }).required()
@@ -26,7 +26,7 @@ export const createSizeCategory = baseSchema.concat(
 export const updateSizeCategory = baseSchema.concat(
     joi.object({
         _id: joi.string().required(),
-        sizeCategory: joi.string().optional(),
+        groupSize: joi.string().optional(),
         size: joi.string().optional(),   
         order: joi.number().optional() 
     }).required()

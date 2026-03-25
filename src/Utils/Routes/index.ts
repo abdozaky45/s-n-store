@@ -3,7 +3,7 @@ enum RouterEnum {
   user = "user",
   category = "category",
   subCategory = "sub-category",
-  sizeCategory = "size-category",
+  sizeCategory = "group-size",
   product = "product",
   variant = "variant",
   color = "color",
