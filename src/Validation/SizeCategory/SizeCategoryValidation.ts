@@ -1,5 +1,21 @@
 import { baseSchema } from "../baseSchema";
 import joi from "joi";
+export const createGroupSize = baseSchema.concat(
+    joi.object({
+        name: joi.string().required(),
+    }).required()
+);
+export const updateGroupSize = baseSchema.concat(
+    joi.object({
+        _id: joi.string().required(),
+        name: joi.string().required(),
+    }).required()
+);
+export const getGroupSizeById = baseSchema.concat(
+    joi.object({
+        _id: joi.string().required(),
+    })
+);
 export const createSizeCategory = baseSchema.concat(
    joi.object({
        sizeCategory: joi.string().required(),
@@ -20,9 +36,9 @@ export const getSizeCategoryById = baseSchema.concat(
         _id: joi.string().required(),
     })
 );
-export const getSizeCategoriesByName = baseSchema.concat(
+export const getSizeCategoriesByGroupId = baseSchema.concat(
     joi.object({
-        name: joi.string().required(),
+        groupId: joi.string().required(),
     })
 );
 export const deleteSizeCategoryById = baseSchema.concat(

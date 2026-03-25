@@ -7,6 +7,7 @@ enum SchemaTypesReference {
   Product = "product",
   Color = "color",
   Variant = "variant",
+  GroupSize = "groupSize",
   imageSlider= "imageSlider",
   Wishlist = "wishlist",
   UserInformation = "userInformation",

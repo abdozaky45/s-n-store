@@ -1,6 +1,23 @@
+import GroupSizeModel from "../../Model/GroupSize/GroupSize";
 import ISizeCategory from "../../Model/SizeCategory/ISizeCategoryModel";
 import SizeCategoryModel from "../../Model/SizeCategory/SizeCategoryModel";
-export const CreateSizeCategory = async (sizeCategoryData: ISizeCategory) => {
+export const createGroupSize = async (name: string) => {
+const groupSize = await GroupSizeModel.create({ name });
+return groupSize;
+}
+export const findGroupSizeById = async (_id: string) => {
+    const groupSize = await GroupSizeModel.findById(_id).select("-__v");
+    return groupSize;
+}
+export const findAllGroupSizes = async () => {
+    const groupSizes = await GroupSizeModel.find().select("-__v");
+    return groupSizes;
+}
+export const updateGroupSize = async (_id: string, name: string) => {
+    const groupSize = await GroupSizeModel.findByIdAndUpdate(_id, {name}, { new: true }).select("-__v");
+    return groupSize;
+}
+export const createSizeCategory = async (sizeCategoryData: ISizeCategory) => {
     const sizeCategory = await SizeCategoryModel.create(sizeCategoryData);
     return sizeCategory;
 }
@@ -8,8 +25,8 @@ export const findSizeCategoryById = async (_id: string) => {
     const sizeCategory = await SizeCategoryModel.findById(_id).select("-__v");
     return sizeCategory;
 }
-export const findSizeCategoriesByName = async (sizeCategory: string) => {
-    const sizeCategories = await SizeCategoryModel.find({ sizeCategory }).select("-__v");
+export const findSizeCategoriesByGroupId = async (groupId: string ) => {
+    const sizeCategories = await SizeCategoryModel.find({groupSize: groupId }).select("-__v");
     return sizeCategories;
 }
 export const findAllSizeCategories = async () => {

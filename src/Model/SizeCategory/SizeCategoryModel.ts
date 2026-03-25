@@ -1,9 +1,9 @@
 import { Schema, model } from 'mongoose';
 import ISizeCategory from './ISizeCategoryModel';
-import { RequiredNumber, RequiredString } from '../../Utils/Schemas';
+import { RefType, RequiredNumber, RequiredString } from '../../Utils/Schemas';
 import SchemaTypesReference from '../../Utils/Schemas/SchemaTypesReference';
 const SizeCategorySchema = new Schema<ISizeCategory>({
-    sizeCategory: RequiredString,
+    groupSize: RefType(SchemaTypesReference.GroupSize, true),
     size: RequiredString,
     order: RequiredNumber
 });

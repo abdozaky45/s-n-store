@@ -49,6 +49,9 @@ WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
   VARIANT_UPDATED = "Variant updated successfully",
   VARIANT_FOUND = "Variant found successfully",
   VARIANT_DELETED = "Variant deleted successfully",
+  GROUP_SIZE_CREATED = "Group size created successfully",
+  GROUP_SIZE_UPDATED = "Group size updated successfully",
+  SIZE_GROUP_FETCHED = "Group size fetched successfully",
   NULL = "NULL",
 
 }

@@ -1,5 +1,6 @@
+import { Types } from "mongoose";
 export default interface ISizeCategory {
-    sizeCategory: string;
+    groupSize: Types.ObjectId | string;
     size:string;
     order: number;
 }
