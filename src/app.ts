@@ -81,26 +81,22 @@ app.use(
   UserTypeEnum.USER]), // fix 
   shippingRouter
 );
+app.use(
+  `/${RouterEnum.wishlist}`,
+  checkRole([UserTypeEnum.USER, UserTypeEnum.ADMIN]),
+  wishlistRouter
+);
+// app.use(
+//   `/${RouterEnum.user}`,
+//   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
+//   userRouter
+// );
 // app.use(
 //   `/${RouterEnum.order}`,
 //   checkRole([UserTypeEnum.ADMIN,
 //   UserTypeEnum.USER]), // fix
 //   OrderRouter
 // );
-// app.use(
-//   `/${RouterEnum.user}`,
-//   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
-//   userRouter
-// );
-
-
-// app.use(
-//   `/${RouterEnum.wishlist}`,
-//   checkRole([UserTypeEnum.USER, UserTypeEnum.ADMIN]),
-//   wishlistRouter
-// );
-
-
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);
 });
