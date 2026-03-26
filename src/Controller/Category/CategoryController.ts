@@ -9,6 +9,7 @@ import {
   prepareCategoryUpdates,
   getAllCategories,
   findAllDeletedCategories,
+  hardDeleteCategory,
 } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
@@ -18,7 +19,7 @@ export const CreateNewCategory = asyncHandler(
       categoryNameEn,
       imageUrl
     } = req.body;
-    const mediaId =  extractMediaId(imageUrl);
+    const mediaId = extractMediaId(imageUrl);
     const category = await createCategory({
       name: {
         ar: categoryNameAr,
@@ -64,7 +65,7 @@ export const updateCategory = asyncHandler(
     return res.json(
       new ApiResponse(
         200,
-        { },
+        {},
         SuccessMessage.NO_UPDATE_CATEGORY
       )
     );
@@ -76,12 +77,24 @@ export const softDeleteOneCategory = asyncHandler(
     if (!Category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
-   await softDeleteCategory(req.params._id as string);
+    await softDeleteCategory(req.params._id as string);
     return res.json(
       new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
     );
   }
 );
+export const hardDeleteOneCategory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const Category = await findCategoryById(req.params._id as string);
+    if (!Category) {
+      throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
+    }
+    await hardDeleteCategory(req.params._id as string);
+    return res.json(
+      new ApiResponse(200, {}, SuccessMessage.SUBCATEGORY_DELETED_SUCCESS)
+    );
+
+  });
 export const getCategories = asyncHandler(
   async (req: Request, res: Response) => {
     const categories = await getAllCategories();
@@ -90,10 +103,10 @@ export const getCategories = asyncHandler(
 );
 export const getCategoryById = asyncHandler(
   async (req: Request, res: Response) => {
-    if(!req.params.categoryId) {
+    if (!req.params.categoryId) {
       throw new ApiError(400, ErrorMessages.DATA_IS_REQUIRED);
     }
-  const category = await findCategoryById(req.params.categoryId as string);
+    const category = await findCategoryById(req.params.categoryId as string);
     if (!category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
@@ -102,7 +115,7 @@ export const getCategoryById = asyncHandler(
 );
 export const getAllDeletedCategories = asyncHandler(
   async (req: Request, res: Response) => {
-    const categories = await findAllDeletedCategories();  
-      return res.json(new ApiResponse(200, { categories }));
+    const categories = await findAllDeletedCategories();
+    return res.json(new ApiResponse(200, { categories }));
   }
 );
