@@ -9,7 +9,8 @@ import {
   findSubCategoryById,
   getAllSubCategories,
   prepareSubCategoryUpdates,
-  findAllDeletedSubCategories
+  findAllDeletedSubCategories,
+  hardDeleteSubCategory
 } from "../../Service/SubCategory/SubCategoryService";
 export const CreateNewSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
@@ -74,6 +75,18 @@ export const softDeleteOneSubCategory = asyncHandler(
       throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
     await softDeleteSubCategory(req.params._id as string);
+    return res.json(
+      new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
+    );
+  }
+);
+export const hardDeleteOneSubCategory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const subCategory = await findSubCategoryById(req.params._id as string);
+    if (!subCategory) {
+      throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
+    }
+    await hardDeleteSubCategory(req.params._id as string);
     return res.json(
       new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
     );

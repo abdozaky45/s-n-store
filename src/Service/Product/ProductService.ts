@@ -89,12 +89,6 @@ if (body.name) {
 
   return hasUpdates ? product : null;
 };
-export const softDeleteProduct = async (_id: string | Types.ObjectId) => {
-  const product = await ProductModel.findByIdAndUpdate(_id, {
-    isDeleted: true,
-  });
-  return product;
-};
 export const getAdminProductById = async (_id: string) => {
   const product = await ProductModel.findById(_id)
     .select("-createdBy -createdAt -isDeleted -__v")
@@ -233,6 +227,12 @@ export const getUserProductsByFilters = async ({
     totalItems,
     totalPages: Math.ceil(totalItems / limit),
   };
+};
+export const softDeleteProduct = async (_id: string | Types.ObjectId) => {
+  const product = await ProductModel.findByIdAndUpdate(_id, {
+    isDeleted: true,
+  });
+  return product;
 };
 export const hardDeleteProduct = async (_id: string) => {
   const session = await mongoose.startSession();
