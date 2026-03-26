@@ -6,8 +6,8 @@ import ErrorMessages from '../../Utils/Error';
 import IShipping from '../../Model/Shipping/Ishipping';
 export const createShipping = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const shippingData: Omit<IShipping,"isDeleted"> = {
-            category: req.body.category,
+        const shippingData: IShipping = {
+            name: { ar: req.body.name.ar, en: req.body.name.en },
             cost: req.body.cost
         }
         const shipping = await ShippingService.createShipping(shippingData);
@@ -15,9 +15,9 @@ export const createShipping = asyncHandler(
         ));
     }
 );
-export const getShipping = asyncHandler(
+export const getAllShipping = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const shipping = await ShippingService.getShipping();
+        const shipping = await ShippingService.getAllShipping();
         return res.status(200).json(new ApiResponse(200, { shipping }));
     }
 );
@@ -33,11 +33,11 @@ export const getShippingById = asyncHandler(
 );
 export const updateShipping = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const shippingData:  Omit<IShipping,"isDeleted"> = {
-            category: req.body.category,
+        const shippingData: Partial<IShipping> = {
+            name: { ar: req.body.name.ar, en: req.body.name.en },
             cost: req.body.cost
         }
-        const shippingId = req.params.id as string;
+        const shippingId = req.params._id as string;
         const checkShipping = await ShippingService.getShippingById(shippingId);
         if (!checkShipping) {
             throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
@@ -48,12 +48,12 @@ export const updateShipping = asyncHandler(
 );
 export const deleteShipping = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const shippingId = req.params.id as string;
+        const shippingId = req.params._id as string;
         const checkShipping = await ShippingService.getShippingById(shippingId);
         if (!checkShipping) {
             throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
         }
-        const shipping = await ShippingService.deleteShipping(shippingId);
-        return res.status(200).json(new ApiResponse(200, {} , SuccessMessage.SHIPPING_DELETED));
+        await ShippingService.deleteShipping(shippingId);
+        return res.status(200).json(new ApiResponse(200, {}, SuccessMessage.SHIPPING_DELETED));
     }
 );

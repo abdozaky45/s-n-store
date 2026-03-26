@@ -4,7 +4,7 @@ import { sendEmail } from '../../Utils/Nodemailer/SendEmail';
 import { generateInvoice } from '../../Utils/Nodemailer/SendInvoice';
 import { IOrder, ProductOrder } from '../../Model/Order/Iorder';
 import SchemaTypesReference from '../../Utils/Schemas/SchemaTypesReference';
-import { findUserInformationById } from '../../Service/User/AuthService';
+import { findUserInformationById } from '../../Service/User/UserService';
 import OrderService from '../../Service/Order/OrderService';
 import ErrorMessages from '../../Utils/Error';
 import SuccessMessage from '../../Utils/SuccessMessages';

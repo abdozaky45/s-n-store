@@ -78,14 +78,10 @@ app.use(
 app.use(
   `/${RouterEnum.shipping}`,
   checkRole([UserTypeEnum.ADMIN,
-  UserTypeEnum.USER]), // fix 
+  UserTypeEnum.USER]),
   shippingRouter
 );
-app.use(
-  `/${RouterEnum.wishlist}`,
-  checkRole([UserTypeEnum.USER, UserTypeEnum.ADMIN]),
-  wishlistRouter
-);
+
 // app.use(
 //   `/${RouterEnum.user}`,
 //   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),

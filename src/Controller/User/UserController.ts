@@ -4,7 +4,7 @@ import { findUserById } from "../../Service/Authentication/AuthService";
 import { StatusEnum } from "../../Utils/StatusType";
 import ErrorMessages from "../../Utils/Error";
 import SuccessMessage from "../../Utils/SuccessMessages";
-import * as userService from "../../Service/User/AuthService";
+import * as userService from "../../Service/User/UserService";
 import Iuser from "../../Model/User/UserInformation/Iuser";
 export const addUserInformation = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

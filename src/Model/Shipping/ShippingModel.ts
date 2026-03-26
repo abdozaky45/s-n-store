@@ -3,9 +3,8 @@ import { NotRequiredBoolean, RequiredNumber, RequiredString } from "../../Utils/
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import IShipping from "./Ishipping";
 const ShippingSchema = new Schema<IShipping>({
-    category: RequiredString,
+    name:{ar:RequiredString, en:RequiredString},
     cost: RequiredNumber,
-    isDeleted:NotRequiredBoolean
 });
 const ShippingModel = model(SchemaTypesReference.Shipping, ShippingSchema)
 export default ShippingModel;
