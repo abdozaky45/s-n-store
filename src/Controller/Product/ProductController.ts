@@ -8,7 +8,7 @@ import {
 import moment from "../../Utils/DateAndTime";
 import {
   createProduct,
-  deleteOneProduct,
+  softDeleteProduct,
   getUserProductById,
   getAdminProducts,
   getUserProductsByFilters,
@@ -18,9 +18,9 @@ import {
   ratioCalculatePrice,
   getAdminProductById,
   getProductsStock,
+  hardDeleteProduct,
 } from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
-import { getProductWishlist } from "../../Service/Wishlist/WishlistService";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
 import { findSubCategoryById } from "../../Service/SubCategory/SubCategoryService";
 import { createManyVariants } from "../../Service/Variant/VariantService";
@@ -144,12 +144,12 @@ export const updateProduct = asyncHandler(
     return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_UPDATED));
   }
 );
-export const deleteProduct = asyncHandler(
+export const softDeleteProductController = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
     const product = await getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    await deleteOneProduct(productId);
+    await softDeleteProduct(productId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
   }
 );
@@ -247,3 +247,12 @@ export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
   const analysis = await getAnalytics();
   return res.json(new ApiResponse(200, { analysis }, "Success"));
 });
+export const hardDeleteProductController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { productId } = req.params as { productId: string };
+    const product = await getAdminProductById(productId);
+    if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
+    await hardDeleteProduct(productId);
+    return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
+  }
+);

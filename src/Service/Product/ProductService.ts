@@ -12,6 +12,7 @@ import { orderStatusType } from "../../Utils/OrderStatusType";
 import AuthModel from "../../Model/User/auth/AuthModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import s3_service from "../Aws/S3_Bucket/presignedUrl";
+import { deleteProductImages } from "../../Controller/Aws/AwsController";
 export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
   if (!salePrice || salePrice === 0 || salePrice >= price) {
     return {
@@ -88,7 +89,7 @@ if (body.name) {
 
   return hasUpdates ? product : null;
 };
-export const deleteOneProduct = async (_id: string | Types.ObjectId) => {
+export const softDeleteProduct = async (_id: string | Types.ObjectId) => {
   const product = await ProductModel.findByIdAndUpdate(_id, {
     isDeleted: true,
   });
@@ -237,20 +238,10 @@ export const hardDeleteProduct = async (_id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const aws = new s3_service();
-    const bucketName = process.env.AWS_BUCKET_NAME!;
     const product = await ProductModel.findById(_id)
       .select("defaultImage albumImages sizeChartImage");
     if (product) {
-      const imageIds = [
-        product.defaultImage?.mediaId,
-        product.sizeChartImage?.mediaId,
-        ...(product.albumImages?.map((img: any) => img.mediaId) || []),
-      ].filter(Boolean);
-
-      await Promise.all(imageIds.map((mediaId) =>
-        aws.deletePresignedUrl({ bucket: bucketName, key: mediaId })
-      ));
+      await deleteProductImages(product);
     }
     await VariantModel.deleteMany({ product: _id }, { session });
     await ProductModel.findByIdAndDelete(_id, { session });
