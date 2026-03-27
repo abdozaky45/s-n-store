@@ -1,8 +1,6 @@
 import { Types, Schema, model } from "mongoose";
 import Iuser from "./Iuser";
 import {
-  EnumStringRequired,
-  NotRequiredBoolean,
   NotRequiredString,
   RefType,
   RequiredDefaultStringCity,
