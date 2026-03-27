@@ -1,24 +1,20 @@
 import joi from "joi";
-import { governorateArray } from "../../../Utils/Governorate/GovernorateEnum";
-import { baseSchema } from "../../baseSchema";
-export const createUser = baseSchema.concat(
+export const createUser = joi
+  .object({
+    firstName: joi.string().min(2).max(50).required(),
+    lastName: joi.string().min(2).max(50).required(),
+    address: joi.string().min(1).max(500).required(),
+    apartmentSuite: joi.string().min(1).max(500).allow("").optional(),
+    shipping: joi.string().required(),
+    postalCode: joi.string().min(3).max(6).allow("").optional(),
+    primaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).required(),
+    secondaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
+  })
+  .required();
+export const updateUser =
   joi
     .object({
-      firstName: joi.string().min(2).max(50).required(),
-      lastName: joi.string().min(2).max(50).required(),
-      address: joi.string().min(1).max(500).required(),
-      apartmentSuite: joi.string().min(1).max(500).allow("").optional(),
-      shipping: joi.string().required(),
-      postalCode: joi.string().min(3).max(6).allow("").optional(),
-      primaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).required(),
-      secondaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),      
-    })
-    .required()
-);
-export const updateUser = baseSchema.concat(
-  joi
-    .object({
-      userId: joi.string().required(),
+      _id: joi.string().required(),
       firstName: joi.string().min(2).max(50).optional(),
       lastName: joi.string().min(2).max(50).optional(),
       address: joi.string().min(1).max(500).optional(),
@@ -27,14 +23,17 @@ export const updateUser = baseSchema.concat(
       postalCode: joi.string().min(3).max(6).optional().allow(""),
       primaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).optional(),
       secondaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
-      
+
     })
-    .required()
-);
-export const CustomUserValidation = baseSchema.concat(
-  joi
-    .object({
-      userId: joi.string().required(),
-    })
-    .required()
-);
+    .required();
+export const getAllUserInformationRelatedToUser = joi
+  .object({
+    primaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).required(),
+  })
+  .required();
+
+export const userIdValidationSchema = joi
+  .object({
+    _id: joi.string().required(),
+  })
+  .required();

@@ -2,7 +2,6 @@ import { Router } from "express";
 import * as UserController from "../../Controller/User/UserController";
 import { Validation } from "../../middleware/ValidationMiddleware";
 import * as userValidation from "../../Validation/User/UserInformation";
-import { baseSchema } from "../../Validation/baseSchema";
 const userRouter = Router();
 userRouter.post(
   "/add-user-information",
@@ -10,22 +9,23 @@ userRouter.post(
   UserController.addUserInformation
 );
 userRouter.patch(
-  "/update-user-information/:userId",
+  "/update-user-information/:_id",
   Validation(userValidation.updateUser),
   UserController.updateUserInformation
 );
 userRouter.delete(
-  "/delete-user-information/:userId",
-  Validation(userValidation.CustomUserValidation),
+  "/delete-user-information/:_id",
+  Validation(userValidation.userIdValidationSchema),
   UserController.deleteUserInformation
 );
 userRouter.get(
-  "/all-user-information",
-  Validation(baseSchema),
-  UserController.getAllUserInformation
+  "/all-user-Details/:primaryPhone",
+  Validation(userValidation.getAllUserInformationRelatedToUser),
+  UserController.getAllUserInformationRelatedToUser
 );
 userRouter.get(
-  "/user-information",
+  "/get-one/:_id",
+  Validation(userValidation.userIdValidationSchema),
   UserController.getUserInformationById
 );
 export default userRouter;
