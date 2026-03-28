@@ -48,6 +48,11 @@ enum ErrorMessages {
   SIZE_CATEGORY_NOT_FOUND = "Size category not found",
   COLOR_NOT_FOUND = "Color not found",
   VARIANT_NOT_FOUND = "Variant not found",
-  GROUP_SIZE_NOT_FOUND = "Group size not found"
+  GROUP_SIZE_NOT_FOUND = "Group size not found",
+  OFFER_NOT_FOUND = "Offer not found",
+  INVALID_OFFER_TYPE = "Invalid offer type",
+  INVALID_OFFER_DATA = "Invalid offer data",
+  INVALID_OFFER_STATUS = "Invalid offer status",
+  INVALID_OFFER_ID = "Invalid offer ID",
 }
 export default ErrorMessages;

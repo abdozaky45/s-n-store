@@ -52,6 +52,10 @@ WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
   GROUP_SIZE_CREATED = "Group size created successfully",
   GROUP_SIZE_UPDATED = "Group size updated successfully",
   SIZE_GROUP_FETCHED = "Group size fetched successfully",
+  OFFER_CREATED = "Offer created successfully",
+  OFFER_UPDATED = "Offer updated successfully",
+  OFFER_FOUND = "Offer found successfully",
+  OFFER_DELETED = "Offer deleted successfully",
   NULL = "NULL",
 
 }

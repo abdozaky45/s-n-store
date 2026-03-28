@@ -20,6 +20,7 @@ import subCategoryRouter from "./Router/SubCategory/SubCategoryRouter";
 import SizeCategoryRouter from "./Router/SizeCategory/SizeCategoryRouter";
 import ColorRouter from "./Router/Color/ColorRouter";
 import VariantRouter from "./Router/Variant/VariantRouter";
+import OfferRouter from "./Router/Offers/OffersRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -78,12 +79,11 @@ app.use(
   UserTypeEnum.USER]),
   shippingRouter
 );
-
-// app.use(
-//   `/${RouterEnum.user}`,
-//   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
-//   userRouter
-// );
+app.use(
+  `/${RouterEnum.offers}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  OfferRouter
+);
 // app.use(
 //   `/${RouterEnum.order}`,
 //   checkRole([UserTypeEnum.ADMIN,
