@@ -253,9 +253,9 @@ export const hardDeleteProduct = async (_id: string) => {
   }
 };
 // edits
-export const getProductsStock = async (productIds: string[]) => {
+export const getProductsStock = async (variantIds: string[]) => {
   const variants = await VariantModel.find({
-    product: { $in: productIds },
+    _id: { $in: variantIds },
   }).select("product size color quantity isSoldOut");
   return variants;
 };

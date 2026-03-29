@@ -153,6 +153,15 @@ export const softDeleteProductController = asyncHandler(
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
   }
 );
+export const hardDeleteProductController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { productId } = req.params as { productId: string };
+    const product = await getAdminProductById(productId);
+    if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
+    await hardDeleteProduct(productId);
+    return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
+  }
+);
 export const SearchProducts = asyncHandler(
   async (req: Request, res: Response) => {
     const { searchQuery } = req.query;
@@ -238,8 +247,8 @@ export const findUserProductById = asyncHandler(
 );
 export const findProductsStock = asyncHandler(
   async (req: Request, res: Response) => {
-    const { productIds } = req.body;
-    const products = await getProductsStock(productIds);
+    const { variantIds } = req.body;
+    const products = await getProductsStock(variantIds);
     return res.json(new ApiResponse(200, { products }, SuccessMessage.PRODUCT_FOUND));
   }
 );
@@ -247,12 +256,3 @@ export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
   const analysis = await getAnalytics();
   return res.json(new ApiResponse(200, { analysis }, "Success"));
 });
-export const hardDeleteProductController = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { productId } = req.params as { productId: string };
-    const product = await getAdminProductById(productId);
-    if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    await hardDeleteProduct(productId);
-    return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
-  }
-);
