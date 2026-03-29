@@ -1,31 +1,31 @@
 import { Router } from "express";
 import * as CustomerInfoController from "../../Controller/Customer/CustomerInfoController";
 import { Validation } from "../../middleware/ValidationMiddleware";
-import * as userValidation from "../../Validation/User/UserInformation";
+import * as CustomerinfoValidation from "../../Validation/User/Customer/CustomerInfoValidation";
 const customerInfoRouter = Router();
 customerInfoRouter.post(
   "/add-info",
-  Validation(userValidation.createUser),
+  Validation(CustomerinfoValidation.addCustomerInfoValidation),
   CustomerInfoController.addCustomerInfo
 );
 customerInfoRouter.patch(
   "/update-info/:_id",
-  Validation(userValidation.updateUser),
+  Validation(CustomerinfoValidation.updateCustomerInfo),
   CustomerInfoController.updateCustomerInfo
 );
 customerInfoRouter.delete(
-  "/delete-info/:_id",
-  Validation(userValidation.userIdValidationSchema),
+  "/delete-info/:customer",
+  Validation(CustomerinfoValidation.customerIdValidationSchema),
   CustomerInfoController.deleteCustomerInfo
 );
 customerInfoRouter.get(
-  "/all-info/:primaryPhone",
-  Validation(userValidation.getAllUserInformationRelatedToUser),
+  "/all-info/:customer",
+  Validation(CustomerinfoValidation.getCustomerInfoByCustomerId),
   CustomerInfoController.getAllCutsomerInfoByCustomerId
 );
 customerInfoRouter.get(
   "/get-one/:_id",
-  Validation(userValidation.userIdValidationSchema),
+  Validation(CustomerinfoValidation.customerIdValidationSchema),
   CustomerInfoController.getCutsomerInfoById
 );
 export default customerInfoRouter;
