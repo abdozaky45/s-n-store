@@ -1,6 +1,8 @@
 enum RouterEnum {
   authentication = "authentication",
   user = "user",
+  customer = "customer",
+  customerInfo = "customer-info",
   category = "category",
   subCategory = "sub-category",
   sizeCategory = "group-size",

@@ -1,5 +1,5 @@
-import { Types, Schema, model } from "mongoose";
-import Iuser from "./Iuser";
+import {Schema, model } from "mongoose";
+import ICustomerInfo from "./ICustomerInfoModel";
 import {
   NotRequiredString,
   RefType,
@@ -7,7 +7,8 @@ import {
   RequiredString,
 } from "../../../Utils/Schemas";
 import SchemaTypesReference from "../../../Utils/Schemas/SchemaTypesReference";
-const userSchema = new Schema<Iuser>({
+const customerInfoSchema = new Schema<ICustomerInfo>({
+  customer: RefType(SchemaTypesReference.Customer, true),
   country: RequiredDefaultStringCity,
   firstName: RequiredString,
   lastName: RequiredString,
@@ -15,8 +16,7 @@ const userSchema = new Schema<Iuser>({
   apartmentSuite: NotRequiredString,
   shipping: RefType(SchemaTypesReference.Shipping, true),
   postalCode: NotRequiredString,
-  primaryPhone: { type: String, required: true, unique: true },
-  secondaryPhone: NotRequiredString,
+  additionalPhone: NotRequiredString,
 }, {_id: true});
-const UserModel = model(SchemaTypesReference.UserInformation, userSchema);
-export default UserModel;
+const CustomerInfoModel = model(SchemaTypesReference.CustomerInfo, customerInfoSchema);
+export default CustomerInfoModel;

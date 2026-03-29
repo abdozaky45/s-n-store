@@ -2,69 +2,69 @@ import { NextFunction, Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
 import SuccessMessage from "../../Utils/SuccessMessages";
-import * as userService from "../../Service/User/UserService";
-import Iuser from "../../Model/User/UserInformation/Iuser";
-export const addUserInformation = asyncHandler(
+import * as userService from "../../Service/User/CustomerInfoService";
+import ICustomerInfo from "../../Model/User/Customer/ICustomerInfoModel";
+import { findCustomerById } from "../../Service/User/CustomerService";
+export const addCustomerInfo = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userData: Iuser = {
+    const userData: ICustomerInfo = {
+      customer: req.body.customer,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       address: req.body.address,
       apartmentSuite: req.body.apartmentSuite,
       shipping: req.body.shipping,
       postalCode: req.body.postalCode,
-      primaryPhone: req.body.primaryPhone,
-      secondaryPhone: req.body.secondaryPhone,
+      additionalPhone: req.body.additionalPhone,
     };
-    const result = await userService.createUser(userData);
-    const user = await userService.findUserInformationById(result._id);
+    const result = await userService.createCutsomerInfo(userData);
+    const user = await userService.findCutsomerInfoById(result._id);
     return res.json(new ApiResponse(200, { user }, SuccessMessage.USER_CREATED));
   }
 );
-export const updateUserInformation = asyncHandler(
+export const updateCustomerInfo = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const checkUser = await userService.findUserInformationById(req.params._id as string);
+    const checkUser = await userService.findCutsomerInfoById(req.params._id as string);
     if (!checkUser) {
       return next(new ApiError(404, ErrorMessages.USER_NOT_FOUND));
     }
-    const userData: Iuser = {
+    const userData: ICustomerInfo = {
+      customer: req.body.customer,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       address: req.body.address,
       apartmentSuite: req.body.apartmentSuite,
       shipping: req.body.shipping,
       postalCode: req.body.postalCode,
-      primaryPhone: req.body.primaryPhone,
-      secondaryPhone: req.body.secondaryPhone
+      additionalPhone: req.body.additionalPhone
     };
-    const result = await userService.updateUserInformation(checkUser._id, userData);
-    const user = await userService.findUserInformationById(result!._id);
+    const result = await userService.updateCutsomerInfo(checkUser._id, userData);
+    const user = await userService.findCutsomerInfoById(result!._id);
     return res.json(new ApiResponse(200, { user }, SuccessMessage.USER_UPDATED));
   }
 );
-export const deleteUserInformation = asyncHandler(
+export const deleteCustomerInfo = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const checkUser = await userService.findUserInformationById(req.params._id as string);
-    if (!checkUser) {
+    const user = await userService.deleteCutsomerInfo(req.params.customer as string);
+    if(!user){
       return next(new ApiError(404, ErrorMessages.USER_NOT_FOUND));
     }
-    const user = await userService.deleteUserInformation(checkUser._id);
     return res.json(new ApiResponse(200, {}, SuccessMessage.USER_DELETED));
   }
 );
-export const getAllUserInformationRelatedToUser = asyncHandler(
+export const getAllCutsomerInfoByCustomerId = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const checkUser = await userService.checkIfPrimaryPhoneExists(req.params.primaryPhone as string);
+    const checkUser = await findCustomerById(req.params.customer as string);
     if (!checkUser) {
       return next(new ApiError(404, ErrorMessages.USER_NOT_FOUND));
     }
-    const users = await userService.fetchUserDetailsByPrimaryPhone(req.params.primaryPhone as string);
+    const users = await userService.findCutsomerInfoByCustomerId(checkUser._id);
     return res.json(new ApiResponse(200, { users }, SuccessMessage.USER_FOUND));
   }
 );
-export const getUserInformationById = asyncHandler(
+export const getCutsomerInfoById = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await userService.findUserInformationById(req.params._id as string);
+    const user = await userService.findCutsomerInfoById(req.params._id as string);
     if (!user) {
       return next(new ApiError(404, ErrorMessages.USER_NOT_FOUND));
     }

@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
-export default interface Iuser {
+export default interface ICustomerInfo {
+  customer: Types.ObjectId | string; 
   country?: string;
   firstName: string;
   lastName: string;
@@ -7,6 +8,5 @@ export default interface Iuser {
   apartmentSuite?: string;
   shipping: string | Types.ObjectId;
   postalCode?: string;
-  primaryPhone: string;
-  secondaryPhone?: string;
+  additionalPhone?: string;
 }

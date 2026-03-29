@@ -54,5 +54,6 @@ enum ErrorMessages {
   INVALID_OFFER_DATA = "Invalid offer data",
   INVALID_OFFER_STATUS = "Invalid offer status",
   INVALID_OFFER_ID = "Invalid offer ID",
+  CUSTOMER_NOT_FOUND = "Customer not found",
 }
 export default ErrorMessages;

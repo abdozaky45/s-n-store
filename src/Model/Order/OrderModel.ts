@@ -5,7 +5,7 @@ import { orderStatusArray } from "../../Utils/OrderStatusType";
 import { IOrder } from "./Iorder";
 
 const OrderSchema = new Schema<IOrder>({
-  user: RefType(SchemaTypesReference.UserInformation, true),
+  customer: RefType(SchemaTypesReference.Customer, true),
   shipping: RefType(SchemaTypesReference.Shipping, true),
   products: [{
     _id: false,

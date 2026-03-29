@@ -1,6 +1,8 @@
 enum SchemaTypesReference {
   User = "user",
-  Token = "token",  
+  Customer = "customer",
+  CustomerInfo = "customerInfo",
+  Token = "token",
   Category = "category",
   SubCategory = "subCategory",
   SizeCategory = "sizeCategory",
@@ -8,9 +10,8 @@ enum SchemaTypesReference {
   Color = "color",
   Variant = "variant",
   GroupSize = "groupSize",
-  imageSlider= "imageSlider",
+  imageSlider = "imageSlider",
   Wishlist = "wishlist",
-  UserInformation = "userInformation",
   Shipping = "shipping",
   Offer = "offer",
   Order = "order"

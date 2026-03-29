@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import Iuser from "../User/UserInformation/Iuser";
+import ICustomerInfo from "../User/Customer/ICustomerInfoModel";
 import IShipping from "../Shipping/Ishipping";
 import { IProduct } from "../Product/Iproduct";
 import { IOffer } from "../Offers/IOffers";
@@ -16,7 +16,7 @@ interface ProductOrder {
 }
 
 interface IOrder {
-  user: Types.ObjectId | string | Iuser;
+  customer: Types.ObjectId | string | ICustomerInfo;
   shipping: Types.ObjectId | string | IShipping;
   products: ProductOrder[];
   subTotal: number;

@@ -1,8 +1,8 @@
 enum SuccessMessage {
-WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
+  WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
   EMAIL_SENT = "email sent successfully",
-  EMAIL_SENT_AR = "تم إرسال البريد الإلكتروني بنجاح", 
-  EMAIL_NOT_SENT_AR = "حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا", 
+  EMAIL_SENT_AR = "تم إرسال البريد الإلكتروني بنجاح",
+  EMAIL_NOT_SENT_AR = "حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا",
   USER_CREATED_AR = "أهلاً بك! تم إنشاء حسابك بنجاح",
   USER_CREATED = "User created successfully",
   OTP_SEND = "OTP sent successfully",
@@ -56,7 +56,11 @@ WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
   OFFER_UPDATED = "Offer updated successfully",
   OFFER_FOUND = "Offer found successfully",
   OFFER_DELETED = "Offer deleted successfully",
-  NULL = "NULL",
+  CUSTOMER_IDENTIFIED = "Customer identified successfully",
+  CUSTOMER_UPDATED = "Customer updated successfully",
+  CUSTOMER_FOUND = "Customer found successfully",
+  CUSTOMER_DELETED = "Customer deleted successfully",  
+  NULL = "NULL"
 
 }
 export default SuccessMessage;
