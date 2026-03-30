@@ -5,15 +5,18 @@ import ErrorMessages from "../../Utils/Error";
 import * as wishlistService from "../../Service/Wishlist/WishlistService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { getUserProductById } from "../../Service/Product/ProductService";
+import { findCustomerById } from "../../Service/User/CustomerService";
 export const createWishlist = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { productId,userId } = req.body;
+    const { productId,customer } = req.body;
+    const checkCustomer = await findCustomerById(customer);
+    if (!checkCustomer) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
     const Product = await getUserProductById(productId);
     if (!Product) throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
-    const ExistingWishlist = await wishlistService.getProductWishlist(productId, userId);
+    const ExistingWishlist = await wishlistService.getProductWishlist(productId, customer);
     if (ExistingWishlist) throw new ApiError(404, ErrorMessages.WISHLIST_ALREADY_EXISTS);
       const wishlist = await wishlistService.AddProductToFavorites(
-        userId,
+        customer,
         productId,
         moment().valueOf()
       );
@@ -24,10 +27,10 @@ export const createWishlist = asyncHandler(
         );
     }
 );
-export const getWishlistByUserId = asyncHandler(
+export const getUserWishlistById = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {wishlistId,userId} = req.params as { wishlistId: string; userId: string };
-    const wishlist = await  wishlistService.getWishlistById(wishlistId,userId);
+    const {_id} = req.params as { _id: string};
+    const wishlist = await  wishlistService.getWishlistById(_id);
     if (!wishlist) throw new ApiError(404, ErrorMessages.WISHLIST_NOT_FOUND);
     return res
       .status(200)
@@ -36,9 +39,11 @@ export const getWishlistByUserId = asyncHandler(
 );
 export const deleteWishlist = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {productId ,userId} = req.params as { productId: string; userId: string };
+    const {productId ,customer} = req.params as { productId: string; customer: string };
+    const checkCustomer = await findCustomerById(customer);
+    if (!checkCustomer) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
     if (!productId) throw new ApiError(404, ErrorMessages.DATA_IS_REQUIRED);
-    const wishlist = await wishlistService.removeProductFromFavorites(userId, productId);
+    const wishlist = await wishlistService.removeProductFromFavorites(customer, productId);
     if (!wishlist) throw new ApiError(404, ErrorMessages.WISHLIST_NOT_FOUND);
     return res
       .status(200)
@@ -47,8 +52,10 @@ export const deleteWishlist = asyncHandler(
 );
 export const getAllUserWishlist = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {userId} = req.params as { userId: string };
-    const wishlist = await wishlistService.getUserWishlist(userId);
+    const {customer} = req.params as { customer: string };
+    const checkCustomer = await findCustomerById(customer);
+    if (!checkCustomer) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
+    const wishlist = await wishlistService.getUserWishlist(customer);
     if (!wishlist) throw new ApiError(404, ErrorMessages.WISHLIST_NOT_FOUND);
     return res
       .status(200)

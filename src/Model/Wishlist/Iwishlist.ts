@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 export interface Iwishlist {
-  user: string;
+  customer: string | Types.ObjectId;
   product: Types.ObjectId | string;
   createdAt: number;
 }

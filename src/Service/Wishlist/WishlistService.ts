@@ -3,22 +3,22 @@ import { Types } from "mongoose";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 
 export const AddProductToFavorites = async (
-  user: string,
+  customer: string,
   product: string,
   createdAt: number
 ) => {
-  const wishlist = await WishListModel.create({ user, product, createdAt });
+  const wishlist = await WishListModel.create({ customer, product, createdAt });
   return wishlist;
 };
 export const removeProductFromFavorites = async (
-  user: string,
+  customer: string,
   product: string
 ) => {
-  const wishlist = await WishListModel.findOneAndDelete({ user, product });
+  const wishlist = await WishListModel.findOneAndDelete({ customer, product });
   return wishlist;
 };
-export const getUserWishlist = async (user: string) => {
-  const product = await WishListModel.find({ user }).populate({
+export const getUserWishlist = async (customer: string) => {
+  const product = await WishListModel.find({ customer }).populate({
     path: SchemaTypesReference.Product,
     select:
       "name defaultImage albumImages finalPrice",
@@ -33,36 +33,35 @@ export const getAllWishlist = async (page: number) => {
   const totalPages = Math.ceil(totalItems / limit);
   const products = await WishListModel.find({})
     .populate({
-      path:SchemaTypesReference.User,
+      path: SchemaTypesReference.User,
     })
     .populate({
       path: SchemaTypesReference.Product,
       select:
         "name defaultImage albumImages finalPrice",
-     populate:{
-      path:SchemaTypesReference.Category,
-      select: "name image" 
-     }
+      populate: {
+        path: SchemaTypesReference.Category,
+        select: "name image"
+      }
     })
     .skip(skip)
     .limit(limit)
     .exec();
   return { totalItems, totalPages, currentPage: page, products };
 };
-export const getWishlistById = async ( wishlistId: string,userId: string) => {
-  const wishlist = await WishListModel.findOne({
-    _id: wishlistId,
-    user: userId,
-  }).populate({
+export const getWishlistById = async (_id: string) => {
+  const wishlist = await WishListModel.findById(
+    _id
+  ).populate({
     path: SchemaTypesReference.Product,
     select:
       "name defaultImage albumImages finalPrice",
   });
   return wishlist;
 };
-export const getProductWishlist = async (product: Types.ObjectId | string, user: string) => {
+export const getProductWishlist = async (product: Types.ObjectId | string, customer: string) => {
   const wishlist = await WishListModel.findOne({
-    user,
+    customer,
     product
   });
   return wishlist;

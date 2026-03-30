@@ -4,7 +4,7 @@ import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import { RefType, RequiredNumber, RequiredString } from "../../Utils/Schemas";
 const WishlistSchema = new Schema<Iwishlist>(
   {
-    user:  RequiredString,
+    customer: RefType(SchemaTypesReference.Customer, true),
     product: RefType(SchemaTypesReference.Product, true),
     createdAt: RequiredNumber,
   },
