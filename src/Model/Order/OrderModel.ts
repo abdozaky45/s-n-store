@@ -1,12 +1,14 @@
 import { model, Schema, Types } from "mongoose";
-import { EnumStringRequired, NotRequiredBoolean, NotRequiredNumber, RefType, RequiredNumber, RequiredString } from "../../Utils/Schemas";
+import { EnumStringRequired, NotRequiredBoolean, NotRequiredNumber, NotRequiredString, NotRequiredUniqueEmail, RefType, RequiredNumber, RequiredString } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import { orderStatusArray } from "../../Utils/OrderStatusType";
 import { IOrder } from "./Iorder";
 
 const OrderSchema = new Schema<IOrder>({
+  orderNumber: RequiredString,
   customer: RefType(SchemaTypesReference.Customer, true),
   shipping: RefType(SchemaTypesReference.Shipping, true),
+  email:NotRequiredString,
   products: [{
     _id: false,
     productId: { type: Types.ObjectId, ref: SchemaTypesReference.Product, required: true },
