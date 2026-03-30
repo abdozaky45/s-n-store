@@ -1,9 +1,6 @@
 enum SuccessMessage {
-  WELCOME_EMAIL_SENT_AR = "أهلاً بك!",
+  WELCOME_EMAIL_SENT = "Welcome email sent successfully",
   EMAIL_SENT = "email sent successfully",
-  EMAIL_SENT_AR = "تم إرسال البريد الإلكتروني بنجاح",
-  EMAIL_NOT_SENT_AR = "حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا",
-  USER_CREATED_AR = "أهلاً بك! تم إنشاء حسابك بنجاح",
   USER_CREATED = "User created successfully",
   OTP_SEND = "OTP sent successfully",
   SUCCESS_ACCOUNT = "account activated successfully",

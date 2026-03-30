@@ -1,6 +1,4 @@
 enum ErrorMessages {
-  EMAIL_NOT_SENT_AR = "حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا",
-  NOT_AUTHORIZED_AR = "غير مصرح لك بالدخول",
   EMAIL_REQUIRED = "email is required",
   PHONE_REQUIRED = "phone is required",
   PHONE_ALREADY_EXISTS = "phone already exists",
