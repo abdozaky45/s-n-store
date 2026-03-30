@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
-import moment from "../../Utils/DateAndTime";
 import {
   createCategory,
-  deleteCategory,
+  softDeleteCategory,
   extractMediaId,
   findCategoryById,
   prepareCategoryUpdates,
   getAllCategories,
-  getNewArrivalCategories,
+  findAllDeletedCategories,
+  hardDeleteCategory,
 } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
@@ -19,16 +19,15 @@ export const CreateNewCategory = asyncHandler(
       categoryNameEn,
       imageUrl
     } = req.body;
-    const mediaId =  extractMediaId(imageUrl);
+    const mediaId = extractMediaId(imageUrl);
     const category = await createCategory({
-      categoryName: {
+      name: {
         ar: categoryNameAr,
         en: categoryNameEn,
       },
       mediaUrl: imageUrl,
       mediaId,
       createdBy: req.body.currentUser.userInfo._id,
-      createdAt: moment().valueOf(),
     });
     return res.json(
       new ApiResponse(200, { category }, SuccessMessage.CATEGORY_CREATED)
@@ -45,7 +44,6 @@ export const updateCategory = asyncHandler(
       categoryNameAr,
       categoryNameEn,
       imageUrl,
-      isNewArrival
     } = req.body;
     const updates = await prepareCategoryUpdates(Category,
       {
@@ -53,7 +51,6 @@ export const updateCategory = asyncHandler(
         en: categoryNameEn,
       },
       imageUrl,
-      isNewArrival
     );
     if (updates) {
       await Category.save();
@@ -68,30 +65,36 @@ export const updateCategory = asyncHandler(
     return res.json(
       new ApiResponse(
         200,
-        { },
+        {},
         SuccessMessage.NO_UPDATE_CATEGORY
       )
     );
   }
 );
-export const deleteOneCategory = asyncHandler(
+export const softDeleteOneCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const Category = await findCategoryById(req.params._id as string);
     if (!Category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
-    const result = await deleteCategory(req.params._id as string);
-    if (!result) {
-      throw new ApiError(
-        404,
-        ErrorMessages.SUBCATEGORY_NOT_FOUND_OR_ALREADY_DELETED
-      );
-    }
+    await softDeleteCategory(req.params._id as string);
     return res.json(
       new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
     );
   }
 );
+export const hardDeleteOneCategory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const Category = await findCategoryById(req.params._id as string);
+    if (!Category) {
+      throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
+    }
+    await hardDeleteCategory(req.params._id as string);
+    return res.json(
+      new ApiResponse(200, {}, SuccessMessage.SUBCATEGORY_DELETED_SUCCESS)
+    );
+
+  });
 export const getCategories = asyncHandler(
   async (req: Request, res: Response) => {
     const categories = await getAllCategories();
@@ -100,19 +103,19 @@ export const getCategories = asyncHandler(
 );
 export const getCategoryById = asyncHandler(
   async (req: Request, res: Response) => {
-    if(!req.params.categoryId) {
+    if (!req.params.categoryId) {
       throw new ApiError(400, ErrorMessages.DATA_IS_REQUIRED);
     }
-  const category = await findCategoryById(req.params.categoryId as string);
+    const category = await findCategoryById(req.params.categoryId as string);
     if (!category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     return res.json(new ApiResponse(200, { category }));
   }
 );
-export const getAllNewArrivalCategories = asyncHandler(
+export const getAllDeletedCategories = asyncHandler(
   async (req: Request, res: Response) => {
-    const categories = await getNewArrivalCategories();
+    const categories = await findAllDeletedCategories();
     return res.json(new ApiResponse(200, { categories }));
   }
 );

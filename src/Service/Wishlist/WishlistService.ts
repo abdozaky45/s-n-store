@@ -1,26 +1,27 @@
 import WishListModel from "../../Model/Wishlist/WishlistModel";
 import { Types } from "mongoose";
+import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 
 export const AddProductToFavorites = async (
-  user: string,
-  productId: string,
+  customer: string,
+  product: string,
   createdAt: number
 ) => {
-  const product = await WishListModel.create({ user, productId, createdAt });
-  return product;
+  const wishlist = await WishListModel.create({ customer, product, createdAt });
+  return wishlist;
 };
 export const removeProductFromFavorites = async (
-  user: string,
-  productId: string
+  customer: string,
+  product: string
 ) => {
-  const product = await WishListModel.findOneAndDelete({ user, productId });
-  return product;
+  const wishlist = await WishListModel.findOneAndDelete({ customer, product });
+  return wishlist;
 };
-export const getUserWishlist = async (user: string) => {
-  const product = await WishListModel.find({ user }).populate({
-    path: "productId",
+export const getUserWishlist = async (customer: string) => {
+  const product = await WishListModel.find({ customer }).populate({
+    path: SchemaTypesReference.Product,
     select:
-      "productName price salePrice discount discountPercentage isSale defaultImage albumImages",
+      "name defaultImage albumImages finalPrice",
   });
   return product;
 };
@@ -32,37 +33,36 @@ export const getAllWishlist = async (page: number) => {
   const totalPages = Math.ceil(totalItems / limit);
   const products = await WishListModel.find({})
     .populate({
-      path: "user"
+      path: SchemaTypesReference.User,
     })
     .populate({
-      path: "productId",
+      path: SchemaTypesReference.Product,
       select:
-        "productName price salePrice discount discountPercentage isSale defaultImage albumImages soldItems availableItems",
-     populate:{
-      path: "category",
-      select: "categoryName image" 
-     }
+        "name defaultImage albumImages finalPrice",
+      populate: {
+        path: SchemaTypesReference.Category,
+        select: "name image"
+      }
     })
     .skip(skip)
     .limit(limit)
     .exec();
   return { totalItems, totalPages, currentPage: page, products };
 };
-export const getWishlistById = async (userId: string, wishlistId: string) => {
-  const product = await WishListModel.findOne({
-    _id: wishlistId,
-    user: userId,
-  }).populate({
-    path: "productId",
+export const getWishlistById = async (_id: string) => {
+  const wishlist = await WishListModel.findById(
+    _id
+  ).populate({
+    path: SchemaTypesReference.Product,
     select:
-      "productName price salePrice discount discountPercentage isSale defaultImage albumImages",
+      "name defaultImage albumImages finalPrice",
   });
-  return product;
+  return wishlist;
 };
-export const getProductWishlist = async (productId: Types.ObjectId | string, user: Types.ObjectId | string) => {
-  const wishlistEntry = await WishListModel.findOne({
-    user,
-    productId
+export const getProductWishlist = async (product: Types.ObjectId | string, customer: string) => {
+  const wishlist = await WishListModel.findOne({
+    customer,
+    product
   });
-  return wishlistEntry;
+  return wishlist;
 }

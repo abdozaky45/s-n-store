@@ -1,5 +1,3 @@
-import slugify from "slugify";
-import _ from "lodash";
 import ProductModel from "../../Model/Product/ProductModel";
 import { extractMediaId } from "../Category/CategoryService";
 import { paginate } from "../../Utils/Schemas";
@@ -8,82 +6,271 @@ import Fuse from "fuse.js";
 import { sortProductEnum } from "../../Utils/SortProduct";
 import mongoose, { Types } from "mongoose";
 import { ProductOrder } from "../../Model/Order/Iorder";
-import IProduct from "../../Model/Product/Iproduct";
+import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
 import OrderModel from "../../Model/Order/OrderModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
 import AuthModel from "../../Model/User/auth/AuthModel";
-
-export const createProduct = async (productData: IProduct) => {
-  const product = await ProductModel.create(productData);
-  return product;
+import VariantModel from "../../Model/Variant/VariantModel";
+import { deleteProductImages } from "../../Controller/Aws/AwsController";
+export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
+  if (!salePrice || salePrice === 0 || salePrice >= price) {
+    return {
+      isSale: false,
+      saleStartDate: 0,
+      saleEndDate: 0,
+      finalPrice: price,
+    };
+  }
+  return {
+    isSale: true,
+    finalPrice: salePrice,
+    saleStartDate: saleStartDate ?? 0,
+    saleEndDate: saleEndDate ?? 0,
+  };
 };
-export const findProductById = async (id: string | Types.ObjectId) => {
-  const product = ProductModel.findOne({ _id: id, isDeleted: false });
-  return product;
+export const createProduct = async (productData: IProduct, session?: mongoose.ClientSession): Promise<mongoose.HydratedDocument<IProduct>> => {
+  const product = await ProductModel.create([productData], { session });
+  return product[0];
 };
 export const prepareProductUpdates = async (
-  productData: any,
-  product: IProduct,
-  defaultImage: string,
-  albumImages: string[]
+  product: IProduct & mongoose.Document,
+  body: IUpdateProductBody,
 ) => {
-  let updates = false;
+  let hasUpdates = false;
+if (body.name) {
+  product.name = {
+    ar: body.name.ar ?? product.name.ar,
+    en: body.name.en ?? product.name.en,
+  };
+  hasUpdates = true;
+}
+  if (body.description) {
+    product.description = {
+      ar: body.description.ar ?? product.description.ar,
+      en: body.description.en ?? product.description.en,
+    };
+    hasUpdates = true;
+  }
+  if (body.defaultImage) {
+    product.defaultImage = {
+      mediaUrl: body.defaultImage,
+      mediaId: extractMediaId(body.defaultImage),
+    };
+    hasUpdates = true;
+  }
+  if (body.sizeChartImage) {
+    product.sizeChartImage = {
+      mediaUrl: body.sizeChartImage,
+      mediaId: extractMediaId(body.sizeChartImage),
+    };
+    hasUpdates = true;
+  }
 
-  Object.keys(productData).forEach((key) => {
-    const field = key as keyof IProduct;
-    if (!_.isEqual(productData[field], product[field])) {
-      (product[field] as any) = productData[field];
-      updates = true;
+  if (body.albumImages?.length) {
+    product.albumImages = body.albumImages.map((url: string) => ({
+      mediaUrl: url,
+      mediaId: extractMediaId(url),
+    }));
+    hasUpdates = true;
+  }
+  const simpleFields: (keyof IUpdateProductBody)[] = [
+    "price", "salePrice", "wholesalePrice", "isSale",
+    "saleStartDate", "saleEndDate", "category",
+    "subCategory", "isNewArrival", "isBestSeller", "finalPrice"
+  ];
+
+  simpleFields.forEach((field) => {
+    if (body[field] !== undefined && body[field] !== null) {
+      (product as any)[field] = body[field];
+      hasUpdates = true;
     }
   });
 
-  if (productData.availableItems !== undefined) {
-    product.isSoldOut = productData.availableItems <= 0;
-    updates = true;
-  }
+  return hasUpdates ? product : null;
+};
+export const getAdminProductById = async (_id: string) => {
+  const product = await ProductModel.findById(_id)
+    .select("-createdBy -createdAt -isDeleted -__v")
+    .populate({ path: SchemaTypesReference.Category, select: "-_id name" })
+    .populate({ path: SchemaTypesReference.SubCategory, select: "-_id name" })
+    .populate({ path: "variants", select: "-_id -__v", populate: { path: SchemaTypesReference.Color, select: "-_id -__v" } })
 
-  if (
-    productData.productName &&
-    productData.productName !== product.productName
-  ) {
-    product.slug = slugify(product.productName);
-    updates = true;
-  }
+  return product;
+};
+export const productSearch = async (querySearch: string) => {
+  const products = await ProductModel.find({ isDeleted: false }).select("name _id");
+  const fuse = new Fuse(products, {
+    keys: ["name.ar", "name.en"],
+    threshold: 0.3,
+  });
+  const results = fuse.search(querySearch).map((result) => result.item);
+  return results;
+};
+export const getAdminProducts = async ({
+  category,
+  subCategory,
+  isSale,
+  isNewArrival,
+  isBestSeller,
+  isSoldOut,
+  isDeleted,
+  page,
+}: {
+  category?: string;
+  subCategory?: string;
+  isSale?: boolean;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  isSoldOut?: boolean;
+  isDeleted?: boolean;
+  page?: number;
+}) => {
+  const limit = 20;
+  page = !page || page < 1 || isNaN(page) ? 1 : page;
+  const skip = limit * (page - 1);
+  const query: any = {};
+  query.isDeleted = isDeleted === true ? true : false;
+  if (category) query.category = category;
+  if (subCategory) query.subCategory = subCategory;
+  if (isSale) query.isSale = true;
+  if (isNewArrival) query.isNewArrival = true;
+  if (isBestSeller) query.isBestSeller = true;
+  if (isSoldOut) query.isSoldOut = true;
+  const [products, totalItems] = await Promise.all([
+    ProductModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-__v")
+      .populate({ path: "category", select: "-__v" })
+      .populate({ path: "subCategory", select: "-__v" }),
+    ProductModel.countDocuments(query),
+  ]);
 
-  if (defaultImage && defaultImage !== product.defaultImage.mediaUrl) {
-    const mediaId = extractMediaId(defaultImage);
-    if (mediaId !== product.defaultImage.mediaId) {
-      product.defaultImage.mediaUrl = defaultImage;
-      product.defaultImage.mediaId = mediaId;
-      updates = true;
+  return {
+    products,
+    currentPage: page,
+    totalItems,
+    totalPages: Math.ceil(totalItems / limit),
+  };
+};
+export const getUserProductById = async (id: string | Types.ObjectId) => {
+  const product = await ProductModel.findOne({ _id: id, isDeleted: false })
+    .select("-wholesalePrice -isDeleted -createdAt -createdBy -__v")
+    .populate({ path: SchemaTypesReference.Category, select: "-_id name" })
+    .populate({ path: SchemaTypesReference.SubCategory, select: "-_id name" })
+    .populate({ path: "variants", select: "-_id -__v", populate: { path: SchemaTypesReference.Color, select: "-_id -__v" } })
+  return product;
+}
+export const getUserProductsByFilters = async ({
+  category,
+  subCategory,
+  size,
+  isSale,
+  isNewArrival,
+  isBestSeller,
+  sort,
+  page,
+}: {
+  category?: string;
+  subCategory?: string;
+  size?: string;
+  isSale?: boolean;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  sort?: string;
+  page?: number;
+}) => {
+  const limit = 20;
+  page = !page || page < 1 || isNaN(page) ? 1 : page;
+  const skip = limit * (page - 1);
+
+  const query: any = { isDeleted: false };
+
+  if (category) query.category = category;
+  if (subCategory) query.subCategory = subCategory;
+  if (isSale) query.isSale = true;
+  if (isNewArrival) query.isNewArrival = true;
+  if (isBestSeller) {
+    const hasBestSellers = await ProductModel.countDocuments({
+      ...query,
+      isBestSeller: true,
+    });
+    if (hasBestSellers > 0) {
+      query.isBestSeller = true;
     }
   }
-
-  if (albumImages && Array.isArray(albumImages)) {
-    // if (!product.albumImages) {
-    product.albumImages = [];
-    // }
-
-    albumImages.forEach((imageUrl: string) => {
-      const mediaId = extractMediaId(imageUrl);
-      if (mediaId) {
-        product.albumImages!.push({
-          mediaUrl: imageUrl,
-          mediaId: mediaId,
-        });
-        updates = true;
-      }
-    });
+  if (size) {
+    const variants = await VariantModel.find({ size }).distinct(SchemaTypesReference.Product);
+    query._id = { $in: variants };
   }
-  return updates ? product : null;
-};
+  const sortOption: any =
+    sort === sortProductEnum.priceLowToHigh ? { finalPrice: 1 } :
+      sort === sortProductEnum.priceHighToLow ? { finalPrice: -1 } :
+        { createdAt: -1 };
 
-export const deleteOneProduct = async (_id: string | Types.ObjectId) => {
+  const [products, totalItems] = await Promise.all([
+    ProductModel.find(query)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .select("-wholesalePrice -isDeleted -__v")
+      .populate({ path: "category", select: "-__v" })
+      .populate({ path: "subCategory", select: "-__v" }),
+    ProductModel.countDocuments(query),
+  ]);
+
+  return {
+    products,
+    currentPage: page,
+    totalItems,
+    totalPages: Math.ceil(totalItems / limit),
+  };
+};
+export const softDeleteProduct = async (_id: string | Types.ObjectId) => {
   const product = await ProductModel.findByIdAndUpdate(_id, {
     isDeleted: true,
   });
   return product;
 };
+export const hardDeleteProduct = async (_id: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const product = await ProductModel.findById(_id)
+      .select("defaultImage albumImages sizeChartImage");
+    if (product) {
+      await deleteProductImages(product);
+    }
+    await VariantModel.deleteMany({ product: _id }, { session });
+    await ProductModel.findByIdAndDelete(_id, { session });
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+// edits
+export const getProductsStock = async (variantIds: string[]) => {
+  const variants = await VariantModel.find({
+    _id: { $in: variantIds },
+  }).select("product size color quantity isSoldOut");
+  return variants;
+};
+
+
+
+
+
+
+
+
+
+
+
+
 export const findAllProducts = async (page: number) => {
   const products = await paginate(
     ProductModel.find({ isDeleted: false }).sort({ createdAt: -1 }),
@@ -103,30 +290,6 @@ export const findAllSaleProducts = async (page: number) => {
     SchemaTypesReference.Category
   );
   return products;
-};
-export const ratioCalculatePrice = async (price: number, salePrice: number) => {
-  let discount = 0;
-  let discountPercentage = 0;
-  let isSale = false;
-  if (!salePrice || salePrice === 0) {
-    discount = 0;
-    discountPercentage = 0;
-    isSale = false;
-  } else if (salePrice < price) {
-    discount = price - salePrice;
-    discountPercentage = (discount / price) * 100;
-    isSale = true;
-  }
-  return { discount, discountPercentage, isSale };
-};
-export const productSearch = async (querySearch: string) => {
-  const products = await ProductModel.find({ isDeleted: false });
-  const fuse = new Fuse(products, {
-    keys: ["productName", "productDescription"],
-    threshold: 0.3,
-  });
-  const results = fuse.search(querySearch).map((result) => result.item);
-  return results;
 };
 export const findProductBySort = async (sortBy: string, page: number) => {
   let sortCriteria = {};
@@ -190,17 +353,7 @@ export const findProductByPriceRange = async (
   );
   return products;
 };
-export const findProductBySoldOut = async (page: number) => {
-  const products = await paginate(
-    ProductModel.find({ isSoldOut: true, isDeleted: false }).sort({
-      createdAt: -1,
-    }),
-    page,
-    "categoryName image",
-    SchemaTypesReference.Category
-  );
-  return products;
-};
+
 export const findProducts = async (
   sort: string,
   priceRange: string,
@@ -289,7 +442,6 @@ export const findProducts = async (
     currentPage,
   };
 };
-
 export const retrieveProducts = async (productIds: any) => {
   const foundProducts = await ProductModel.find({
     _id: { $in: productIds },
@@ -361,7 +513,6 @@ export const updateStock = async (
     console.log("No operations to perform.");
   }
 };
-
 export const findAllProductsByCategory = async (
   sort: string,
   priceRange: string,
@@ -461,7 +612,6 @@ export const findAllProductsByCategory = async (
     currentPage,
   };
 };
-
 export const getAnalytics = async () => {
   const totalRevenue = await OrderModel.aggregate([
     { $match: { status: orderStatusType.delivered } },
@@ -478,10 +628,4 @@ export const getAnalytics = async () => {
     totalProducts,
   };
 };
-export const getAvailableItems = async (productIds: [string]) => {
-  const products = await ProductModel.find(
-    { _id: { $in: productIds } },
-    { _id: 1, availableItems: 1 }
-  );
-  return products;
-};
+

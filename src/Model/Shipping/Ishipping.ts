@@ -1,5 +1,4 @@
 export default interface IShipping {
-  category: string;
+  name: {ar: string, en: string};
   cost: number;
-  isDeleted: boolean;
 }

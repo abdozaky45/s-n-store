@@ -1,22 +1,33 @@
 import { Types } from "mongoose";
-import Iuser from "../User/UserInformation/Iuser";
-import IProduct from "../Product/Iproduct";
 import IShipping from "../Shipping/Ishipping";
+import { IProduct } from "../Product/Iproduct";
+import { IOffer } from "../Offers/IOffers";
+import ICustomer from "../User/Customer/ICustomerModel";
 
 interface ProductOrder {
-    productId: Types.ObjectId | string | IProduct;
-    productName?: string;
-    quantity?: number;
-    itemPrice?: number;
-    totalPrice?: number;
+  productId: Types.ObjectId | string | IProduct;
+  variantId: Types.ObjectId | string;
+  name: string;
+  quantity: number;
+  size: string;
+  color: Types.ObjectId | string;
+  itemPrice: number;
+  totalPrice: number;
 }
 
 interface IOrder {
-    user: Types.ObjectId | string;
-    userInformation: Types.ObjectId | string | Iuser;
-    shipping: Types.ObjectId | string | IShipping;
-    products: ProductOrder[];
-    price: number;
-    status: string;
+  orderNumber: string;
+  customer: Types.ObjectId | string | ICustomer;
+  shipping: Types.ObjectId | string | IShipping;
+  email?: string;
+  products: ProductOrder[];
+  subTotal: number;
+  shippingCost: number;
+  discount: number;
+  totalAmount: number;
+  appliedOffer?: Types.ObjectId | string | IOffer;
+  freeShipping?: boolean;
+  status: string;
 }
-export {IOrder , ProductOrder};
+
+export { IOrder, ProductOrder };

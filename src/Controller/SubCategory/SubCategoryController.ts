@@ -1,16 +1,16 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
-import moment from "../../Utils/DateAndTime";
 import { extractMediaId } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import {
   createSubCategory,
-  deleteSubCategory,
+  softDeleteSubCategory,
   findSubCategoryById,
   getAllSubCategories,
-  getNewArrivalSubCategories,
-  prepareSubCategoryUpdates
+  prepareSubCategoryUpdates,
+  findAllDeletedSubCategories,
+  hardDeleteSubCategory
 } from "../../Service/SubCategory/SubCategoryService";
 export const CreateNewSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
@@ -23,7 +23,7 @@ export const CreateNewSubCategory = asyncHandler(
 
     const mediaId = extractMediaId(imageUrl);
     const subCategory = await createSubCategory({
-      subCategoryName: {
+      name: {
         ar: subCategoryNameAr,
         en: subCategoryNameEn,
       },
@@ -31,7 +31,6 @@ export const CreateNewSubCategory = asyncHandler(
       mediaUrl: imageUrl,
       mediaId,
       createdBy: req.body.currentUser.userInfo._id,
-      createdAt: moment().valueOf(),
     });
     return res.json(
       new ApiResponse(200, { subCategory }, SuccessMessage.SUBCATEGORY_CREATED)
@@ -41,11 +40,12 @@ export const CreateNewSubCategory = asyncHandler(
 export const updateSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
-      subCategoryNameAr,
-      subCategoryNameEn,
+      name: {
+        ar: subCategoryNameAr,
+        en: subCategoryNameEn,
+      },
       imageUrl,
       category,
-      isNewArrival
     } = req.body;
     const subCategory = await findSubCategoryById(req.params._id as string);
     if (!subCategory) {
@@ -58,7 +58,6 @@ export const updateSubCategory = asyncHandler(
         en: subCategoryNameEn,
       },
       category,
-      isNewArrival,
       imageUrl,
     );
     if (!updates) {
@@ -69,19 +68,25 @@ export const updateSubCategory = asyncHandler(
     return res.json(new ApiResponse(200, { subCategory }, SuccessMessage.SUBCATEGORY_UPDATED));
   }
 );
-export const deleteOneSubCategory = asyncHandler(
+export const softDeleteOneSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const subCategory = await findSubCategoryById(req.params._id as string);
     if (!subCategory) {
       throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
-    const result = await deleteSubCategory(req.params._id as string);
-    if (!result) {
-      throw new ApiError(
-        404,
-        ErrorMessages.SUBCATEGORY_NOT_FOUND_OR_ALREADY_DELETED
-      );
+    await softDeleteSubCategory(req.params._id as string);
+    return res.json(
+      new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
+    );
+  }
+);
+export const hardDeleteOneSubCategory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const subCategory = await findSubCategoryById(req.params._id as string);
+    if (!subCategory) {
+      throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
+    await hardDeleteSubCategory(req.params._id as string);
     return res.json(
       new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
     );
@@ -105,9 +110,8 @@ export const getSubCategoryById = asyncHandler(
     return res.json(new ApiResponse(200, { subCategory }));
   }
 );
-export const getAllNewArrivalSubCategories = asyncHandler(
+export const getAllDeletedSubCategories = asyncHandler(
   async (req: Request, res: Response) => {
-    const subCategories = await getNewArrivalSubCategories();
+    const subCategories = await findAllDeletedSubCategories();
     return res.json(new ApiResponse(200, { subCategories }));
-  }
-);
+  });

@@ -1,14 +1,19 @@
 enum SchemaTypesReference {
   User = "user",
-  Token = "token",  
+  Customer = "customer",
+  CustomerInfo = "customerInfo",
+  Token = "token",
   Category = "category",
   SubCategory = "subCategory",
   SizeCategory = "sizeCategory",
   Product = "product",
-  imageSlider= "imageSlider",
+  Color = "color",
+  Variant = "variant",
+  GroupSize = "groupSize",
+  imageSlider = "imageSlider",
   Wishlist = "wishlist",
-  UserInformation = "userInformation",
   Shipping = "shipping",
-  Order = "order",
+  Offer = "offer",
+  Order = "order"
 }
 export default SchemaTypesReference;

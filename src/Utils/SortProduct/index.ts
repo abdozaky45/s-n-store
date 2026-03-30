@@ -1,7 +1,7 @@
 enum sortProductEnum {
   newest = "Newest",
-  priceLowToHigh = "High to Low",
-  priceHighToLow = "Low to High",
+  priceLowToHigh = "Low to High",
+  priceHighToLow = "High to Low",
   priceUnder100 = "Under $100",
   priceBetween100and500 = "$100 - $500",
   priceBetween500and1000 = "$500 - $1000",

@@ -1,11 +1,11 @@
 import { Schema, model } from "mongoose";
 import {Iwishlist} from "./Iwishlist";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
-import { RefType, RequiredNumber } from "../../Utils/Schemas";
+import { RefType, RequiredNumber, RequiredString } from "../../Utils/Schemas";
 const WishlistSchema = new Schema<Iwishlist>(
   {
-    user: RefType(SchemaTypesReference.User, true),
-    productId: RefType(SchemaTypesReference.Product, true),
+    customer: RefType(SchemaTypesReference.Customer, true),
+    product: RefType(SchemaTypesReference.Product, true),
     createdAt: RequiredNumber,
   },
 );

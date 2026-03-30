@@ -1,0 +1,11 @@
+import { Router } from "express";
+import * as ColorController from "../../Controller/Color/ColorController";
+import { Validation } from "../../middleware/ValidationMiddleware";
+import * as colorValidation from "../../Validation/Color/ColorValidation";
+const ColorRouter = Router();
+ColorRouter.get("/", ColorController.getAllColorsController);
+ColorRouter.post("/", Validation(colorValidation.createColorValidation), ColorController.createColorController);
+ColorRouter.get("/:colorId", Validation(colorValidation.colorIdValidationSchema), ColorController.findColorByIdController);
+ColorRouter.patch("/:colorId", Validation(colorValidation.updateColorValidation), ColorController.updateColorController);
+ColorRouter.delete("/:colorId", Validation(colorValidation.colorIdValidationSchema), ColorController.deleteColorController);
+export default ColorRouter;

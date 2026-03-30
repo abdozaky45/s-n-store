@@ -4,14 +4,12 @@ interface SubCategoryImage {
   mediaId: string;
 }
 export default interface ISubCategory {
-  subCategoryName: {
+  name: {
     ar: string;
     en: string;
   };
   category: Types.ObjectId | string;
-  isNewArrival: boolean;
   image: SubCategoryImage;
   createdBy: Types.ObjectId | string;
-  createdAt: number;
   isDeleted?: boolean;
 }

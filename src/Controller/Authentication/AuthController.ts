@@ -28,7 +28,7 @@ export const registerWithEmail = asyncHandler(
         html: SendWelcomeEmail(),
       });
       return res.status(201).json(
-        new ApiResponse(201, null, SuccessMessage.USER_CREATED_AR)
+        new ApiResponse(201, null, SuccessMessage.USER_CREATED)
       );
     }
     if (user.role === UserTypeEnum.ADMIN) {
@@ -40,10 +40,10 @@ export const registerWithEmail = asyncHandler(
       sendActivationEmail(email, activeCode);
       return res
         .status(200)
-        .json(new ApiResponse(200, { email }, SuccessMessage.EMAIL_SENT_AR))
+        .json(new ApiResponse(200, { email }, SuccessMessage.EMAIL_SENT))
     }
     return res.status(200).json(
-      new ApiResponse(200, null, SuccessMessage.WELCOME_EMAIL_SENT_AR)
+      new ApiResponse(200, null, SuccessMessage.WELCOME_EMAIL_SENT)
     );
   }
 );
@@ -55,7 +55,7 @@ export const activeAccount = asyncHandler(
       throw new ApiError(400, ErrorMessages.EMAIL_NOT_FOUND);
     }
     if (user.role !== UserTypeEnum.ADMIN) {
-      throw new ApiError(403, ErrorMessages.NOT_AUTHORIZED_AR);
+      throw new ApiError(403, ErrorMessages.NOT_PERMITTED);
     }
     const currentTime = moment().valueOf();
     const createdAt = user.codeCreatedAt!;
@@ -95,7 +95,7 @@ export const sendNewActiveCodeWithEmail = asyncHandler(
       throw new ApiError(400, ErrorMessages.EMAIL_NOT_FOUND);
     }
     if (user.role !== UserTypeEnum.ADMIN) {
-      throw new ApiError(403, ErrorMessages.NOT_AUTHORIZED_AR);
+      throw new ApiError(403, ErrorMessages.NOT_PERMITTED);
     }
     const activeCode = generateSixDigitCode();
     const hashCode = await hashActiveCode(activeCode);

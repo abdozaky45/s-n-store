@@ -38,13 +38,23 @@ export const getPresignedURL = asyncHandler(
     );
   }
 );
-export const deleteImage = asyncHandler(async (req: Request, res: Response) => {
-  const { fileName } = req.query;
+export const deleteProductImages = async (product: any) => {
+  const aws = new s3_service();
   const bucketName = process.env.AWS_BUCKET_NAME!;
-  const aws_s3_service = new s3_service();
-  const deletePresignedURL = await aws_s3_service.deletePresignedUrl({
-    bucket: bucketName,
-    key: fileName as string,
-  });
-  return res.json(new ApiResponse(200, deletePresignedURL));
-});
+  const imageIds = [
+    product.defaultImage?.mediaId,
+    product.sizeChartImage?.mediaId,
+    ...(product.albumImages?.map((img: any) => img.mediaId) || []),
+  ].filter(Boolean);
+
+  await Promise.all(
+    imageIds.map((mediaId) =>
+      aws.deletePresignedUrl({ bucket: bucketName, key: mediaId })
+    )
+  );
+};
+export const deleteImage = async (mediaId: string) => {
+  const aws = new s3_service();
+  const bucketName = process.env.AWS_BUCKET_NAME!;
+  await aws.deletePresignedUrl({ bucket: bucketName, key: mediaId });
+};

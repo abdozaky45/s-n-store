@@ -1,6 +1,4 @@
 enum ErrorMessages {
-  EMAIL_NOT_SENT_AR = "حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا",
-  NOT_AUTHORIZED_AR = "غير مصرح لك بالدخول",
   EMAIL_REQUIRED = "email is required",
   PHONE_REQUIRED = "phone is required",
   PHONE_ALREADY_EXISTS = "phone already exists",
@@ -45,6 +43,15 @@ enum ErrorMessages {
   NOT_PERMITTED = "You do not have permission",
   NOT_CANCELLED = "This order cannot be cancelled at this stage",
   Token_PAYLOAD_INVALID = "no token provided or in-valid Bearer Key",
-  SIZE_CATEGORY_NOT_FOUND = "Size category not found"
+  SIZE_CATEGORY_NOT_FOUND = "Size category not found",
+  COLOR_NOT_FOUND = "Color not found",
+  VARIANT_NOT_FOUND = "Variant not found",
+  GROUP_SIZE_NOT_FOUND = "Group size not found",
+  OFFER_NOT_FOUND = "Offer not found",
+  INVALID_OFFER_TYPE = "Invalid offer type",
+  INVALID_OFFER_DATA = "Invalid offer data",
+  INVALID_OFFER_STATUS = "Invalid offer status",
+  INVALID_OFFER_ID = "Invalid offer ID",
+  CUSTOMER_NOT_FOUND = "Customer not found",
 }
 export default ErrorMessages;

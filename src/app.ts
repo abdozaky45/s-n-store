@@ -8,19 +8,19 @@ import {
   checkAuthority,
   checkRole,
 } from "./middleware/AuthenticationMiddleware";
-import userRouter from "./Router/User/UserRouter";
 import { UserTypeEnum } from "./Utils/UserType";
 import categoryRouter from "./Router/Category/CategoryRouter";
 import publicRouter from "./Router/PublicRouters/PublicRouter";
 import AwsRouter from "./Router/Aws/AwsRouter";
 import ProductRouter from "./Router/Product/ProductRouter";
 import imageSliderRouter from "./Router/ImageSlider/ImageSliderRouter";
-import wishlistRouter from "./Router/Wishlist/WishlistRouter";
 import shippingRouter from "./Router/Shipping/ShippingRouter";
-import OrderRouter from "./Router/Order/OrderRouter";
 import { getCorsOptions } from "./config";
 import subCategoryRouter from "./Router/SubCategory/SubCategoryRouter";
 import SizeCategoryRouter from "./Router/SizeCategory/SizeCategoryRouter";
+import ColorRouter from "./Router/Color/ColorRouter";
+import VariantRouter from "./Router/Variant/VariantRouter";
+import OfferRouter from "./Router/Offers/OffersRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -64,31 +64,32 @@ app.use(
   ProductRouter
 );
 app.use(
+  `/${RouterEnum.variant}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  VariantRouter
+)
+app.use(
+  `/${RouterEnum.color}`,
+  checkRole([UserTypeEnum.ADMIN]),
+ ColorRouter
+)
+app.use(
   `/${RouterEnum.shipping}`,
   checkRole([UserTypeEnum.ADMIN,
-  UserTypeEnum.USER]), // fix 
+  UserTypeEnum.USER]),
   shippingRouter
 );
 app.use(
-  `/${RouterEnum.order}`,
-  checkRole([UserTypeEnum.ADMIN,
-  UserTypeEnum.USER]), // fix
-  OrderRouter
+  `/${RouterEnum.offers}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  OfferRouter
 );
 // app.use(
-//   `/${RouterEnum.user}`,
-//   checkRole([UserTypeEnum.ADMIN, UserTypeEnum.USER]),
-//   userRouter
+//   `/${RouterEnum.order}`,
+//   checkRole([UserTypeEnum.ADMIN,
+//   UserTypeEnum.USER]), // fix
+//   OrderRouter
 // );
-
-
-// app.use(
-//   `/${RouterEnum.wishlist}`,
-//   checkRole([UserTypeEnum.USER, UserTypeEnum.ADMIN]),
-//   wishlistRouter
-// );
-
-
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);
 });

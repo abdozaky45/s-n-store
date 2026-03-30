@@ -5,8 +5,9 @@ import { Validation } from "../../middleware/ValidationMiddleware";
 import * as ProductValidation from "../../Validation/Product/ProductValidation";
 ProductRouter.post("/create", Validation(ProductValidation.createProductValidation), ProductController.CreateProduct);
 ProductRouter.patch("/update/:productId", Validation(ProductValidation.updateProductValidation), ProductController.updateProduct);
-ProductRouter.delete("/delete/:productId", Validation(ProductValidation.deleteProductValidation), ProductController.deleteProduct);
-ProductRouter.get("/sold-out",Validation(ProductValidation.getProductBySoldOutValidation), ProductController.getProductBySoldOut);
-ProductRouter.get("/get-analysis", ProductController.getAnalysis);
-
+ProductRouter.patch("/soft-delete/:productId", Validation(ProductValidation.deleteProductValidation), ProductController.softDeleteProductController);
+ProductRouter.get("/get-one-product/:productId", Validation(ProductValidation.getProductByIdValidation), ProductController.findAdminProductById);
+ProductRouter.get("/get-all-products", Validation(ProductValidation.getAdminProductsValidation), ProductController.getAdminProductsByFilters);
+ProductRouter.delete("/hard-delete/:productId", Validation(ProductValidation.deleteProductValidation), ProductController.hardDeleteProductController);
+//ProductRouter.get("/get-analysis", ProductController.getAnalysis);
 export default ProductRouter;

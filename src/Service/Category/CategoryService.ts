@@ -1,29 +1,29 @@
 import CategoryModel from "../../Model/Category/CategoryModel";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import s3_service from "../Aws/S3_Bucket/presignedUrl";
-import moment from "../../Utils/DateAndTime";
+import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
+import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
+import ProductModel from "../../Model/Product/ProductModel";
+import VariantModel from "../../Model/Variant/VariantModel";
+import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
 export const createCategory = async ({
-  categoryName,
+  name,
   mediaUrl,
   mediaId,
   createdBy,
-  createdAt,
 }: {
-  categoryName: { ar: string; en: string };
+  name: { ar: string; en: string };
   mediaUrl: string;
   mediaId: string;
   createdBy: Types.ObjectId;
-  createdAt: number;
 }) => {
   const category = await CategoryModel.create({
-    categoryName,
-    isNewArrival: true,
+    name,
     image: {
       mediaUrl,
       mediaId,
     },
     createdBy,
-    createdAt,
   });
   return category;
 };
@@ -35,7 +35,7 @@ export const extractMediaId = (imageUrl: string) => {
   return mediaId;
 };
 export const findCategoryById = async (_id: string) => {
-  const category = await CategoryModel.findById(_id).populate("subCategory").select("-isDeleted -__v");
+  const category = await CategoryModel.findById(_id).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
   return category;
 };
 export const deletePresignedURL = async (fileName: string) => {
@@ -48,21 +48,15 @@ export const deletePresignedURL = async (fileName: string) => {
 };
 export const prepareCategoryUpdates = async (
   category: any,
-  categoryName?: { ar?: string; en?: string },
+  name?: { ar?: string; en?: string },
   imageUrl?: string,
-  isNewArrival?: boolean
 ) => {
   let updated = false;
-  if (categoryName && (categoryName.ar || categoryName.en)) {
-    category.categoryName = {
-      ar: categoryName.ar ?? category.categoryName.ar,
-      en: categoryName.en ?? category.categoryName.en,
+  if (name && (name.ar || name.en)) {
+    category.name = {
+      ar: name.ar ?? category.name.ar,
+      en: name.en ?? category.name.en,
     };
-    updated = true;
-  }
-  if (typeof isNewArrival === "boolean" && isNewArrival !== category.isNewArrival) {
-    category.isNewArrival = isNewArrival;
-    category.createdAt = moment().valueOf();
     updated = true;
   }
   if (imageUrl && imageUrl !== category.image.mediaUrl) {
@@ -75,17 +69,66 @@ export const prepareCategoryUpdates = async (
   }
   return updated ? category : null;
 };
-export const deleteCategory = async (_id: string) => {
-  const category = await CategoryModel.findByIdAndUpdate(_id, { isDeleted: true });
-  return category;
+export const softDeleteCategory = async (_id: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    await CategoryModel.findByIdAndUpdate(_id, { isDeleted: true }, { session });
+    await SubCategoryModel.updateMany(
+      { category: _id },
+      { isDeleted: true },
+      { session }
+    );
+    await ProductModel.updateMany(
+      { category: _id },
+      { isDeleted: true },
+      { session }
+    );
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 export const getAllCategories = async () => {
-  const categories = await CategoryModel.find({ isDeleted: false }).populate("subCategory").select("-isDeleted -__v");
+  const categories = await CategoryModel.find({ isDeleted: false }).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
   return categories;
 };
-export const getNewArrivalCategories = async () => {
-  const categories = await CategoryModel.find({ isDeleted: false, isNewArrival: true })
-    .populate("subCategory")
-    .select("-isDeleted -__v");
+export const findAllDeletedCategories = async () => {
+  const categories = await CategoryModel.find({ isDeleted: true }).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
   return categories;
-}
+};
+export const hardDeleteCategory = async (_id: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const products = await ProductModel.find({ category: _id }).select("_id defaultImage albumImages sizeChartImage");
+    const subCategories = await SubCategoryModel.find({ category: _id }).select("_id image");
+    const category = await CategoryModel.findById(_id).select("image");
+    if (category?.image?.mediaId) {
+      await deleteImage(category.image.mediaId);
+    }
+    for (const sub of subCategories) {
+      if (sub.image?.mediaId) {
+         await deleteImage(sub.image.mediaId);
+      }
+    }
+    for (const product of products) {
+     await deleteProductImages(product);
+    }
+    const productIds = products.map((p) => p._id);
+    await VariantModel.deleteMany({ product: { $in: productIds } }, { session });
+    await ProductModel.deleteMany({ category: _id }, { session });
+    await SubCategoryModel.deleteMany({ category: _id }, { session });
+    await CategoryModel.findByIdAndDelete(_id, { session });
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
