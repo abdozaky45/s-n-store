@@ -23,6 +23,7 @@ class OrderController {
       shipping,
       products,
     });
+    // send email to customer and admin
     return res.status(201).json(new ApiResponse(201, { order }, SuccessMessage.ORDER_CREATED));
   }
 );
