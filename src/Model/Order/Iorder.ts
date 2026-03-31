@@ -25,7 +25,7 @@ interface IOrder {
   shippingCost: number;
   discount: number;
   totalAmount: number;
-  appliedOffer?: Types.ObjectId | string | IOffer;
+  appliedOffer: Types.ObjectId | string | null;
   freeShipping?: boolean;
   status: string;
 }
