@@ -12,8 +12,8 @@ const OrderSchema = new Schema<IOrder>({
   products: [{
     _id: false,
     productId: { type: Types.ObjectId, ref: SchemaTypesReference.Product, required: true },
+    name: { ar: RequiredString, en: RequiredString },
     variantId: { type: Types.ObjectId, ref: SchemaTypesReference.Variant, required: true },
-    name: RequiredString,
     quantity: RequiredNumber,
     size: RequiredString,
     color: { type: Types.ObjectId, ref: SchemaTypesReference.Color, required: true },

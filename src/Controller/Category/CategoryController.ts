@@ -15,16 +15,13 @@ import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
-      categoryNameAr,
-      categoryNameEn,
+     name,
       imageUrl
     } = req.body;
+    console.log(req.body.currentUser);
     const mediaId = extractMediaId(imageUrl);
     const category = await createCategory({
-      name: {
-        ar: categoryNameAr,
-        en: categoryNameEn,
-      },
+      name,
       mediaUrl: imageUrl,
       mediaId,
       createdBy: req.body.currentUser.userInfo._id,
@@ -41,16 +38,12 @@ export const updateCategory = asyncHandler(
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     const {
-      categoryNameAr,
-      categoryNameEn,
+      name,
       imageUrl,
     } = req.body;
     const updates = await prepareCategoryUpdates(Category,
-      {
-        ar: categoryNameAr,
-        en: categoryNameEn,
-      },
-      imageUrl,
+     name,
+      imageUrl
     );
     if (updates) {
       await Category.save();
@@ -91,7 +84,7 @@ export const hardDeleteOneCategory = asyncHandler(
     }
     await hardDeleteCategory(req.params._id as string);
     return res.json(
-      new ApiResponse(200, {}, SuccessMessage.SUBCATEGORY_DELETED_SUCCESS)
+      new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
     );
 
   });

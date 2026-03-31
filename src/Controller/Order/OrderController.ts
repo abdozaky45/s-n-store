@@ -4,7 +4,6 @@ import { sendEmail } from '../../Utils/Nodemailer/SendEmail';
 import { generateInvoice } from '../../Utils/Nodemailer/SendInvoice';
 import { IOrder, ProductOrder } from '../../Model/Order/Iorder';
 import SchemaTypesReference from '../../Utils/Schemas/SchemaTypesReference';
-import { findUserInformationById } from '../../Service/User/CustomerInfoService';
 import OrderService from '../../Service/Order/OrderService';
 import ErrorMessages from '../../Utils/Error';
 import SuccessMessage from '../../Utils/SuccessMessages';
@@ -16,92 +15,17 @@ import { Types } from 'mongoose';
 import moment from "../../Utils/DateAndTime"
 
 class OrderController {
-  createOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const { products, userId } = req.body;
-    const { _id } = req.body.currentUser.userInfo;
-    const userInformation = await findUserInformationById(userId);
-    if (!userInformation) {
-      throw new ApiError(404, ErrorMessages.USER_INFORMATION_NOT_FOUND);
-    }
-    const productIds = products.map((product: ProductOrder) => product.productId);
-    const foundProducts = await retrieveProducts(productIds);
-
-    const productRecord: Record<string, IProduct> = foundProducts.reduce((acc: Record<string, IProduct>, product) => {
-      acc[product._id.toString()] = product as IProduct;
-      return acc;
-    }, {});
-    let orderProducts = [];
-    let totalPrice = 0;
-    let totalQuantity = 0;
-    for (const product of products) {
-      const foundProduct = productRecord[product.productId];
-      if (!foundProduct) {
-        throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
-      }
-      const productWithId = foundProduct as IProduct & { _id: Types.ObjectId };
-      if (productWithId.availableItems < product.quantity) {
-        throw new ApiError(400, `Not enough stock for product: ${productWithId.productName}`);
-      }
-      const itemTotalPrice = (productWithId.salePrice && productWithId.salePrice > 0 ? productWithId.salePrice : productWithId.price) * product.quantity;
-      orderProducts.push({
-        productId: productWithId._id.toString(),
-        productName: productWithId.productName,
-        quantity: product.quantity,
-        itemPrice: (productWithId.salePrice && productWithId.salePrice > 0 ? productWithId.salePrice : productWithId.price),
-        totalPrice: itemTotalPrice,
-      });
-      totalPrice += itemTotalPrice;
-      totalQuantity += product.quantity;
-    }
-    let discount = 0;
-    if (totalPrice >= 1500) {
-      discount = totalPrice * 0.10;
-    }
-    let shippingCost = userInformation.shipping.cost;
-    if (totalPrice >= 1500 || totalQuantity >= 3) {
-      shippingCost = 0;
-    }
-    const finalPrice = totalPrice - discount + shippingCost;
-    const orderCreate: Omit<IOrder, 'status'> = {
-      user: _id,
-      userInformation: userInformation._id,
-      shipping: userInformation.shipping._id,
-      products: orderProducts,
-      price: finalPrice,
-    }
-    const newOrder = await OrderService.createOrder(
-      orderCreate
-    )
-    const orderData = await newOrder.populate([
-      { path: SchemaTypesReference.Shipping, select: '-_id category cost' },
-      { path: SchemaTypesReference.UserInformation, select: '-_id country address primaryPhone governorate' },
-    ]);
-    const invoice = generateInvoice({
-      customerName: `${userInformation.firstName} ${userInformation.lastName}`,
-      restaurantName: 'atozaccesories',
-      items: orderProducts,
-      Shipping: shippingCost,
-      total: finalPrice,
-      subTotal: totalPrice,
-      discount,
-      orderNumber: newOrder._id.toString().slice(-8),
-      orderDate: `#${moment().tz("Africa/Cairo").format("YYYY-MM-DD HH:mm:ss")}`,
-      paymentMethod: 'Cash on Delivery',
+ createOrderController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { customer, shipping, products } = req.body;
+    const order = await OrderService.createOrder({
+      customer,
+      shipping,
+      products,
     });
-    const adminEmails = [process.env.ADMIN_ONE as string, process.env.ADMIN_TWO as string];
-    await sendEmail({
-      to: req.body.currentUser.userInfo.email,
-      subject: 'Your Order Invoice',
-      html: invoice,
-    });
-    await sendEmail({
-      to: adminEmails,
-      subject: "🚀 New Order Placed - Action Required!",
-      html: invoice,
-    });
-    await updateStock(orderProducts, productRecord, false);
-    return res.json(new ApiResponse(200, { order: orderData }, SuccessMessage.ORDER_CREATED));
-  });
+    return res.status(201).json(new ApiResponse(201, { order }, SuccessMessage.ORDER_CREATED));
+  }
+);
   updateOrderStatus = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { orderId, status } = req.body;
     const userRole = req.body.currentUser.userInfo.role;

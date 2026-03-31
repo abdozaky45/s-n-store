@@ -2,16 +2,20 @@ import joi from "joi";
 import { baseSchema } from "../baseSchema";
 export const createCategoryValidation = baseSchema.concat(
     joi.object({
-        categoryNameAr: joi.string().required(),
-        categoryNameEn: joi.string().required(),
+        name: joi.object({
+            ar: joi.string().required(),
+            en: joi.string().required()
+        }).required(),
         imageUrl: joi.string().required(),
     }).required()
 );
 export const updateCategoryValidation = baseSchema.concat(
     joi.object({
         _id: joi.string().required(),
-        categoryNameAr: joi.string().optional(),
-        categoryNameEn: joi.string().optional(),
+        name: joi.object({
+            ar: joi.string().optional(),
+            en: joi.string().optional(),
+        }).optional(),
         imageUrl: joi.string().optional(),
         isNewArrival: joi.boolean().optional(),
     }).required()

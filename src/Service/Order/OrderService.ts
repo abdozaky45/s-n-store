@@ -46,29 +46,64 @@ class OrderService {
     products: {
       productId: string;
       variantId: string;
-      name: string;
       quantity: number;
-      size: string;
-      color: string;
-      itemPrice: number;
     }[];
   }) {
     const session = await mongoose.startSession();
     session.startTransaction();
+
     try {
       const shippingData = await ShippingModel.findById(orderData.shipping).session(session);
       if (!shippingData) {
         throw new Error("Shipping method not found");
       }
-      const products: ProductOrder[] = orderData.products.map((p) => ({
-        ...p,
-        totalPrice: p.itemPrice * p.quantity,
-        productId: new Types.ObjectId(p.productId),
-        variantId: new Types.ObjectId(p.variantId),
-        color: new Types.ObjectId(p.color),
-      }));
+      const variantIds = orderData.products.map((p) => p.variantId);
+      const variants = await VariantModel.find({ _id: { $in: variantIds } })
+        .populate({ path: "color", select: "name hex -_id" })
+        .session(session);
+      if (variants.length !== variantIds.length) {
+        throw new Error("Some variants not found");
+      }
+      const productIds = [...new Set(orderData.products.map((p) => p.productId))];
+      const products_db = await ProductModel.find({ _id: { $in: productIds } })
+        .select("name finalPrice")
+        .session(session);
+
+      if (products_db.length !== productIds.length) {
+        throw new Error("Some products not found");
+      }
+      for (const item of orderData.products) {
+        const variant = variants.find((v) => v._id.toString() === item.variantId);
+        if (!variant) {
+          throw new Error(`Variant ${item.variantId} not found`);
+        }
+        if (variant.quantity < item.quantity) {
+          throw new Error(
+            `Insufficient stock for variant ${item.variantId}. ` +
+            `Available: ${variant.quantity}, Requested: ${item.quantity}`
+          );
+        }
+      }
+      const products: ProductOrder[] = orderData.products.map((p) => {
+        const variant = variants.find((v) => v._id.toString() === p.variantId)!;
+        const product = products_db.find((prod) => prod._id.toString() === p.productId)!;
+
+        return {
+          name: product.name,
+          productId: new Types.ObjectId(p.productId),
+          variantId: new Types.ObjectId(p.variantId),
+          quantity: p.quantity,
+          size: variant.size,
+          color: variant.color instanceof Types.ObjectId
+            ? variant.color
+            : new Types.ObjectId((variant.color as any)._id),
+          itemPrice: product.finalPrice,
+          totalPrice: product.finalPrice * p.quantity,
+        };
+      });
       const subTotal = products.reduce((acc, p) => acc + p.totalPrice, 0);
-      const { discount, freeShipping, appliedOffer } = await this.calculateOrderOffers(subTotal);
+      const { discount, freeShipping, appliedOffer } =
+        await this.calculateOrderOffers(subTotal);
       const finalShippingCost = freeShipping ? 0 : shippingData.cost;
       const totalAmount = subTotal - discount + finalShippingCost;
       const order = await OrderModel.create([{
@@ -84,10 +119,10 @@ class OrderService {
         orderNumber: this.generateOrderNumber(),
         status: orderStatusType.under_review,
       }], { session });
-      const variantUpdates = orderData.products.map((product) => ({
+      const variantUpdates = orderData.products.map((p) => ({
         updateOne: {
-          filter: { _id: product.variantId },
-          update: { $inc: { quantity: -product.quantity } }
+          filter: { _id: p.variantId },
+          update: { $inc: { quantity: -p.quantity } }
         }
       }));
       await VariantModel.bulkWrite(variantUpdates, { session });
@@ -104,18 +139,20 @@ class OrderService {
       }));
       await ProductModel.bulkWrite(productUpdates, { session });
       await session.commitTransaction();
-      const productIds = Object.keys(productQuantities);
       await Promise.all(
-        productIds.map(productId => updateProductSoldOutStatus(productId))
+        Object.keys(productQuantities).map((productId) =>
+          updateProductSoldOutStatus(productId)
+        )
       );
       return order[0];
+
     } catch (error) {
       await session.abortTransaction();
       throw error;
     } finally {
       session.endSession();
     }
-  };
+  }
   // Track Orders by Customer ID (User)
   async trackOrdersByCustomerId(customerId: string) {
     const orders = await OrderModel.find({ customer: customerId })

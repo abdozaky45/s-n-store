@@ -5,7 +5,6 @@ import ISubCategory from "../../Model/SubCategory/ISubcategory";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
-import s3_service from "../Aws/S3_Bucket/presignedUrl";
 import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
 export const createSubCategory = async ({
   name,

@@ -6,8 +6,8 @@ import ICustomer from "../User/Customer/ICustomerModel";
 
 interface ProductOrder {
   productId: Types.ObjectId | string | IProduct;
+  name:{ ar: string; en: string };
   variantId: Types.ObjectId | string;
-  name: string;
   quantity: number;
   size: string;
   color: Types.ObjectId | string;
