@@ -14,7 +14,7 @@ export const createShipping = baseSchema.concat(
 export const updateShipping = baseSchema.concat(
     joi
         .object({
-            id: joi.string().required(),
+            _id: joi.string().required(),
             name: joi.object({
                 ar: joi.string().required(),
                 en: joi.string().required(),
@@ -25,9 +25,10 @@ export const updateShipping = baseSchema.concat(
 ).required();
 export const validateShippingByIdAdmin = baseSchema.concat(
     joi.object({
-        id: joi.string().required(),
+        _id: joi.string().required(),
     })
 ).required();
+
 export const validateShippingByIdUser = joi.object({
-    id: joi.string().required(),
+    _id: joi.string().required(),
 }).required();
