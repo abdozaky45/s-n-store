@@ -84,12 +84,6 @@ app.use(
   checkRole([UserTypeEnum.ADMIN]),
   OfferRouter
 );
-// app.use(
-//   `/${RouterEnum.order}`,
-//   checkRole([UserTypeEnum.ADMIN,
-//   UserTypeEnum.USER]), // fix
-//   OrderRouter
-// );
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);
 });

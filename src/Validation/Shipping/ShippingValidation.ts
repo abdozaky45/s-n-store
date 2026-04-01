@@ -1,25 +1,33 @@
 import joi from "joi";
-import { ShippingCategoryArray } from "../../Utils/Governorate/shippingCategoryEnum";
 import { baseSchema } from "../baseSchema";
 export const createShipping = baseSchema.concat(
     joi
         .object({
-            category: joi.string().required(),
+            name: joi.object({
+                ar: joi.string().required(),
+                en: joi.string().required(),
+            }).required(),
             cost: joi.number().required(),
         })
         .required()
-);
+).required();
 export const updateShipping = baseSchema.concat(
     joi
         .object({
             id: joi.string().required(),
-            category: joi.string().optional(),
+            name: joi.object({
+                ar: joi.string().required(),
+                en: joi.string().required(),
+            }).optional(),
             cost: joi.number().optional(),
         })
         .required()
-);
-export const validateShippingById = baseSchema.concat(
+).required();
+export const validateShippingByIdAdmin = baseSchema.concat(
     joi.object({
         id: joi.string().required(),
     })
-);
+).required();
+export const validateShippingByIdUser = joi.object({
+    id: joi.string().required(),
+}).required();

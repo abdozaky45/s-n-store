@@ -3,9 +3,30 @@ import * as ShippingController from '../../Controller/Shipping/ShippingControlle
 import { Validation } from '../../middleware/ValidationMiddleware';
 import * as shippingValidation from '../../Validation/Shipping/ShippingValidation';
 const shippingRouter = Router();
-shippingRouter.post('/', Validation(shippingValidation.createShipping), ShippingController.createShipping);
-shippingRouter.get('/', ShippingController.getAllShipping);
-shippingRouter.get('/:_id', Validation(shippingValidation.validateShippingById), ShippingController.getShippingById);
-shippingRouter.patch('/:_id', Validation(shippingValidation.updateShipping), ShippingController.updateShipping);
-shippingRouter.delete('/:_id', Validation(shippingValidation.validateShippingById), ShippingController.deleteShipping);
+shippingRouter.post(
+    '/',
+    Validation(shippingValidation.createShipping),
+    ShippingController.createShipping
+);
+
+shippingRouter.get(
+    '/:_id',
+    Validation(shippingValidation.validateShippingByIdAdmin),
+    ShippingController.getShippingById
+);
+shippingRouter.get(
+    '/',
+    ShippingController.getAllShipping
+);
+shippingRouter.patch(
+    '/:_id',
+    Validation(shippingValidation.updateShipping),
+    ShippingController.updateShipping
+);
+shippingRouter.delete(
+    '/:_id',
+    Validation(shippingValidation.validateShippingByIdAdmin),
+    ShippingController.deleteShipping
+);
+
 export default shippingRouter;
