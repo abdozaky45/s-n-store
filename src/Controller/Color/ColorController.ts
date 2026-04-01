@@ -6,19 +6,19 @@ import ErrorMessages from "../../Utils/Error";
 
 export const createColorController = asyncHandler(
     async (req: Request, res: Response) => {
-        const { colorAr, colorEn, hex } = req.body;
-        const color = await createColor({ name: { ar: colorAr, en: colorEn }, hex });
+        const { name, hex } = req.body;
+        const color = await createColor({ name, hex });
         return res.status(201).json(new ApiResponse(201, { color }, SuccessMessage.COLOR_CREATED));
     }
 );
 export const updateColorController = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { colorId } = req.params as { colorId: string };
-    const { colorAr, colorEn, hex } = req.body;
-    const color = await updateColor(colorId, { name: { ar: colorAr, en: colorEn }, hex });
-    if (!color) throw new ApiError(404, ErrorMessages.COLOR_NOT_FOUND);
-    return res.json(new ApiResponse(200, { color }, SuccessMessage.COLOR_UPDATED));
-  }
+    async (req: Request, res: Response) => {
+    
+        const { name, hex } = req.body;
+        const color = await updateColor(req.params._id as string, { name, hex });
+        if (!color) throw new ApiError(404, ErrorMessages.COLOR_NOT_FOUND);
+        return res.json(new ApiResponse(200, { color }, SuccessMessage.COLOR_UPDATED));
+    }
 );
 export const getAllColorsController = asyncHandler(
     async (req: Request, res: Response) => {
@@ -28,8 +28,8 @@ export const getAllColorsController = asyncHandler(
 );
 export const findColorByIdController = asyncHandler(
     async (req: Request, res: Response) => {
-        const { colorId } = req.params as { colorId: string };
-        const color = await findColorById(colorId);
+        const { _id } = req.params as { _id: string };
+        const color = await findColorById(_id);
         if (!color) throw new ApiError(404, ErrorMessages.COLOR_NOT_FOUND);
         return res.json(new ApiResponse(200, { color }, SuccessMessage.COLOR_FOUND));
     }
@@ -37,8 +37,8 @@ export const findColorByIdController = asyncHandler(
 
 export const deleteColorController = asyncHandler(
     async (req: Request, res: Response) => {
-        const { colorId } = req.params as { colorId: string };
-        const color = await deleteColor(colorId);
+        const { _id } = req.params as { _id: string };
+        const color = await deleteColor(_id);
         if (!color) throw new ApiError(404, ErrorMessages.COLOR_NOT_FOUND);
         return res.json(new ApiResponse(200, {}, SuccessMessage.COLOR_DELETED));
     }
