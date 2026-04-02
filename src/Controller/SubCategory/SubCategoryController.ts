@@ -10,12 +10,14 @@ import {
   getAllSubCategories,
   prepareSubCategoryUpdates,
   findAllDeletedSubCategories,
-  hardDeleteSubCategory
+  hardDeleteSubCategory,
+  restoreSubCategory
 } from "../../Service/SubCategory/SubCategoryService";
 export const CreateNewSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
       name,
+      groupSize,
       imageUrl,
       category
     } = req.body;
@@ -27,6 +29,7 @@ export const CreateNewSubCategory = asyncHandler(
     }
     const subCategory = await createSubCategory({
       name,
+      groupSize,
       category,
       mediaUrl: imageUrl,
       mediaId,
@@ -43,6 +46,7 @@ export const updateSubCategory = asyncHandler(
       name,
       imageUrl,
       category,
+      groupSize
     } = req.body;
     const subCategory = await findSubCategoryById(req.params._id as string);
     if (!subCategory) {
@@ -52,6 +56,7 @@ export const updateSubCategory = asyncHandler(
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     const updates = await prepareSubCategoryUpdates(subCategory,
+      groupSize,
       name,
       category,
       imageUrl,
@@ -74,6 +79,16 @@ export const softDeleteOneSubCategory = asyncHandler(
     return res.json(
       new ApiResponse(200, {}, SuccessMessage.SUBCATEGORY_DELETED_SUCCESS)
     );
+  }
+);
+export const restoreOneSubCategory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const subCategory = await findSubCategoryById(req.params._id as string);
+    if (!subCategory) throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);
+    if (!subCategory.isDeleted) throw new ApiError(400, 'SubCategory is not deleted');
+
+    await restoreSubCategory(req.params._id as string);
+    return res.json(new ApiResponse(200, {}, SuccessMessage.SUBCATEGORY_RESTORED));
   }
 );
 export const hardDeleteOneSubCategory = asyncHandler(

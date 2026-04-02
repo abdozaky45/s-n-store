@@ -6,6 +6,7 @@ export const createCategoryValidation = baseSchema.concat(
             ar: joi.string().required(),
             en: joi.string().required()
         }).required(),
+        group: joi.string().required(),
         imageUrl: joi.string().required(),
     }).required()
 );
@@ -16,11 +17,12 @@ export const updateCategoryValidation = baseSchema.concat(
             ar: joi.string().optional(),
             en: joi.string().optional(),
         }).optional(),
+        group: joi.string().optional(),
         imageUrl: joi.string().optional(),
         isNewArrival: joi.boolean().optional(),
     }).required()
 );
-export const deleteCategoryValidation = baseSchema.concat(
+export const _idCategoryValidation = baseSchema.concat(
     joi.object({
         _id: joi.string().required(),
     }).required()

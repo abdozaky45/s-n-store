@@ -8,6 +8,7 @@ export default interface ISubCategory {
     ar: string;
     en: string;
   };
+   groupSize: Types.ObjectId | string; 
   category: Types.ObjectId | string;
   image: SubCategoryImage;
   createdBy: Types.ObjectId | string;

@@ -233,6 +233,13 @@ export const softDeleteProduct = async (_id: string | Types.ObjectId) => {
   });
   return product;
 };
+export const restoreProduct = async (_id: string) => {
+  return ProductModel.findByIdAndUpdate(
+    _id,
+    { isDeleted: false },
+    { new: true }
+  );
+};
 export const hardDeleteProduct = async (_id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();

@@ -10,18 +10,20 @@ import {
   getAllCategories,
   findAllDeletedCategories,
   hardDeleteCategory,
+  restoreCategory,
 } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 export const CreateNewCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
-     name,
+      name,
+      groupSize,
       imageUrl
     } = req.body;
-    console.log(req.body.currentUser);
     const mediaId = extractMediaId(imageUrl);
     const category = await createCategory({
       name,
+      groupSize,
       mediaUrl: imageUrl,
       mediaId,
       createdBy: req.body.currentUser.userInfo._id,
@@ -40,10 +42,12 @@ export const updateCategory = asyncHandler(
     const {
       name,
       imageUrl,
+      groupSize
     } = req.body;
     const updates = await prepareCategoryUpdates(Category,
-     name,
-      imageUrl
+      name,
+      imageUrl,
+      groupSize
     );
     if (updates) {
       await Category.save();
@@ -73,6 +77,21 @@ export const softDeleteOneCategory = asyncHandler(
     await softDeleteCategory(req.params._id as string);
     return res.json(
       new ApiResponse(200, {}, SuccessMessage.CATEGORY_DELETED_SUCCESS)
+    );
+  }
+);
+export const restoreOneCategory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const category = await findCategoryById(req.params._id as string);
+    if (!category) {
+      throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
+    }
+    if (!category.isDeleted) {
+      throw new ApiError(400, 'Category is not deleted');
+    }
+    await restoreCategory(req.params._id as string);
+    return res.json(
+      new ApiResponse(200, {}, SuccessMessage.CATEGORY_RESTORED)
     );
   }
 );

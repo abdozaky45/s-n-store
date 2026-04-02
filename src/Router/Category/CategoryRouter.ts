@@ -5,7 +5,8 @@ import * as CategoryValidation from "../../Validation/Category/CategoryValidatio
 const categoryRouter = Router();
 categoryRouter.post("/create", Validation(CategoryValidation.createCategoryValidation), categoryController.CreateNewCategory);
 categoryRouter.patch("/update/:_id", Validation(CategoryValidation.updateCategoryValidation), categoryController.updateCategory);
-categoryRouter.patch("/soft-delete/:_id", Validation(CategoryValidation.deleteCategoryValidation), categoryController.softDeleteOneCategory);
-categoryRouter.delete("/hard-delete/:_id", Validation(CategoryValidation.deleteCategoryValidation), categoryController.hardDeleteOneCategory);
+categoryRouter.patch("/soft-delete/:_id", Validation(CategoryValidation._idCategoryValidation), categoryController.softDeleteOneCategory);
+categoryRouter.patch("/restore/:_id", Validation(CategoryValidation._idCategoryValidation), categoryController.restoreOneCategory);
+categoryRouter.delete("/hard-delete/:_id", Validation(CategoryValidation._idCategoryValidation), categoryController.hardDeleteOneCategory);
 categoryRouter.get("/deleted", categoryController.getAllDeletedCategories);
 export default categoryRouter;
