@@ -5,11 +5,5 @@ import * as ImageSliderValidation from "../../Validation/ImageSlider/ImageSlider
 const imageSliderRouter = Router();
 imageSliderRouter.post("/create", Validation(ImageSliderValidation.createImageSliderValidation), ImageSliderController.createHeroSection);
 imageSliderRouter.patch("/update/:id", Validation(ImageSliderValidation.updateImageSliderValidation), ImageSliderController.updateOneHeroSection);
-imageSliderRouter.post("/delete/:id", Validation(ImageSliderValidation.deleteImageSliderValidation), ImageSliderController.deleteHeroSection);
+imageSliderRouter.delete("/delete/:id", Validation(ImageSliderValidation.deleteImageSliderValidation), ImageSliderController.deleteHeroSection);
 export default imageSliderRouter;
-/**
- https://atozaccessories.s3.us-east-1.amazonaws.com/imageSlider/676576abee893245e6d0d0b9_1737487510450_0
- https://atozaccessories.s3.us-east-1.amazonaws.com/imageSlider/676576abee893245e6d0d0b9_1737487962726_0
- https://atozaccessories.s3.us-east-1.amazonaws.com/imageSlider/676576abee893245e6d0d0b9_1737488160932_0
- https://atozaccessories.s3.us-east-1.amazonaws.com/imageSlider/676576abee893245e6d0d0b9_1737488418547_0
- */

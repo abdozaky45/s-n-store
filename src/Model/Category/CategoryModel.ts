@@ -7,6 +7,7 @@ const CategorySchema = new Schema<ICategory>({
     ar: RequiredString,
     en: RequiredString,
   },
+  groupSize: RefType(SchemaTypesReference.GroupSize, true),
   image: ImageSchema,
   createdBy: RefType(SchemaTypesReference.User, true),
   isDeleted: NotRequiredBoolean
@@ -21,6 +22,12 @@ CategorySchema.virtual(SchemaTypesReference.SubCategory, {
   foreignField: SchemaTypesReference.Category,
   id: false,
 }
-)
+);
+CategorySchema.virtual(SchemaTypesReference.SizeCategory, {
+  ref: SchemaTypesReference.SizeCategory,
+  localField:SchemaTypesReference.GroupSize,      
+  foreignField: SchemaTypesReference.GroupSize,    
+  options: { sort: { order: 1 } }, 
+});
 const CategoryModel = model(SchemaTypesReference.Category, CategorySchema);
 export default CategoryModel;

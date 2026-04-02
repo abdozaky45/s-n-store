@@ -5,16 +5,17 @@ import ISubCategory from "../../Model/SubCategory/ISubcategory";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
-import s3_service from "../Aws/S3_Bucket/presignedUrl";
 import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
 export const createSubCategory = async ({
   name,
+  groupSize,
   category,
   mediaUrl,
   mediaId,
   createdBy,
 }: {
   name: { ar: string; en: string };
+  groupSize: string | Types.ObjectId;
   category: Types.ObjectId | string;
   mediaUrl: string;
   mediaId: string;
@@ -22,6 +23,7 @@ export const createSubCategory = async ({
 }) => {
   const SubCategory = await SubCategoryModel.create({
     name,
+    groupSize,
     category,
     image: {
       mediaUrl,
@@ -32,11 +34,17 @@ export const createSubCategory = async ({
   return SubCategory;
 };
 export const findSubCategoryById = async (_id: string) => {
-  const subCategory = await SubCategoryModel.findById(_id).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
-  return subCategory;
+  return SubCategoryModel.findById(_id)
+    .populate(SchemaTypesReference.Category)
+    .populate({
+      path: SchemaTypesReference.SizeCategory,
+      select: 'size order -_id',
+    })
+    .select('-__v');
 };
 export const prepareSubCategoryUpdates = async (
   subCategory: ISubCategory,
+  groupSize?: string | Types.ObjectId,
   name?: { ar?: string; en?: string },
   category?: Types.ObjectId | string,
   imageUrl?: string,
@@ -44,6 +52,10 @@ export const prepareSubCategoryUpdates = async (
   let updated = false;
   if (category && category.toString() !== subCategory.category.toString()) {
     subCategory.category = category;
+    updated = true;
+  }
+  if (groupSize && groupSize.toString() !== subCategory.groupSize.toString()) {
+    subCategory.groupSize = groupSize;
     updated = true;
   }
   if (name && (name.ar || name.en)) {
@@ -89,6 +101,25 @@ export const findAllDeletedSubCategories = async () => {
   const subCategories = await SubCategoryModel.find({ isDeleted: true }).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
   return subCategories;
 }
+export const restoreSubCategory = async (_id: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    await SubCategoryModel.findByIdAndUpdate(_id, { isDeleted: false }, { session });
+    await ProductModel.updateMany(
+      { subCategory: _id },
+      { isDeleted: false },
+      { session }
+    );
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
 export const hardDeleteSubCategory = async (_id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();

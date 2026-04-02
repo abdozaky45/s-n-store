@@ -54,7 +54,7 @@ export const updateProductValidation = baseSchema.concat(
         isNewArrival: joi.boolean().optional(),
     }).required()
 );
-export const deleteProductValidation = baseSchema.concat(
+export const ProductIdValidationSchema = baseSchema.concat(
     joi.object({
         productId: joi.string().required(),
     }).required()
@@ -81,7 +81,6 @@ export const getUserProductsValidation = baseSchema.concat(
         page: joi.string().required(),
     }).required()
 );
-
 export const getUserAllProductsValidation = joi.object({
     category: joi.string().optional(),
     subCategory: joi.string().optional(),

@@ -80,7 +80,7 @@ export const deleteHeroSection = asyncHandler(
     return res.json(new ApiResponse(200, {}, SuccessMessage.IMAGE_DELETED));
   }
 );
-export const getHeroSection = asyncHandler(
+export const getAllHeroSections = asyncHandler(
   async (req: Request, res: Response) => {
     const imageSlider = await getAllImageSlider()
     return res.json(

@@ -59,7 +59,7 @@ export const activeAccount = asyncHandler(
     }
     const currentTime = moment().valueOf();
     const createdAt = user.codeCreatedAt!;
-    if (currentTime - createdAt > 10 * 60 * 1000) {
+    if (currentTime - createdAt > 5 * 60 * 1000) {
       throw new ApiError(400, ErrorMessages.ACTIVE_CODE_EXPIRED);
     }
     const isMatch = await compareActiveCode(activeCode, user.activeCode!);

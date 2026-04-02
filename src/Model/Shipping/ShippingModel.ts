@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose"
-import { NotRequiredBoolean, RequiredNumber, RequiredString } from "../../Utils/Schemas";
+import { RequiredNumber, RequiredString } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import IShipping from "./Ishipping";
 const ShippingSchema = new Schema<IShipping>({

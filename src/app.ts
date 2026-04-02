@@ -21,6 +21,7 @@ import SizeCategoryRouter from "./Router/SizeCategory/SizeCategoryRouter";
 import ColorRouter from "./Router/Color/ColorRouter";
 import VariantRouter from "./Router/Variant/VariantRouter";
 import OfferRouter from "./Router/Offers/OffersRouter";
+import OrderRouter from "./Router/Order/OrderRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -71,7 +72,7 @@ app.use(
 app.use(
   `/${RouterEnum.color}`,
   checkRole([UserTypeEnum.ADMIN]),
- ColorRouter
+  ColorRouter
 )
 app.use(
   `/${RouterEnum.shipping}`,
@@ -84,12 +85,11 @@ app.use(
   checkRole([UserTypeEnum.ADMIN]),
   OfferRouter
 );
-// app.use(
-//   `/${RouterEnum.order}`,
-//   checkRole([UserTypeEnum.ADMIN,
-//   UserTypeEnum.USER]), // fix
-//   OrderRouter
-// );
+app.use(
+  `/${RouterEnum.order}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  OrderRouter
+);
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);
 });

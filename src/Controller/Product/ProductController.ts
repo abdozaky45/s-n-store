@@ -19,6 +19,7 @@ import {
   getAdminProductById,
   getProductsStock,
   hardDeleteProduct,
+  restoreProduct,
 } from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
@@ -151,6 +152,16 @@ export const softDeleteProductController = asyncHandler(
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     await softDeleteProduct(productId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
+  }
+);
+export const restoreOneProduct = asyncHandler(
+  async (req: Request, res: Response) => {
+    const product = await getAdminProductById(req.params._id as string);
+    if (!product) throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
+    if (!product.isDeleted) throw new ApiError(400, 'Product is not deleted');
+
+    await restoreProduct(req.params._id as string);
+    return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_RESTORED));
   }
 );
 export const hardDeleteProductController = asyncHandler(

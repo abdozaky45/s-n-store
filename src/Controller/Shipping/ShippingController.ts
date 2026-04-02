@@ -15,34 +15,19 @@ export const createShipping = asyncHandler(
         ));
     }
 );
-export const getAllShipping = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-        const shipping = await ShippingService.getAllShipping();
-        return res.status(200).json(new ApiResponse(200, { shipping }));
-    }
-);
-export const getShippingById = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-        const shippingId = req.params.id as string;
-        const shipping = await ShippingService.getShippingById(shippingId);
-        if (!shipping) {
-            throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
-        }
-        return res.status(200).json(new ApiResponse(200, { shipping }));
-    }
-);
 export const updateShipping = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const shippingData: Partial<IShipping> = {
-            name: { ar: req.body.name.ar, en: req.body.name.en },
-            cost: req.body.cost
+            name: req.body.name ? { ar: req.body.name.ar, en: req.body.name.en } : undefined,
+            cost: req.body.cost ? req.body.cost : undefined
         }
-        const shippingId = req.params._id as string;
-        const checkShipping = await ShippingService.getShippingById(shippingId);
+        console.log("shippingData", shippingData);
+        console.log("req.params._id", req.params._id);
+        const checkShipping = await ShippingService.getShippingById(req.params._id as string);
         if (!checkShipping) {
             throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
         }
-        const shipping = await ShippingService.updateShipping(shippingId, shippingData);
+        const shipping = await ShippingService.updateShipping(req.params._id as string, shippingData);
         return res.status(200).json(new ApiResponse(200, { shipping }, SuccessMessage.SHIPPING_UPDATED));
     }
 );
@@ -55,5 +40,21 @@ export const deleteShipping = asyncHandler(
         }
         await ShippingService.deleteShipping(shippingId);
         return res.status(200).json(new ApiResponse(200, {}, SuccessMessage.SHIPPING_DELETED));
+    }
+);
+export const getAllShipping = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const shipping = await ShippingService.getAllShipping();
+        return res.status(200).json(new ApiResponse(200, { shipping }));
+    }
+);
+export const getShippingById = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const shippingId = req.params._id as string;
+        const shipping = await ShippingService.getShippingById(shippingId);
+        if (!shipping) {
+            throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
+        }
+        return res.status(200).json(new ApiResponse(200, { shipping }));
     }
 );
