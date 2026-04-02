@@ -22,7 +22,7 @@ export const updateCategoryValidation = baseSchema.concat(
         isNewArrival: joi.boolean().optional(),
     }).required()
 );
-export const _idCategoryValidation = baseSchema.concat(
+export const validationSchemaForCategoryId = baseSchema.concat(
     joi.object({
         _id: joi.string().required(),
     }).required()

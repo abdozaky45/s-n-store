@@ -23,6 +23,7 @@ enum SuccessMessage {
   PRODUCT_CREATED = "Product created successfully",
   PRODUCT_UPDATED = "Product updated successfully",
   PRODUCT_NOT_UPDATED = "No changes to update",
+  PRODUCT_RESTORED = "Product restored successfully",
   PRODUCT_FOUND = "Product found successfully",
   PRODUCT_DELETED = "Product deleted successfully",
   IMAGE_SLIDER_CREATED = "Image slider created successfully",
