@@ -9,8 +9,8 @@ import wishlistRouter from "../Wishlist/WishlistRouter";
 import PublicOfferRouter from "../Offers/OffersPublicRouter";
 import customerInfoRouter from "../User/CustomerInfoRouter";
 import CustomerRouter from "../User/CustomerRouter";
-import OrderRouter from "../Order/OrderRouter";
 import PublicShippingRouter from "../Shipping/PublicShippingRouter";
+import PublicOrderRouter from "../Order/PublicOrderRouter";
 const publicRouter = Router();
 publicRouter.use(`/${RouterEnum.customer}`,CustomerRouter );
 publicRouter.use(`/${RouterEnum.customerInfo}`, customerInfoRouter);
@@ -22,5 +22,5 @@ publicRouter.use(`/${RouterEnum.imageSlider}`, PublicImageSliderRouter);
 publicRouter.use(`/${RouterEnum.shipping}`,PublicShippingRouter)
 publicRouter.use(`/${RouterEnum.wishlist}`, wishlistRouter);
 publicRouter.use(`/${RouterEnum.offers}`, PublicOfferRouter);
-//publicRouter.use(`/${RouterEnum.order}`, OrderRouter);
+publicRouter.use(`/${RouterEnum.order}`, PublicOrderRouter);
 export default publicRouter;

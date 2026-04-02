@@ -39,6 +39,8 @@ enum SuccessMessage {
   SHIPPING_UPDATED = "Shipping updated successfully",
   SHIPPING_DELETED = "Shipping deleted successfully",
   ORDER_CREATED = "Thank you for your order. We'll send you a confirmation email shortly.",
+  ORDER_CANCELLED = "Order cancelled successfully",
+  ORDER_FOUND = "Order found successfully",
   ORDER_UPDATED = "Order updated successfully",
   ORDER_FETCHED = "Orders fetched successfully",
   COLOR_CREATED = "Color created successfully",
