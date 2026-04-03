@@ -22,6 +22,7 @@ import ColorRouter from "./Router/Color/ColorRouter";
 import VariantRouter from "./Router/Variant/VariantRouter";
 import OfferRouter from "./Router/Offers/OffersRouter";
 import OrderRouter from "./Router/Order/OrderRouter";
+import SocialReviewRouter from "./Router/SocialReview/SocialReviewRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -89,6 +90,11 @@ app.use(
   `/${RouterEnum.order}`,
   checkRole([UserTypeEnum.ADMIN]),
   OrderRouter
+);
+app.use(
+  `/${RouterEnum.socialReview}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  SocialReviewRouter
 );
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);
