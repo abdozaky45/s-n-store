@@ -10,3 +10,4 @@ app.listen(process.env.PORT, async () => {
   console.log(`server is running on port ${process.env.PORT || 8080}`);
 });
 startServer();
+    // "start": "node dist/index.js",
