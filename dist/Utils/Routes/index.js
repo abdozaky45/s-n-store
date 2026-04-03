@@ -1,0 +1,24 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var RouterEnum;
+(function (RouterEnum) {
+    RouterEnum["authentication"] = "authentication";
+    RouterEnum["user"] = "user";
+    RouterEnum["customer"] = "customer";
+    RouterEnum["customerInfo"] = "customer-info";
+    RouterEnum["category"] = "category";
+    RouterEnum["subCategory"] = "sub-category";
+    RouterEnum["sizeCategory"] = "group-size";
+    RouterEnum["product"] = "product";
+    RouterEnum["variant"] = "variant";
+    RouterEnum["color"] = "color";
+    RouterEnum["public"] = "public";
+    RouterEnum["aws"] = "aws";
+    RouterEnum["imageSlider"] = "hero-section";
+    RouterEnum["wishlist"] = "wishlist";
+    RouterEnum["shipping"] = "shipping";
+    RouterEnum["offers"] = "offers";
+    RouterEnum["order"] = "order";
+    RouterEnum["socialReview"] = "social-review";
+})(RouterEnum || (RouterEnum = {}));
+exports.default = RouterEnum;
