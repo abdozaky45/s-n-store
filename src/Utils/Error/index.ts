@@ -53,5 +53,7 @@ enum ErrorMessages {
   INVALID_OFFER_STATUS = "Invalid offer status",
   INVALID_OFFER_ID = "Invalid offer ID",
   CUSTOMER_NOT_FOUND = "Customer not found",
+  NO_MEDIA_ID_PROVIDED = "No media ID provided",
+  SOCIAL_REVIEW_NOT_FOUND = "Review not found",
 }
 export default ErrorMessages;

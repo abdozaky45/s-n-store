@@ -16,5 +16,6 @@ enum RouterEnum {
   shipping = "shipping",
   offers = "offers",
   order = "order",
+  socialReview = "social-review"
 }
 export default RouterEnum;

@@ -62,6 +62,11 @@ enum SuccessMessage {
   CUSTOMER_UPDATED = "Customer updated successfully",
   CUSTOMER_FOUND = "Customer found successfully",
   CUSTOMER_DELETED = "Customer deleted successfully",  
+  SOCIAL_REVIEW_CREATED = "Social review created successfully",
+  SOCIAL_REVIEW_UPDATED = "Social review updated successfully",
+  SOCIAL_REVIEW_FOUND = "Social review found successfully",
+  SOCIAL_REVIEW_DELETED = "Social review deleted successfully",
+  SOCIAL_REVIEW_UPDATED_NO_CHANGES = "No changes to update",
   NULL = "NULL"
 
 }

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "target": "ES2020",
-    "module": "CommonJS",
+    "module": "NodeNext",  
     "allowJs": true,
     "rootDir": "./src",
     "outDir": "./dist",
@@ -13,8 +13,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "checkJs": false,
-    "moduleResolution": "node"
-  },
+  "moduleResolution": "NodeNext"
+},
   "include": ["src/**/*"],
   "exclude": ["node_modules", "./dist", "./src/TDD", "jest.config.js"]
 }
