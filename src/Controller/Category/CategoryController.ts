@@ -45,9 +45,9 @@ export const updateCategory = asyncHandler(
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     const {
+      groupSize,
       name,
       imageUrl,
-      groupSize
     } = req.body;
     if (groupSize) {
       const existingGroupSize = await findGroupSizeById(groupSize);
@@ -56,9 +56,10 @@ export const updateCategory = asyncHandler(
       }
     }
     const updates = await prepareCategoryUpdates(Category,
+      groupSize,
       name,
       imageUrl,
-      groupSize
+
     );
     if (updates) {
       await Category.save();
@@ -126,10 +127,10 @@ export const getCategories = asyncHandler(
 );
 export const getCategoryById = asyncHandler(
   async (req: Request, res: Response) => {
-    if (!req.params.categoryId) {
+    if (!req.params._id) {
       throw new ApiError(400, ErrorMessages.DATA_IS_REQUIRED);
     }
-    const category = await findCategoryById(req.params.categoryId as string);
+    const category = await findCategoryById(req.params._id as string);
     if (!category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }
