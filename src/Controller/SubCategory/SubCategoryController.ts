@@ -13,6 +13,7 @@ import {
   hardDeleteSubCategory,
   restoreSubCategory
 } from "../../Service/SubCategory/SubCategoryService";
+import { findGroupSizeById } from "../../Service/SizeCategory/SizeCategoryService";
 export const CreateNewSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -21,7 +22,10 @@ export const CreateNewSubCategory = asyncHandler(
       imageUrl,
       category
     } = req.body;
-
+    const ExistingGroupSize = await findGroupSizeById(groupSize);
+    if (!ExistingGroupSize) {
+      throw new ApiError(400, ErrorMessages.GROUP_SIZE_NOT_FOUND);
+    }
     const mediaId = extractMediaId(imageUrl);
     const categoryExists = await findCategoryById(category);
     if (!categoryExists) {
@@ -48,6 +52,12 @@ export const updateSubCategory = asyncHandler(
       category,
       groupSize
     } = req.body;
+    if (groupSize) {
+      const existingGroupSize = await findGroupSizeById(groupSize);
+      if (!existingGroupSize) {
+        throw new ApiError(400, ErrorMessages.GROUP_SIZE_NOT_FOUND);
+      }
+    }
     const subCategory = await findSubCategoryById(req.params._id as string);
     if (!subCategory) {
       throw new ApiError(404, ErrorMessages.SUBCATEGORY_NOT_FOUND);

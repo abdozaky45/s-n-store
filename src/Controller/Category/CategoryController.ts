@@ -13,6 +13,7 @@ import {
   restoreCategory,
 } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
+import { findGroupSizeById } from "../../Service/SizeCategory/SizeCategoryService";
 export const CreateNewCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -21,6 +22,10 @@ export const CreateNewCategory = asyncHandler(
       imageUrl
     } = req.body;
     const mediaId = extractMediaId(imageUrl);
+    const existingGroupSize = await findGroupSizeById(groupSize);
+    if (!existingGroupSize) {
+      throw new ApiError(400, ErrorMessages.GROUP_SIZE_NOT_FOUND);
+    }
     const category = await createCategory({
       name,
       groupSize,
@@ -44,6 +49,12 @@ export const updateCategory = asyncHandler(
       imageUrl,
       groupSize
     } = req.body;
+    if (groupSize) {
+      const existingGroupSize = await findGroupSizeById(groupSize);
+      if (!existingGroupSize) {
+        throw new ApiError(400, ErrorMessages.GROUP_SIZE_NOT_FOUND);
+      }
+    }
     const updates = await prepareCategoryUpdates(Category,
       name,
       imageUrl,
