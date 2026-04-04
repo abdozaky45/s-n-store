@@ -13,6 +13,8 @@ const SubCategorySchema = new Schema<ISubCategory>({
   createdBy: RefType(SchemaTypesReference.User, true),
   isDeleted: NotRequiredBoolean
 }, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
   id: false
 });
 SubCategorySchema.virtual(SchemaTypesReference.SizeCategory, {
