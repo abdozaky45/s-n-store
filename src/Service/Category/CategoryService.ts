@@ -6,6 +6,7 @@ import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
+import ICategory from "../../Model/Category/Icategory";
 export const createCategory = async ({
   name,
   groupSize,
@@ -39,13 +40,12 @@ export const extractMediaId = (imageUrl: string) => {
 };
 export const findCategoryById = async (_id: string) => {
   const category = await CategoryModel.findById(_id)
+    .select("-__v")
     .populate(SchemaTypesReference.SubCategory)
     .populate({
       path: SchemaTypesReference.SizeCategory,
       select: 'size order -_id',
-    })
-    .select("-__v")
-    ;
+    });
   return category;
 };
 export const deletePresignedURL = async (fileName: string) => {
@@ -57,7 +57,7 @@ export const deletePresignedURL = async (fileName: string) => {
   return deleteImage;
 };
 export const prepareCategoryUpdates = async (
-  category: any,
+  category: ICategory&{_id: Types.ObjectId},
   groupSize?: string | Types.ObjectId,
   name?: { ar?: string; en?: string },
   imageUrl?: string,
@@ -135,7 +135,11 @@ export const restoreCategory = async (_id: string) => {
 export const getAllCategories = async () => {
   const categories =
     await CategoryModel.find({ isDeleted: false })
-      .populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
+      .select("name image")
+      .populate({
+        path: SchemaTypesReference.SubCategory,
+        select: "name image -category",
+      })
   return categories;
 };
 export const findAllDeletedCategories = async () => {
