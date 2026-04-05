@@ -14,7 +14,7 @@ export const createImageSliderValidation = baseSchema.concat(joi.object({
     }).required()
 }));
 export const updateImageSliderValidation = baseSchema.concat(joi.object({
-    id: joi.string().required(),
+    _id: joi.string().required(),
     images: joi.object({
         image1: joi.object({
             imageUrl: joi.string().optional(),
@@ -26,6 +26,9 @@ export const updateImageSliderValidation = baseSchema.concat(joi.object({
         })
     }).required()
 }));
-export const deleteImageSliderValidation = baseSchema.concat(joi.object({
-    id: joi.string().required()
+export const imageSliderIdAdminValidation = baseSchema.concat(joi.object({
+    _id: joi.string().required()
 }));
+export const imageSliderIdUserValidation = joi.object({
+    _id: joi.string().required()
+}).required();
