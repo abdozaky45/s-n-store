@@ -9,28 +9,29 @@ export const createSocialReviewController = asyncHandler(
     async (req: Request, res: Response) => {
         const SocialReviewData: ISocialReview = {
             image: {
-                mediaUrl: req.body.image.mediaUrl,
-                mediaId: extractMediaId(req.body.image)
+                mediaUrl: req.body.imageUrl,
+                mediaId: extractMediaId(req.body.imageUrl)
             },
             createdBy: req.body.currentUser.userInfo._id
         }
         const review = await SocialReviewService.AddNewSocialReview(SocialReviewData);
         return res.json(new ApiResponse(200, { review }, SuccessMessage.SOCIAL_REVIEW_CREATED));
-    });
+    }
+);
 export const updateSocialReviewController = asyncHandler(
     async (req: Request, res: Response) => {
-        const reviewId = req.params.id as string;
-        const review = await SocialReviewService.getSocialReviewById(reviewId);
+        const reviewId = req.params._id as string;
+        const review = await SocialReviewService.findSocialReviewById(reviewId);
         if (!review) {
             return res.status(404).json(new ApiResponse(404, null, ErrorMessages.SOCIAL_REVIEW_NOT_FOUND));
         }
-        const updatedReview = await SocialReviewService.updateSocialReview(reviewId, review, req.body.image?.mediaUrl);
+        const updatedReview = await SocialReviewService.updateSocialReview(reviewId, review, req.body.imageUrl);
         if (updatedReview) {
             await review.save();
             return res.json(
                 new ApiResponse(
                     200,
-                    { review: updatedReview },
+                    {},
                     SuccessMessage.SOCIAL_REVIEW_UPDATED
                 )
             );
@@ -42,11 +43,12 @@ export const updateSocialReviewController = asyncHandler(
                 SuccessMessage.SOCIAL_REVIEW_UPDATED_NO_CHANGES
             )
         );
-    });
+    }
+);
 export const deleteSocialReviewController = asyncHandler(
     async (req: Request, res: Response) => {
-        const reviewId = req.params.id as string;
-        const review = await SocialReviewService.getSocialReviewById(reviewId);
+        const reviewId = req.params._id as string;
+        const review = await SocialReviewService.findSocialReviewById(reviewId);
         if (!review) {
             return res.status(404).json(new ApiResponse(404, null, ErrorMessages.SOCIAL_REVIEW_NOT_FOUND));
         }
@@ -62,7 +64,7 @@ export const getAllSocialReviewsController = asyncHandler(
 );
 export const getSocialReviewByIdController = asyncHandler(
     async (req: Request, res: Response) => {
-        const reviewId = req.params.id as string;
+        const reviewId = req.params._id as string;
         const review = await SocialReviewService.getSocialReviewById(reviewId);
         if (!review) {
             return res.status(404).json(new ApiResponse(404, null, ErrorMessages.SOCIAL_REVIEW_NOT_FOUND));
