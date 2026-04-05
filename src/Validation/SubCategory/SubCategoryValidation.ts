@@ -24,8 +24,11 @@ export const updateSubCategoryValidation = baseSchema.concat(
         imageUrl: joi.string().optional(),
     }).required()
 );
-export const subCategoryIdValidationSchema = baseSchema.concat(
+export const subCategoryIdAdminValidationSchema = baseSchema.concat(
     joi.object({
         _id: joi.string().required(),
     }).required()
 );
+export const subCategoryIdUserValidationSchema = joi.object({
+    _id: joi.string().required(),
+}).required();

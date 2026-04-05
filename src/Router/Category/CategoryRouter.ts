@@ -3,12 +3,12 @@ import * as categoryController from "../../Controller/Category/CategoryControlle
 import { Validation } from "../../middleware/ValidationMiddleware";
 import * as CategoryValidation from "../../Validation/Category/CategoryValidation";
 const categoryRouter = Router();
-categoryRouter.post("/create", Validation(CategoryValidation.createCategoryValidation), categoryController.CreateNewCategory);
+categoryRouter.post("/create", Validation(CategoryValidation.createCategoryValidation), categoryController.CreateCategory);
 categoryRouter.patch("/update/:_id", Validation(CategoryValidation.updateCategoryValidation), categoryController.updateCategory);
 categoryRouter.patch("/soft-delete/:_id", Validation(CategoryValidation.categoryIdAdminValidationSchema), categoryController.softDeleteOneCategory);
 categoryRouter.patch("/restore/:_id", Validation(CategoryValidation.categoryIdAdminValidationSchema), categoryController.restoreOneCategory);
 categoryRouter.delete("/hard-delete/:_id", Validation(CategoryValidation.categoryIdAdminValidationSchema), categoryController.hardDeleteOneCategory);
 categoryRouter.get("/all-categories-deleted", categoryController.getAllDeletedCategories);
-categoryRouter.get("/get-all-categories", categoryController.getCategories);
+categoryRouter.get("/get-all-categories", categoryController.getAllCategories);
 categoryRouter.get("/get-one-category/:_id", Validation(CategoryValidation.categoryIdAdminValidationSchema), categoryController.getCategoryById);
 export default categoryRouter;

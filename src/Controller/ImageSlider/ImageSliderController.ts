@@ -1,7 +1,4 @@
-import {
-  deletePresignedURL,
-  extractMediaId,
-} from "../../Service/Category/CategoryService";
+
 import {
   createImageSlider,
   deleteImageSlider,
@@ -14,6 +11,7 @@ import { Request, Response, NextFunction } from "express";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import ErrorMessages from "../../Utils/Error";
 import IimageSlider from "../../Model/ImageSlider/IimageSlider";
+import { extractMediaId ,deletePresignedURL} from "../../Shared/MediaShared";
 export const createHeroSection = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { images } = req.body;

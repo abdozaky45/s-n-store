@@ -1,12 +1,12 @@
 import CategoryModel from "../../Model/Category/CategoryModel";
 import mongoose, { Types } from "mongoose";
-import s3_service from "../Aws/S3_Bucket/presignedUrl";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
 import ICategory from "../../Model/Category/Icategory";
+import { extractMediaId } from "../../Shared/MediaShared";
 export const createCategory = async ({
   name,
   groupSize,
@@ -31,14 +31,7 @@ export const createCategory = async ({
   });
   return category;
 };
-export const extractMediaId = (imageUrl: string) => {
-  if (!imageUrl.includes("amazonaws.com/")) {
-    return "Invalid image url";
-  }
-  const mediaId = imageUrl.split("amazonaws.com/")[1];
-  return mediaId;
-};
-export const findCategoryById = async (_id: string) => {
+export const getCategoryById = async (_id: string) => {
   const category = await CategoryModel.findById(_id)
     .select("-__v")
     .populate(SchemaTypesReference.SubCategory)
@@ -48,14 +41,7 @@ export const findCategoryById = async (_id: string) => {
     });
   return category;
 };
-export const deletePresignedURL = async (fileName: string) => {
-  const aws_s3_service = new s3_service();
-  const deleteImage = await aws_s3_service.deletePresignedUrl({
-    bucket: process.env.AWS_BUCKET_NAME!,
-    key: fileName as string,
-  });
-  return deleteImage;
-};
+
 export const prepareCategoryUpdates = async (
   category: ICategory&{_id: Types.ObjectId},
   groupSize?: string | Types.ObjectId,
@@ -142,7 +128,7 @@ export const getAllCategories = async () => {
       })
   return categories;
 };
-export const findAllDeletedCategories = async () => {
+export const getDeletedCategoryList = async () => {
   const categories = await CategoryModel.find({ isDeleted: true }).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
   return categories;
 };

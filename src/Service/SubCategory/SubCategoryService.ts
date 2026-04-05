@@ -1,11 +1,11 @@
 import mongoose, { Types } from "mongoose";
-import { extractMediaId } from "../Category/CategoryService";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import ISubCategory from "../../Model/SubCategory/ISubcategory";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
+import { extractMediaId } from "../../Shared/MediaShared";
 export const createSubCategory = async ({
   name,
   groupSize,
@@ -33,7 +33,7 @@ export const createSubCategory = async ({
   });
   return SubCategory;
 };
-export const findSubCategoryById = async (_id: string) => {
+export const getSubCategoryById = async (_id: string) => {
   return SubCategoryModel.findById(_id)
     .populate(SchemaTypesReference.Category)
     .populate({
@@ -94,7 +94,12 @@ export const softDeleteSubCategory = async (_id: string) => {
   }
 };
 export const getAllSubCategories = async () => {
-  const subCategories = await SubCategoryModel.find({ isDeleted: false }).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
+  const subCategories = await SubCategoryModel.find({ isDeleted: false })
+  .select("-isDeleted -__v")
+  .populate({
+    path: SchemaTypesReference.Category,
+    select: "name image",
+  });
   return subCategories;
 };
 export const findAllDeletedSubCategories = async () => {
