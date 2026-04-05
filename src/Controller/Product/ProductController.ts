@@ -23,7 +23,7 @@ import {
 } from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
-import { findSubCategoryById } from "../../Service/SubCategory/SubCategoryService";
+import { getSubCategoryById } from "../../Service/SubCategory/SubCategoryService";
 import { createManyVariants } from "../../Service/Variant/VariantService";
 import IVariant from "../../Model/Variant/IVariantModel";
 import mongoose from "mongoose";
@@ -46,7 +46,7 @@ export const CreateProduct = asyncHandler(
     } = req.body;
     const checkCategory = await findCategoryById(category);
     if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
-    const checkSubCategory = subCategory ? await findSubCategoryById(subCategory) : null;
+    const checkSubCategory = subCategory ? await getSubCategoryById(subCategory) : null;
     if (subCategory && !checkSubCategory) throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     const processedAlbumImages =
       albumImages?.map((image: any) => {
@@ -113,7 +113,7 @@ export const updateProduct = asyncHandler(
       throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     const checkSubCategory = req.body.subCategory
-      ? await findSubCategoryById(req.body.subCategory)
+      ? await getSubCategoryById(req.body.subCategory)
       : null;
     if (req.body.subCategory && !checkSubCategory) {
       throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);

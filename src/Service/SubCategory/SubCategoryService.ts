@@ -33,7 +33,7 @@ export const createSubCategory = async ({
   });
   return SubCategory;
 };
-export const findSubCategoryById = async (_id: string) => {
+export const getSubCategoryById = async (_id: string) => {
   return SubCategoryModel.findById(_id)
     .populate(SchemaTypesReference.Category)
     .populate({
@@ -94,7 +94,12 @@ export const softDeleteSubCategory = async (_id: string) => {
   }
 };
 export const getAllSubCategories = async () => {
-  const subCategories = await SubCategoryModel.find({ isDeleted: false }).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
+  const subCategories = await SubCategoryModel.find({ isDeleted: false })
+  .select("-isDeleted -__v")
+  .populate({
+    path: SchemaTypesReference.Category,
+    select: "name image",
+  });
   return subCategories;
 };
 export const findAllDeletedSubCategories = async () => {

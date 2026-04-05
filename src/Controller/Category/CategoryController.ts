@@ -61,24 +61,26 @@ export const updateCategory = asyncHandler(
       imageUrl,
 
     );
-    if (updates) {
-      await Category.save();
+    if (!updates) {
       return res.json(
         new ApiResponse(
           200,
-          { category: Category },
-          SuccessMessage.CATEGORY_UPDATED
+          {},
+          SuccessMessage.NO_UPDATE_CATEGORY
         )
       );
     }
+
+    await Category.save();
     return res.json(
       new ApiResponse(
         200,
         {},
-        SuccessMessage.NO_UPDATE_CATEGORY
+        SuccessMessage.CATEGORY_UPDATED
       )
     );
   }
+
 );
 export const softDeleteOneCategory = asyncHandler(
   async (req: Request, res: Response) => {
