@@ -9,7 +9,7 @@ export const updateColor = async (_id: string, colorData: Partial<IColor>) => {
   const color = await ColorModel.findByIdAndUpdate(_id, colorData, { new: true }).select("-__v");
   return color;
 };
-export const findColorById = async (_id: string) => {
+export const getColorById = async (_id: string) => {
   const color = await ColorModel.findById(_id).select("-__v");
   return color;
 };
