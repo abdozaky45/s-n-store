@@ -2,7 +2,7 @@ import { deleteImage } from "../../Controller/Aws/AwsController";
 import ISocialReview from "../../Model/SocialReview/ISocialReviewModel";
 import SocialReviewModel from "../../Model/SocialReview/SocialReviewModel";
 import { Types } from "mongoose";
-import { extractMediaId } from "../Category/CategoryService";
+import { extractMediaId } from "../../Shared/MediaShared";
 
 export const AddNewSocialReview = async (socialReviewData: ISocialReview) => {
     const review = await SocialReviewModel.create(socialReviewData);

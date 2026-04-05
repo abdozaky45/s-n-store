@@ -1,11 +1,11 @@
 import mongoose, { Types } from "mongoose";
-import { extractMediaId } from "../Category/CategoryService";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import ISubCategory from "../../Model/SubCategory/ISubcategory";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
+import { extractMediaId } from "../../Shared/MediaShared";
 export const createSubCategory = async ({
   name,
   groupSize,

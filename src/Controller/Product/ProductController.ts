@@ -2,8 +2,7 @@ import { Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
 import {
-  extractMediaId,
-  findCategoryById,
+  getCategoryById
 } from "../../Service/Category/CategoryService";
 import moment from "../../Utils/DateAndTime";
 import {
@@ -27,6 +26,7 @@ import { getSubCategoryById } from "../../Service/SubCategory/SubCategoryService
 import { createManyVariants } from "../../Service/Variant/VariantService";
 import IVariant from "../../Model/Variant/IVariantModel";
 import mongoose from "mongoose";
+import { extractMediaId } from "../../Shared/MediaShared";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -44,7 +44,7 @@ export const CreateProduct = asyncHandler(
       sizeChartImage,
       variants,
     } = req.body;
-    const checkCategory = await findCategoryById(category);
+    const checkCategory = await getCategoryById(category);
     if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
     const checkSubCategory = subCategory ? await getSubCategoryById(subCategory) : null;
     if (subCategory && !checkSubCategory) throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
@@ -107,7 +107,7 @@ export const updateProduct = asyncHandler(
     const product = await getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     const checkCategory = req.body.category
-      ? await findCategoryById(req.body.category)
+      ? await getCategoryById(req.body.category)
       : null;
     if (req.body.category && !checkCategory) {
       throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);

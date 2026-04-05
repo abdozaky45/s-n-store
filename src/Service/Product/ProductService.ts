@@ -1,5 +1,4 @@
 import ProductModel from "../../Model/Product/ProductModel";
-import { extractMediaId } from "../Category/CategoryService";
 import { paginate } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import Fuse from "fuse.js";
@@ -12,6 +11,7 @@ import { orderStatusType } from "../../Utils/OrderStatusType";
 import AuthModel from "../../Model/User/auth/AuthModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteProductImages } from "../../Controller/Aws/AwsController";
+import { extractMediaId } from "../../Shared/MediaShared";
 export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
   if (!salePrice || salePrice === 0 || salePrice >= price) {
     return {

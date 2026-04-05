@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
-import { extractMediaId } from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import * as SubCategoryService from "../../Service/SubCategory/SubCategoryService";
 import { checkGroupSizeExists } from "../../Shared/GroupSizeShared";
 import { checkCategoryExists } from "../../Shared/CategoryShared";
 import { checkSubCategoryExists, findSubCategoryById } from "../../Shared/SubCategoryShared";
+import { extractMediaId } from "../../Shared/MediaShared";
 export const CreateSubCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
