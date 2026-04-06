@@ -7,7 +7,7 @@ export const addCustomerValidation = joi
 export const updateCustomerValidation = joi
   .object({
     _id: joi.string().required(),
-    phone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).optional(),
+    phone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).required(),
   })
   .required();
 export const findCustomerByIdValidation = joi
