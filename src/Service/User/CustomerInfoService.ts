@@ -6,24 +6,26 @@ export const createCutsomerInfo = async (userData: ICustomerInfo) => {
   const user = await CustomerInfoModel.create(userData);
   return user;
 };
-export const updateCutsomerInfo = async (_id: Types.ObjectId | string, userData: ICustomerInfo) => {
+export const updateCutsomerInfo = async (_id: Types.ObjectId | string, customerData: Partial<ICustomerInfo>) => {
   const updatedUser = await CustomerInfoModel.findByIdAndUpdate(
    _id,
-    { $set: userData },
+    { $set: customerData },
     { new: true }
   );
   return updatedUser;
 };
-export const deleteCutsomerInfo = async (customer: Types.ObjectId | string) => {
-  const deletedUser = await CustomerInfoModel.findOneAndDelete({ customer });
+export const deleteCutsomerInfo = async (_id: Types.ObjectId | string) => {
+  const deletedUser = await CustomerInfoModel.findByIdAndDelete(_id);
   return deletedUser;
 };
-export const findCutsomerInfoById = async (_id: Types.ObjectId | string) => {
-  const user = await CustomerInfoModel.findById(_id).populate(SchemaTypesReference.Shipping);
+export const getCustomerInfoById = async (_id: Types.ObjectId | string) => {
+  const user = await CustomerInfoModel.findById(_id)
+  .populate(SchemaTypesReference.Shipping)
+  .populate(SchemaTypesReference.Customer);
   return user;
 };
-export const findCutsomerInfoByCustomerId = async (customer: string | Types.ObjectId) => {
-  const users = await CustomerInfoModel.find({ customer }).populate(SchemaTypesReference.Shipping);
+export const gitCutsomerInfoByCustomerId = async (customer: string | Types.ObjectId) => {
+  const users = await CustomerInfoModel.find({ customer });
   return users;
 };
 export const checkIfPrimaryPhoneExists = async (customer: string | Types.ObjectId) => {

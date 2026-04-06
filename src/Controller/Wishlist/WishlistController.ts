@@ -5,11 +5,11 @@ import ErrorMessages from "../../Utils/Error";
 import * as wishlistService from "../../Service/Wishlist/WishlistService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { getUserProductById } from "../../Service/Product/ProductService";
-import { findCustomerById } from "../../Service/User/CustomerService";
+import { getCustomerById } from "../../Service/User/CustomerService";
 export const createWishlist = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { productId,customer } = req.body;
-    const checkCustomer = await findCustomerById(customer);
+    const checkCustomer = await getCustomerById(customer);
     if (!checkCustomer) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
     const Product = await getUserProductById(productId);
     if (!Product) throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
@@ -40,7 +40,7 @@ export const getUserWishlistById = asyncHandler(
 export const deleteWishlist = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const {productId ,customer} = req.params as { productId: string; customer: string };
-    const checkCustomer = await findCustomerById(customer);
+    const checkCustomer = await getCustomerById(customer);
     if (!checkCustomer) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
     if (!productId) throw new ApiError(404, ErrorMessages.DATA_IS_REQUIRED);
     const wishlist = await wishlistService.removeProductFromFavorites(customer, productId);
@@ -53,7 +53,7 @@ export const deleteWishlist = asyncHandler(
 export const getAllUserWishlist = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const {customer} = req.params as { customer: string };
-    const checkCustomer = await findCustomerById(customer);
+    const checkCustomer = await getCustomerById(customer);
     if (!checkCustomer) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
     const wishlist = await wishlistService.getUserWishlist(customer);
     if (!wishlist) throw new ApiError(404, ErrorMessages.WISHLIST_NOT_FOUND);

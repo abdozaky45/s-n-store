@@ -5,5 +5,5 @@ import * as CustomerValidation from "../../Validation/User/Customer/CustomerVali
 const CustomerRouter = Router();
 CustomerRouter.post("/identify",Validation(CustomerValidation.addCustomerValidation), CustomerController.identifyCustomer);
 CustomerRouter.patch("/:_id", Validation(CustomerValidation.updateCustomerValidation), CustomerController.updateCustomer);
-CustomerRouter.get("/:_id", Validation(CustomerValidation.findCustomerByIdValidation), CustomerController.findCustomerById);
+CustomerRouter.get("/:_id", Validation(CustomerValidation.findCustomerByIdValidation), CustomerController.getCustomerById);
 export default CustomerRouter;

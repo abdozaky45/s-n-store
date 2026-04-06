@@ -2,7 +2,7 @@ import IShipping from "../../Model/Shipping/Ishipping";
 import ShippingModel from "../../Model/Shipping/ShippingModel";
 import { Types } from "mongoose";
 class ShippingService {
-    async createShipping(ShippingData:IShipping) {
+    async createShipping(ShippingData: IShipping) {
         const Shipping = await ShippingModel.create(ShippingData);
         return Shipping;
     }
@@ -24,6 +24,9 @@ class ShippingService {
     async deleteShipping(ShippingId: Types.ObjectId | string) {
         const Shipping = await ShippingModel.findByIdAndDelete(ShippingId);
         return Shipping;
+    }
+    async checkShippingExists(ShippingId: Types.ObjectId | string) {
+        return await ShippingModel.findById(ShippingId);
     }
 }
 export default new ShippingService();
