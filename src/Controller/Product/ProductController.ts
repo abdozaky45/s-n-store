@@ -1,20 +1,17 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
-import {
-  getCategoryById
-} from "../../Service/Category/CategoryService";
 import moment from "../../Utils/DateAndTime";
 import * as ProductService from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
-import { getSubCategoryById } from "../../Service/SubCategory/SubCategoryService";
 import { createManyVariants } from "../../Service/Variant/VariantService";
 import IVariant from "../../Model/Variant/IVariantModel";
 import mongoose from "mongoose";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
 import { checkCategoryExists } from "../../Shared/CategoryServiceShared";
 import { checkSubCategoryExists } from "../../Shared/SubCategoryServiceShared";
+import { checkProductExists, findProductById } from "../../Shared/ProductServiceShared";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -92,16 +89,16 @@ export const updateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
 
-    const product = await ProductService.getAdminProductById(productId);
+    const product = await findProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     const checkCategory = req.body.category
-      ? await getCategoryById(req.body.category)
+      ? await checkCategoryExists(req.body.category)
       : null;
     if (req.body.category && !checkCategory) {
       throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
     }
     const checkSubCategory = req.body.subCategory
-      ? await getSubCategoryById(req.body.subCategory)
+      ? await checkSubCategoryExists(req.body.subCategory)
       : null;
     if (req.body.subCategory && !checkSubCategory) {
       throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
@@ -136,7 +133,7 @@ export const updateProduct = asyncHandler(
 export const softDeleteProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
-    const product = await ProductService.getAdminProductById(productId);
+    const product = await checkProductExists(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     await ProductService.softDeleteProduct(productId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
@@ -144,10 +141,9 @@ export const softDeleteProduct = asyncHandler(
 );
 export const restoreProduct = asyncHandler(
   async (req: Request, res: Response) => {
-    const product = await ProductService.getAdminProductById(req.params._id as string);
+    const product = await findProductById(req.params._id as string);
     if (!product) throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
     if (!product.isDeleted) throw new ApiError(400, 'Product is not deleted');
-
     await ProductService.restoreProduct(req.params._id as string);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_RESTORED));
   }
@@ -155,7 +151,7 @@ export const restoreProduct = asyncHandler(
 export const hardDeleteProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
-    const product = await ProductService.getAdminProductById(productId);
+    const product = await checkProductExists(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     await ProductService.hardDeleteProduct(productId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));

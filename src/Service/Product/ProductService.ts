@@ -4,7 +4,6 @@ import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import Fuse from "fuse.js";
 import { sortProductEnum } from "../../Utils/SortProduct";
 import mongoose, { Types } from "mongoose";
-import { ProductOrder } from "../../Model/Order/Iorder";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
 import OrderModel from "../../Model/Order/OrderModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
