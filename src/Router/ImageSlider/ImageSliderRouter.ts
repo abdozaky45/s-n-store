@@ -3,7 +3,9 @@ import * as ImageSliderController from "../../Controller/ImageSlider/ImageSlider
 import { Validation } from "../../middleware/ValidationMiddleware";
 import * as ImageSliderValidation from "../../Validation/ImageSlider/ImageSliderValidation";
 const imageSliderRouter = Router();
-imageSliderRouter.post("/create", Validation(ImageSliderValidation.createImageSliderValidation), ImageSliderController.createHeroSection);
-imageSliderRouter.patch("/update/:id", Validation(ImageSliderValidation.updateImageSliderValidation), ImageSliderController.updateOneHeroSection);
-imageSliderRouter.delete("/delete/:id", Validation(ImageSliderValidation.deleteImageSliderValidation), ImageSliderController.deleteHeroSection);
+imageSliderRouter.get("/all", ImageSliderController.getAllImageSliderSection);
+imageSliderRouter.post("/create", Validation(ImageSliderValidation.createImageSliderValidation), ImageSliderController.createImageSliderSection);
+imageSliderRouter.get("/:_id", Validation(ImageSliderValidation.imageSliderIdAdminValidation), ImageSliderController.getImageSliderById);
+imageSliderRouter.patch("/:_id", Validation(ImageSliderValidation.updateImageSliderValidation), ImageSliderController.updateImageSliderSection);
+imageSliderRouter.delete("/:_id", Validation(ImageSliderValidation.imageSliderIdAdminValidation), ImageSliderController.deleteImageSlider);
 export default imageSliderRouter;

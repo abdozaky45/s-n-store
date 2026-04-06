@@ -1,6 +1,11 @@
 import { Types } from "mongoose";
 import GroupSizeModel from "../Model/GroupSize/GroupSize";
+import SizeCategoryModel from "../Model/SizeCategory/SizeCategoryModel";
 export const checkGroupSizeExists = async (_id: string | Types.ObjectId) => {
-    const groupSize = await GroupSizeModel.exists({ _id });
-    return groupSize;
+   return await GroupSizeModel.exists({ _id });
+
+}
+export const checkSizeCategoryExistsById = async (_id: string) => {
+    return await SizeCategoryModel.exists({ _id });
+  
 }

@@ -1,13 +1,13 @@
 import { Types } from "mongoose";
-interface imageSlider {
+interface sliderMediaAsset {
   mediaUrl: string;
   mediaId: string;
   mediaType: string; // small, large
 }
-export default interface IimageSlider {
+export default interface IImageSlider {
   images:{
-    image1: imageSlider;
-    image2: imageSlider;
+    image1: sliderMediaAsset;
+    image2: sliderMediaAsset;
   };
   createdBy: Types.ObjectId | string;
 }

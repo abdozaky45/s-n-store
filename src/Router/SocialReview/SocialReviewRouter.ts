@@ -6,7 +6,7 @@ import { baseSchema } from "../../Validation/baseSchema";
 const SocialReviewRouter = Router();
 SocialReviewRouter.post(
     "/",
-    Validation(SocialReviewValidation.socialReviewIdSchema),
+    Validation(SocialReviewValidation.socialReviewInputSchema),
     SocialReviewController.createSocialReviewController
 );
 SocialReviewRouter.get("/",SocialReviewController.getAllSocialReviewsController);
@@ -17,7 +17,7 @@ SocialReviewRouter.get(
 );
 SocialReviewRouter.patch(
     "/:_id",
-    Validation(SocialReviewValidation.socialReviewIdSchema),
+    Validation(SocialReviewValidation.socialReviewUpdateSchema),
     SocialReviewController.updateSocialReviewController
 );
 SocialReviewRouter.delete(

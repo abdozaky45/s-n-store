@@ -8,7 +8,7 @@ export const addCustomerInfoValidation = joi
     apartmentSuite: joi.string().min(1).max(500).allow("").optional(),
     shipping: joi.string().required(),
     postalCode: joi.string().min(3).max(6).allow("").optional(),
-    secondaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
+    additionalPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
   })
   .required();
 export const updateCustomerInfo =
@@ -22,7 +22,7 @@ export const updateCustomerInfo =
       apartmentSuite: joi.string().min(1).max(500).optional().allow(""),
       shipping: joi.string().optional(),
       postalCode: joi.string().min(3).max(6).optional().allow(""),
-      secondaryPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
+      additionalPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
 
     })
     .required();

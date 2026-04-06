@@ -1,11 +1,11 @@
-import IimageSlider from "../../Model/ImageSlider/IimageSlider";
+import IImageSlider from "../../Model/ImageSlider/IImageSliderModel";
 import ImageSliderModel from "../../Model/ImageSlider/ImageSliderModel";
 import { Types } from "mongoose";
-export const createImageSlider = async (imageSliderData: IimageSlider) => {
+export const createImageSlider = async (imageSliderData: IImageSlider) => {
     const imageSlider = await ImageSliderModel.create(imageSliderData);
     return imageSlider;
 }
-export const updateHeroSection = async (imageSliderData: Partial<IimageSlider>, id: Types.ObjectId | string) => {
+export const updateImageSlider = async (imageSliderData: Partial<IImageSlider>, id: Types.ObjectId | string) => {
     const updatedHeroSection = await ImageSliderModel.findByIdAndUpdate(
         id,
         imageSliderData,
@@ -13,7 +13,7 @@ export const updateHeroSection = async (imageSliderData: Partial<IimageSlider>, 
     );
     return updatedHeroSection;
 }
-export const findMediaId = async (_id: string) => {
+export const getImageSliderById = async (_id: string) => {
     const imageSlider = await ImageSliderModel.findById(_id);
     return imageSlider;
 }
@@ -21,7 +21,7 @@ export const deleteImageSlider = async (_id: string) => {
     const imageSlider = await ImageSliderModel.deleteOne({ _id });
     return imageSlider;
 }
-export const getAllImageSlider = async () => {
+export const getAllImageSliders = async () => {
     const imageSlider = await ImageSliderModel.find();
     return imageSlider;
 }   

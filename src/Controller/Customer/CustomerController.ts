@@ -7,7 +7,7 @@ import ICustomer from "../../Model/User/Customer/ICustomerModel";
 export const identifyCustomer = asyncHandler(
   async (req: Request, res: Response, next) => {
     const customerData :  ICustomer = {
-      phone: req.body.phone,
+      phone: CustomerService.normalizeEgyptianPhone(req.body.phone),
     };
     const customer = await CustomerService.identifyCustomer(customerData);
     return res.json(new ApiResponse(200, { customer }, SuccessMessage.CUSTOMER_IDENTIFIED));
@@ -16,7 +16,7 @@ export const identifyCustomer = asyncHandler(
 export const updateCustomer = asyncHandler(
   async (req: Request, res: Response, next) => {
     const customerData :  ICustomer = {
-        phone: req.body.phone,
+        phone: CustomerService.normalizeEgyptianPhone(req.body.phone),
     };
     const customer = await CustomerService.updateCustomer(req.params._id as string, customerData);
     if (!customer) {
@@ -25,9 +25,9 @@ export const updateCustomer = asyncHandler(
     return res.json(new ApiResponse(200, { customer }, SuccessMessage.CUSTOMER_UPDATED));
     }
 );
-export const findCustomerById = asyncHandler(
+export const getCustomerById = asyncHandler(
   async (req: Request, res: Response, next) => {
-    const customer = await CustomerService.findCustomerById(req.params._id as string);
+    const customer = await CustomerService.getCustomerById(req.params._id as string);
     if (!customer) {
       return next(new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND));
     }

@@ -14,7 +14,7 @@ customerInfoRouter.patch(
   CustomerInfoController.updateCustomerInfo
 );
 customerInfoRouter.delete(
-  "/delete-info/:customer",
+  "/delete-info/:_id",
   Validation(CustomerinfoValidation.customerIdValidationSchema),
   CustomerInfoController.deleteCustomerInfo
 );

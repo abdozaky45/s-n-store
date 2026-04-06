@@ -3,7 +3,12 @@ import ISocialReview from "../../Model/SocialReview/ISocialReviewModel";
 import SocialReviewModel from "../../Model/SocialReview/SocialReviewModel";
 import { Types } from "mongoose";
 import { extractMediaId } from "../../Shared/MediaShared";
-
+export const checkSocialReviewExists = async (_id: string | Types.ObjectId) => {
+    return await SocialReviewModel.exists({ _id });
+}
+export const findSocialReviewById = async (_id: string) => {
+    return await SocialReviewModel.findById(_id)
+}
 export const AddNewSocialReview = async (socialReviewData: ISocialReview) => {
     const review = await SocialReviewModel.create(socialReviewData);
     return review;
@@ -32,6 +37,6 @@ export const getAllSocialReviews = async () => {
     return reviews;
 }
 export const getSocialReviewById = async (reviewId: string) => {
-    const review = await SocialReviewModel.findById(reviewId);
+    const review = await SocialReviewModel.findById(reviewId).select("-__v");
     return review;
 }
