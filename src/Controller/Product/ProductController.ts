@@ -5,21 +5,7 @@ import {
   getCategoryById
 } from "../../Service/Category/CategoryService";
 import moment from "../../Utils/DateAndTime";
-import {
-  createProduct,
-  softDeleteProduct,
-  getUserProductById,
-  getAdminProducts,
-  getUserProductsByFilters,
-  getAnalytics,
-  prepareProductUpdates,
-  productSearch,
-  ratioCalculatePrice,
-  getAdminProductById,
-  getProductsStock,
-  hardDeleteProduct,
-  restoreProduct,
-} from "../../Service/Product/ProductService";
+import * as ProductService from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
 import { getSubCategoryById } from "../../Service/SubCategory/SubCategoryService";
@@ -55,7 +41,7 @@ export const CreateProduct = asyncHandler(
           mediaId: extractMediaId(image),
         };
       }) || [];
-    const finalPrices = ratioCalculatePrice(price, salePrice, saleStartDate, saleEndDate);
+    const finalPrices = ProductService.ratioCalculatePrice(price, salePrice, saleStartDate, saleEndDate);
     const productData: IProduct = {
       name: { ar: name.ar, en: name.en },
       description: { ar: description.ar, en: description.en },
@@ -78,7 +64,7 @@ export const CreateProduct = asyncHandler(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const product = await createProduct(productData, session);
+      const product = await ProductService.createProduct(productData, session);
       if (variants.length) {
         const variantsToCreate = variants.map((variant: IVariant) => ({
           product: product._id,
@@ -104,7 +90,7 @@ export const updateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
 
-    const product = await getAdminProductById(productId);
+    const product = await ProductService.getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     const checkCategory = req.body.category
       ? await getCategoryById(req.body.category)
@@ -119,7 +105,7 @@ export const updateProduct = asyncHandler(
       throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
 
-    const finalPrices = ratioCalculatePrice(
+    const finalPrices = ProductService.ratioCalculatePrice(
       req.body.price ?? product.price,
       req.body.salePrice ?? product.salePrice!,
       req.body.saleStartDate,
@@ -135,7 +121,7 @@ export const updateProduct = asyncHandler(
       finalPrice: finalPrices.finalPrice,
     };
 
-    const updates = await prepareProductUpdates(product, body);
+    const updates = await ProductService.updateProduct(product, body);
 
     if (!updates) {
       return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_NOT_UPDATED));
@@ -145,50 +131,50 @@ export const updateProduct = asyncHandler(
     return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_UPDATED));
   }
 );
-export const softDeleteProductController = asyncHandler(
+export const softDeleteProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
-    const product = await getAdminProductById(productId);
+    const product = await ProductService.getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    await softDeleteProduct(productId);
+    await ProductService.softDeleteProduct(productId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
   }
 );
-export const restoreOneProduct = asyncHandler(
+export const restoreProduct = asyncHandler(
   async (req: Request, res: Response) => {
-    const product = await getAdminProductById(req.params._id as string);
+    const product = await ProductService.getAdminProductById(req.params._id as string);
     if (!product) throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
     if (!product.isDeleted) throw new ApiError(400, 'Product is not deleted');
 
-    await restoreProduct(req.params._id as string);
+    await ProductService.restoreProduct(req.params._id as string);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_RESTORED));
   }
 );
-export const hardDeleteProductController = asyncHandler(
+export const hardDeleteProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
-    const product = await getAdminProductById(productId);
+    const product = await ProductService.getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    await hardDeleteProduct(productId);
+    await ProductService.hardDeleteProduct(productId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_DELETED));
   }
 );
 export const SearchProducts = asyncHandler(
   async (req: Request, res: Response) => {
     const { searchQuery } = req.query;
-    const products = await productSearch(searchQuery as string);
+    const products = await ProductService.productSearch(searchQuery as string);
     return res.json(new ApiResponse(200, { products }, "Success"));
   }
 );
 export const findAdminProductById = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
-    const product = await getAdminProductById(productId);
+    const product = await ProductService.getAdminProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_FOUND));
   }
 );
-export const getAdminProductsByFilters = asyncHandler(
+export const getAllProductsForAdmin = asyncHandler(
   async (req: Request, res: Response) => {
     const {
       category,
@@ -201,7 +187,7 @@ export const getAdminProductsByFilters = asyncHandler(
       page,
     } = req.query;
 
-    const products = await getAdminProducts({
+    const products = await ProductService.getAllProductsForAdmin({
       category: category as string,
       subCategory: subCategory as string,
       isSale: isSale === "true",
@@ -215,7 +201,7 @@ export const getAdminProductsByFilters = asyncHandler(
     return res.json(new ApiResponse(200, products, SuccessMessage.PRODUCT_FOUND));
   }
 );
-export const findUserAllProductsByFilters = asyncHandler(
+export const getAllProductsForUser = asyncHandler(
   async (req: Request, res: Response) => {
     const {
       category,
@@ -228,7 +214,7 @@ export const findUserAllProductsByFilters = asyncHandler(
       page,
     } = req.query;
 
-    const products = await getUserProductsByFilters({
+    const products = await ProductService.getAllProductsForUser({
       category: category as string,
       subCategory: subCategory as string,
       size: size as string,
@@ -243,11 +229,11 @@ export const findUserAllProductsByFilters = asyncHandler(
   }
 );
 // add wishlist entry to product details if user is logged in
-export const findUserProductById = asyncHandler(
+export const getUserProductById = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
     const { user } = req.query;
-    const product = await getUserProductById(productId);
+    const product = await ProductService.getUserProductById(productId);
     // if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     // let liked = false;
     // if (user) {
@@ -260,11 +246,11 @@ export const findUserProductById = asyncHandler(
 export const findProductsStock = asyncHandler(
   async (req: Request, res: Response) => {
     const { variantIds } = req.body;
-    const products = await getProductsStock(variantIds);
+    const products = await ProductService.getProductsStock(variantIds);
     return res.json(new ApiResponse(200, { products }, SuccessMessage.PRODUCT_FOUND));
   }
 );
 export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {
-  const analysis = await getAnalytics();
+  const analysis = await ProductService.getAnalytics();
   return res.json(new ApiResponse(200, { analysis }, "Success"));
 });

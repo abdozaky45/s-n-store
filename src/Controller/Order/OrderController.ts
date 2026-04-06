@@ -8,7 +8,6 @@ import OrderService from '../../Service/Order/OrderService';
 import ErrorMessages from '../../Utils/Error';
 import SuccessMessage from '../../Utils/SuccessMessages';
 import { orderStatusType } from '../../Utils/OrderStatusType';
-import { retrieveProducts, updateStock } from '../../Service/Product/ProductService';
 import { UserTypeEnum } from '../../Utils/UserType';
 import {IProduct} from '../../Model/Product/Iproduct';
 import { Types } from 'mongoose';
