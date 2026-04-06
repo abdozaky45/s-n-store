@@ -3,9 +3,9 @@ import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
 import * as CategoryService from "../../Service/Category/CategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
-import { checkGroupSizeExists } from "../../Shared/GroupSizeShared";
-import { checkCategoryExists, findCategoryById } from "../../Shared/CategoryShared";
-import { extractMediaId } from "../../Shared/MediaShared";
+import { checkGroupSizeExists } from "../../Shared/GroupSizeServiceShared";
+import { checkCategoryExists, findCategoryById } from "../../Shared/CategoryServiceShared";
+import { extractMediaId } from "../../Shared/MediaServiceShared";
 export const CreateCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {

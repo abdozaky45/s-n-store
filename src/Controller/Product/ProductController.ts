@@ -12,7 +12,9 @@ import { getSubCategoryById } from "../../Service/SubCategory/SubCategoryService
 import { createManyVariants } from "../../Service/Variant/VariantService";
 import IVariant from "../../Model/Variant/IVariantModel";
 import mongoose from "mongoose";
-import { extractMediaId } from "../../Shared/MediaShared";
+import { extractMediaId } from "../../Shared/MediaServiceShared";
+import { checkCategoryExists } from "../../Shared/CategoryServiceShared";
+import { checkSubCategoryExists } from "../../Shared/SubCategoryServiceShared";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -30,9 +32,9 @@ export const CreateProduct = asyncHandler(
       sizeChartImage,
       variants,
     } = req.body;
-    const checkCategory = await getCategoryById(category);
+    const checkCategory = await checkCategoryExists(category);
     if (!checkCategory) throw new ApiError(400, ErrorMessages.CATEGORY_NOT_FOUND);
-    const checkSubCategory = subCategory ? await getSubCategoryById(subCategory) : null;
+    const checkSubCategory = subCategory ? await checkSubCategoryExists(subCategory) : null;
     if (subCategory && !checkSubCategory) throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     const processedAlbumImages =
       albumImages?.map((image: any) => {

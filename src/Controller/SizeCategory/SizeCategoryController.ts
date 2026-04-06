@@ -4,7 +4,7 @@ import ISizeCategory from "../../Model/SizeCategory/ISizeCategoryModel";
 import * as SizeCategoryService from "../../Service/SizeCategory/SizeCategoryService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import ErrorMessages from "../../Utils/Error";
-import { checkGroupSizeExists, checkSizeCategoryExistsById } from "../../Shared/GroupSizeShared";
+import { checkGroupSizeExists, checkSizeCategoryExistsById } from "../../Shared/GroupSizeServiceShared";
 export const createGroupSize = asyncHandler(async (req: Request, res: Response) => {
     const { name } = req.body as { name: string };
     const groupSize = await SizeCategoryService.createGroupSize(name);

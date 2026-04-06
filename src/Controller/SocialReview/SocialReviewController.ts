@@ -4,7 +4,7 @@ import * as SocialReviewService from "../../Service/SocialReview/SocialReviewSer
 import ErrorMessages from "../../Utils/Error";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import ISocialReview from "../../Model/SocialReview/ISocialReviewModel";
-import { extractMediaId } from "../../Shared/MediaShared";
+import { extractMediaId } from "../../Shared/MediaServiceShared";
 export const createSocialReviewController = asyncHandler(
     async (req: Request, res: Response) => {
         const SocialReviewData: ISocialReview = {

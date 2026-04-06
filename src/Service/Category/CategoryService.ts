@@ -6,7 +6,7 @@ import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
 import ICategory from "../../Model/Category/Icategory";
-import { extractMediaId } from "../../Shared/MediaShared";
+import { extractMediaId } from "../../Shared/MediaServiceShared";
 export const createCategory = async ({
   name,
   groupSize,

@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from "express";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import ErrorMessages from "../../Utils/Error";
 import IImageSlider from "../../Model/ImageSlider/IImageSliderModel";
-import { extractMediaId ,deletePresignedURL} from "../../Shared/MediaShared";
+import { extractMediaId ,deletePresignedURL} from "../../Shared/MediaServiceShared";
 export const createImageSliderSection = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { images } = req.body;
