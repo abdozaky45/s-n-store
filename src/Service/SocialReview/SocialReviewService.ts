@@ -2,7 +2,7 @@ import { deleteImage } from "../../Controller/Aws/AwsController";
 import ISocialReview from "../../Model/SocialReview/ISocialReviewModel";
 import SocialReviewModel from "../../Model/SocialReview/SocialReviewModel";
 import { Types } from "mongoose";
-import { extractMediaId } from "../../Shared/MediaShared";
+import { extractMediaId } from "../../Shared/MediaServiceShared";
 export const checkSocialReviewExists = async (_id: string | Types.ObjectId) => {
     return await SocialReviewModel.exists({ _id });
 }

@@ -49,7 +49,7 @@ export const updateProductValidation = baseSchema.concat(
         subCategory: joi.string().optional(),
         defaultImage: joi.string().optional(),
         albumImages: joi.array().items(joi.string()).optional(),
-        sizeChartImage: joi.string().optional(),
+        sizeChartImage: joi.string().allow(null).optional(),
         isBestSeller: joi.boolean().optional(),
         isNewArrival: joi.boolean().optional(),
     }).required()
@@ -58,36 +58,8 @@ export const ProductIdValidationSchema = baseSchema.concat(
     joi.object({
         productId: joi.string().required(),
     }).required()
-);
-export const getProductByIdValidation = baseSchema.concat(
-    joi.object({
+).required();
+export const ProductIdValidationSchemaForUser = joi.object({
         productId: joi.string().required(),
     }).required()
-);
-export const getAdminProductsValidation = baseSchema.concat(
-    joi.object({
-        category: joi.string().optional(),
-        subCategory: joi.string().optional(),
-        isSale: joi.boolean().optional(),
-        isNewArrival: joi.boolean().optional(),
-        isBestSeller: joi.boolean().optional(),
-        isSoldOut: joi.boolean().optional(),
-        isDeleted: joi.boolean().optional(),
-        page: joi.number().optional(),
-    })
-);
-export const getUserProductsValidation = baseSchema.concat(
-    joi.object({
-        page: joi.string().required(),
-    }).required()
-);
-export const getUserAllProductsValidation = joi.object({
-    category: joi.string().optional(),
-    subCategory: joi.string().optional(),
-    size: joi.string().optional(),
-    isSale: joi.boolean().optional(),
-    isNewArrival: joi.boolean().optional(),
-    isBestSeller: joi.boolean().optional(),
-    sort: joi.string().optional(),
-    page: joi.string().required(),
-}).required();
+
