@@ -49,7 +49,7 @@ export const updateProductValidation = baseSchema.concat(
         subCategory: joi.string().optional(),
         defaultImage: joi.string().optional(),
         albumImages: joi.array().items(joi.string()).optional(),
-        sizeChartImage: joi.string().optional(),
+        sizeChartImage: joi.string().allow(null).optional(),
         isBestSeller: joi.boolean().optional(),
         isNewArrival: joi.boolean().optional(),
     }).required()

@@ -36,13 +36,13 @@ export const updateProduct = async (
   body: IUpdateProductBody,
 ) => {
   let hasUpdates = false;
-if (body.name) {
-  product.name = {
-    ar: body.name.ar ?? product.name.ar,
-    en: body.name.en ?? product.name.en,
-  };
-  hasUpdates = true;
-}
+  if (body.name) {
+    product.name = {
+      ar: body.name.ar ?? product.name.ar,
+      en: body.name.en ?? product.name.en,
+    };
+    hasUpdates = true;
+  }
   if (body.description) {
     product.description = {
       ar: body.description.ar ?? product.description.ar,
@@ -57,11 +57,19 @@ if (body.name) {
     };
     hasUpdates = true;
   }
-  if (body.sizeChartImage) {
-    product.sizeChartImage = {
-      mediaUrl: body.sizeChartImage,
-      mediaId: extractMediaId(body.sizeChartImage),
-    };
+  if (body.sizeChartImage !== undefined) {
+    if (body.sizeChartImage === null) {
+      product.sizeChartImage = {
+        mediaUrl: "",
+        mediaId: "",
+      };
+    } else {
+      product.sizeChartImage = {
+        mediaUrl: body.sizeChartImage,
+        mediaId: extractMediaId(body.sizeChartImage),
+      };
+    }
+
     hasUpdates = true;
   }
 
@@ -92,7 +100,7 @@ export const getAdminProductById = async (_id: string) => {
     .select("-createdBy -createdAt -isDeleted -__v")
     .populate({ path: SchemaTypesReference.Category, select: "-_id name" })
     .populate({ path: SchemaTypesReference.SubCategory, select: "-_id name" })
-    .populate({ path: "variants", select: "-_id -__v", populate: { path: SchemaTypesReference.Color, select: "-_id -__v" } })
+    .populate({ path: "variants", select: "-__v", populate: { path: SchemaTypesReference.Color, select: "-_id -__v" } })
 
   return product;
 };
@@ -215,7 +223,13 @@ export const getAllProductsForUser = async ({
       .limit(limit)
       .select("-wholesalePrice -isDeleted -__v")
       .populate({ path: "category", select: "-__v" })
-      .populate({ path: "subCategory", select: "-__v" }),
+      .populate({ path: "subCategory", select: "-__v" })
+      .populate(
+
+        {
+          path: "variants", select: "-_id color",
+          populate: { path: SchemaTypesReference.Color, select: "-_id -__v" }
+        }),
     ProductModel.countDocuments(query),
   ]);
 

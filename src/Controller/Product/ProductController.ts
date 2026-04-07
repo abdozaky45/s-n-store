@@ -56,7 +56,12 @@ export const CreateProduct = asyncHandler(
       subCategory: checkSubCategory?._id,
       defaultImage: { mediaUrl: defaultImage, mediaId: extractMediaId(defaultImage) },
       albumImages: processedAlbumImages,
-      sizeChartImage: { mediaUrl: sizeChartImage, mediaId: extractMediaId(sizeChartImage) },
+     sizeChartImage: sizeChartImage
+  ? {
+      mediaUrl: sizeChartImage,
+      mediaId: extractMediaId(sizeChartImage),
+    }
+  : undefined,
       createdBy: req.body.currentUser!.userInfo._id,
       createdAt: moment().valueOf(),
     };
@@ -232,7 +237,7 @@ export const getUserProductById = asyncHandler(
     const { productId } = req.params as { productId: string };
     const { user } = req.query;
     const product = await ProductService.getUserProductById(productId);
-    // if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
+    if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     // let liked = false;
     // if (user) {
     //   const wishlistEntry = await getProductWishlist(productId, user as string);

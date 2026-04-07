@@ -12,6 +12,10 @@ export const ImageSchema = new Schema({
   mediaUrl: { type: String, required: true },
   mediaId: { type: String, required: true },
 }, { _id: false });
+ const SizeChartImageSchema = new Schema({
+  mediaUrl: { type: String, required: false, default: "" },
+  mediaId: { type: String, required: false , default: ""},
+}, { _id: false });
 const ProductSchema = new Schema<IProduct>(
   {
     name: {
@@ -33,7 +37,7 @@ const ProductSchema = new Schema<IProduct>(
     soldItems: NotRequiredNumber,
     defaultImage: ImageSchema,
     albumImages: { type: [ImageSchema], required: false },
-    sizeChartImage: ImageSchema,
+    sizeChartImage: SizeChartImageSchema,
     category: RefType(SchemaTypesReference.Category, true),
     subCategory: RefType(SchemaTypesReference.SubCategory, false),
     isNewArrival: NotRequiredBoolean,
