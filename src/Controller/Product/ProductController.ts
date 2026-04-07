@@ -146,10 +146,10 @@ export const softDeleteProduct = asyncHandler(
 );
 export const restoreProduct = asyncHandler(
   async (req: Request, res: Response) => {
-    const product = await findProductById(req.params._id as string);
+    const product = await findProductById(req.params.productId as string);
     if (!product) throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
     if (!product.isDeleted) throw new ApiError(400, 'Product is not deleted');
-    await ProductService.restoreProduct(req.params._id as string);
+    await ProductService.restoreProduct(req.params.productId as string);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_RESTORED));
   }
 );

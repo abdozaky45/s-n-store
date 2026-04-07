@@ -54,12 +54,34 @@ export const updateProductValidation = baseSchema.concat(
         isNewArrival: joi.boolean().optional(),
     }).required()
 );
-export const ProductIdValidationSchema = baseSchema.concat(
+export const ProductIdValidationSchemaForAdmin = baseSchema.concat(
     joi.object({
         productId: joi.string().required(),
     }).required()
-).required();
-export const ProductIdValidationSchemaForUser = joi.object({
-        productId: joi.string().required(),
-    }).required()
+);
+export const productIdValidationSchemaForUser = joi.object({
+    productId: joi.string().required(),
+}).required()
 
+export const getAdminProductsValidation = baseSchema.concat(
+    joi.object({
+        category: joi.string().optional(),
+        subCategory: joi.string().optional(),
+        isSale: joi.boolean().optional(),
+        isNewArrival: joi.boolean().optional(),
+        isBestSeller: joi.boolean().optional(),
+        isSoldOut: joi.boolean().optional(),
+        isDeleted: joi.boolean().optional(),
+        page: joi.number().optional(),
+    })
+);
+export const getUserAllProductsValidation = joi.object({
+    category: joi.string().optional(),
+    subCategory: joi.string().optional(),
+    size: joi.string().optional(),
+    isSale: joi.boolean().optional(),
+    isNewArrival: joi.boolean().optional(),
+    isBestSeller: joi.boolean().optional(),
+    sort: joi.string().optional(),
+    page: joi.string().required(),
+}).required();
