@@ -24,7 +24,7 @@ export const createProductValidation = baseSchema.concat(
                 color: joi.string().required(),
                 quantity: joi.number().min(0).required(),
             })
-        ).optional(),
+        ).required(),
         albumImages: joi.array().items(joi.string()).optional(),
         sizeChartImage: joi.string().optional(),
     }).required()
