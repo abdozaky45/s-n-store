@@ -34,11 +34,12 @@ export const getWishlistById = async (_id: string) => {
   });
   return wishlist;
 };
-export const getProductWishlist = async (product: Types.ObjectId | string, customer: string | Types.ObjectId) => {
+export const getProductWishlist = async (customer: string | Types.ObjectId, product: string | Types.ObjectId) => {
   const wishlist = await WishListModel.findOne({
     customer,
     product
   });
+  console.log("wishlist entry:", wishlist);
   return wishlist;
 }
 export const getAllWishlist = async (page: number) => {

@@ -240,7 +240,7 @@ export const getUserProductById = asyncHandler(
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
     let liked = false;
      if (customer) {
-       const wishlistEntry = await getProductWishlist(productId, customer as string);
+       const wishlistEntry = await getProductWishlist(customer as string , productId);
       liked = wishlistEntry ? true : false;
     }
    return res.json(new ApiResponse(200, { product, liked }, SuccessMessage.PRODUCT_FOUND));
