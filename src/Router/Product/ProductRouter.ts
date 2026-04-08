@@ -4,6 +4,7 @@ import * as ProductController from "../../Controller/Product/ProductController";
 import { Validation } from "../../middleware/ValidationMiddleware";
 import * as ProductValidation from "../../Validation/Product/ProductValidation";
 ProductRouter.post("/create", Validation(ProductValidation.createProductValidation), ProductController.CreateProduct);
+ProductRouter.get("/search",Validation(ProductValidation.AdminProductSearchSchema),ProductController.SearchProducts);
 ProductRouter.patch("/update/:productId", Validation(ProductValidation.updateProductValidation), ProductController.updateProduct);
 ProductRouter.patch("/soft-delete/:productId", Validation(ProductValidation.ProductIdValidationSchemaForAdmin), ProductController.softDeleteProduct);
 ProductRouter.patch("/restore/:productId", Validation(ProductValidation.ProductIdValidationSchemaForAdmin), ProductController.restoreProduct);

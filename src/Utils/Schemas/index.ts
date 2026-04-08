@@ -65,6 +65,11 @@ const RequiredNumber = {
   type: Number,
   required: true,
 };
+const RequiredMinNumber = {
+  type: Number,
+  required: true,
+  min: 0,
+};
 const NotRequiredTimeStamp = {
   type: Number,
   required: false,
@@ -181,6 +186,7 @@ export {
   RequiredBooleanDefaultTrue,
   NotRequiredBoolean,
   RequiredNumber,
+  RequiredMinNumber,
   NotRequiredNumber,
   RequiredUniqueString,
   RequiredUniqueNumber,

@@ -59,3 +59,8 @@ export const deleteVariant = async (_id: string, productId: string) => {
   await updateProductSoldOutStatus(productId);
   return variant;
 };
+export const getVariantStock = async (variantIds: string[]) => {
+  return await VariantModel.find({
+    _id: { $in: variantIds },
+  }).select("_id quantity");
+}

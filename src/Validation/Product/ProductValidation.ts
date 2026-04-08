@@ -85,3 +85,22 @@ export const getUserAllProductsValidation = joi.object({
     sort: joi.string().optional(),
     page: joi.string().required(),
 }).required();
+export const UserProductSearchSchema = joi.object({
+    searchQuery: joi.string().required(),
+}).required();
+export const AdminProductSearchSchema = baseSchema.concat(
+    joi.object({
+        searchQuery: joi.string().required(),
+    }).required()
+);
+export const getStockValidation = joi.object({
+  variantIds: joi.array()
+    .items(
+      joi.string()
+        .hex()
+        .length(24)
+        .required()
+    )
+    .min(1)
+    .required(),
+});

@@ -1,12 +1,12 @@
 import { Schema, model } from "mongoose";
-import { RefType, RequiredDefaultStringSize, RequiredNumber } from "../../Utils/Schemas";
+import { RefType, RequiredDefaultStringSize, RequiredMinNumber } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import IVariant from "./IVariantModel";
 const VariantSchema = new Schema<IVariant>({
   product: RefType(SchemaTypesReference.Product, true),
   size: RequiredDefaultStringSize,
   color: RefType(SchemaTypesReference.Color, true),
-  quantity: RequiredNumber,
+  quantity: RequiredMinNumber,
 });
 VariantSchema.set("toJSON", {
   transform: (doc, ret) => {
