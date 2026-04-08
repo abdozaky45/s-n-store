@@ -31,6 +31,8 @@ enum SuccessMessage {
   IMAGE_DELETED = "Image deleted successfully",
   IMAGE_SLIDER_FETCHED = "Image slider fetched successfully",
   WISHLIST_FOUND_UPDATED = "wishlist updated successfully",
+  WISHLIST_FOUND = "wishlist found successfully",
+  WISHLIST_DELETED = "Product removed from wishlist successfully",
   ADD_PRODUCT_TO_WISHLIST = "Product added to wishlist successfully",
   USER_UPDATED = "User updated successfully",
   USER_DELETED = "User deleted successfully",

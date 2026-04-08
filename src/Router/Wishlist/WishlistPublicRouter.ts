@@ -1,0 +1,10 @@
+import { Router } from "express";
+import * as wishlistController from "../../Controller/Wishlist/WishlistController";
+import { Validation } from "../../middleware/ValidationMiddleware";
+import * as wishlistValidation from "../../Validation/Wishlist/WishlistValidation";
+const wishlistPublicRouter = Router();
+wishlistPublicRouter.post("/add-product", Validation(wishlistValidation.wishlistValidationSchema), wishlistController.addProductToWishlist);
+wishlistPublicRouter.get("/customer/:customer", Validation(wishlistValidation.getAllUSerWishlistValidation), wishlistController.getAllUserWishlist);
+wishlistPublicRouter.get("/product/:productId", Validation(wishlistValidation.validateWishlistById), wishlistController.getUserWishlistById);
+wishlistPublicRouter.delete("/product/:productId", Validation(wishlistValidation.validateWishlistById), wishlistController.deleteWishlist);
+export default wishlistPublicRouter;

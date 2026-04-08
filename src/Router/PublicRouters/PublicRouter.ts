@@ -5,7 +5,7 @@ import PublicImageSliderRouter from "../ImageSlider/PublicImageSliderRouter";
 import subCategoryPublicRouter from "../SubCategory/SubCategoryPublicRouter";
 import PublicColorRouter from "../Color/PublicColorRouter";
 import RouterEnum from "../../Utils/Routes";
-import wishlistRouter from "../Wishlist/WishlistRouter";
+import wishlistPublicRouter from "../Wishlist/WishlistPublicRouter";
 import PublicOfferRouter from "../Offers/OffersPublicRouter";
 import customerInfoRouter from "../User/CustomerInfoRouter";
 import CustomerRouter from "../User/CustomerRouter";
@@ -21,7 +21,7 @@ publicRouter.use(`/${RouterEnum.product}`, ProductPublicRouter);
 publicRouter.use(`/${RouterEnum.color}`, PublicColorRouter);
 publicRouter.use(`/${RouterEnum.imageSlider}`, PublicImageSliderRouter);
 publicRouter.use(`/${RouterEnum.shipping}`,PublicShippingRouter)
-publicRouter.use(`/${RouterEnum.wishlist}`, wishlistRouter);
+publicRouter.use(`/${RouterEnum.wishlist}`, wishlistPublicRouter);
 publicRouter.use(`/${RouterEnum.offers}`, PublicOfferRouter);
 publicRouter.use(`/${RouterEnum.order}`, PublicOrderRouter);
 publicRouter.use(`/${RouterEnum.socialReview}`, PublicSocialReviewRouter);

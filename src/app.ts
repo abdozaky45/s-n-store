@@ -23,6 +23,7 @@ import VariantRouter from "./Router/Variant/VariantRouter";
 import OfferRouter from "./Router/Offers/OffersRouter";
 import OrderRouter from "./Router/Order/OrderRouter";
 import SocialReviewRouter from "./Router/SocialReview/SocialReviewRouter";
+import wishlistRouter from "./Router/Wishlist/WishlistRouter";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
@@ -86,6 +87,7 @@ app.use(
   checkRole([UserTypeEnum.ADMIN]),
   OfferRouter
 );
+app.use(`/${RouterEnum.wishlist}`, checkRole([UserTypeEnum.ADMIN]), wishlistRouter);
 app.use(
   `/${RouterEnum.order}`,
   checkRole([UserTypeEnum.ADMIN]),
