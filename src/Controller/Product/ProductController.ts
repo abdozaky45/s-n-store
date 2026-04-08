@@ -231,7 +231,6 @@ export const getAllProductsForUser = asyncHandler(
     return res.json(new ApiResponse(200, products, SuccessMessage.PRODUCT_FOUND));
   }
 );
-// add wishlist entry to product details if user is logged in
 export const getUserProductById = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };

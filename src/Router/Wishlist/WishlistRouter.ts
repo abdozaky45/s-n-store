@@ -1,11 +1,7 @@
-import { Router } from "express";
+import {Router} from "express";
 import * as wishlistController from "../../Controller/Wishlist/WishlistController";
-import { Validation } from "../../middleware/ValidationMiddleware";
+import {Validation} from "../../middleware/ValidationMiddleware";
 import * as wishlistValidation from "../../Validation/Wishlist/WishlistValidation";
 const wishlistRouter = Router();
-wishlistRouter.post("/add-to-wishlist", Validation(wishlistValidation.wishlistValidationSchema), wishlistController.createWishlist);
-wishlistRouter.delete("/delete-favorite-product/:productId/:customer", Validation(wishlistValidation.wishlistValidationSchema), wishlistController.deleteWishlist);
-wishlistRouter.get("/favorite-product/:_id", Validation(wishlistValidation.getWishlistByIdValidation), wishlistController.getUserWishlistById);
-wishlistRouter.get("/get-user-wishlist/:customer", Validation(wishlistValidation.getAllUSerWishlistValidation), wishlistController.getAllUserWishlist);
-wishlistRouter.get("/get-all-wishlist",wishlistController.getAllWishlistProduct);
+wishlistRouter.get("/", Validation(wishlistValidation.getAllWishlistValidation), wishlistController.getAllWishlistItems);
 export default wishlistRouter;
