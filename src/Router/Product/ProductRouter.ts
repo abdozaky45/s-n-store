@@ -9,6 +9,6 @@ ProductRouter.patch("/soft-delete/:productId", Validation(ProductValidation.Prod
 ProductRouter.patch("/restore/:productId", Validation(ProductValidation.ProductIdValidationSchemaForAdmin), ProductController.restoreProduct);
 ProductRouter.delete("/hard-delete/:productId", Validation(ProductValidation.ProductIdValidationSchemaForAdmin), ProductController.hardDeleteProduct);
 ProductRouter.get("/get-one-product/:productId", Validation(ProductValidation.ProductIdValidationSchemaForAdmin), ProductController.findAdminProductById);
-ProductRouter.get("/get-all-products", ProductController.getAllProductsForAdmin);
+ProductRouter.get("/get-all-products",Validation(ProductValidation.getAdminProductsValidation), ProductController.getAllProductsForAdmin);
 //ProductRouter.get("/get-analysis", ProductController.getAnalysis);
 export default ProductRouter;
