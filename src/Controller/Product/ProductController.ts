@@ -12,6 +12,7 @@ import { extractMediaId } from "../../Shared/MediaServiceShared";
 import { checkCategoryExists } from "../../Shared/CategoryServiceShared";
 import { checkSubCategoryExists } from "../../Shared/SubCategoryServiceShared";
 import { checkProductExists, findProductById } from "../../Shared/ProductServiceShared";
+import { getProductWishlist } from "../../Service/Wishlist/WishlistService";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -234,15 +235,15 @@ export const getAllProductsForUser = asyncHandler(
 export const getUserProductById = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };
-    const { user } = req.query;
+    const { customer } = req.query;
     const product = await ProductService.getUserProductById(productId);
     if (!product) throw new ApiError(400, ErrorMessages.PRODUCT_NOT_FOUND);
-    // let liked = false;
-    // if (user) {
-    //   const wishlistEntry = await getProductWishlist(productId, user as string);
-    //   liked = wishlistEntry ? true : false;
-    // }
-    return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_FOUND));
+    let liked = false;
+     if (customer) {
+       const wishlistEntry = await getProductWishlist(productId, customer as string);
+      liked = wishlistEntry ? true : false;
+    }
+   return res.json(new ApiResponse(200, { product, liked }, SuccessMessage.PRODUCT_FOUND));
   }
 );
 export const getStockForProducts = asyncHandler(

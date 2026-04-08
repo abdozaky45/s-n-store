@@ -34,7 +34,7 @@ export const getWishlistById = async (_id: string) => {
   });
   return wishlist;
 };
-export const getProductWishlist = async (product: Types.ObjectId | string, customer: string) => {
+export const getProductWishlist = async (product: Types.ObjectId | string, customer: string | Types.ObjectId) => {
   const wishlist = await WishListModel.findOne({
     customer,
     product
