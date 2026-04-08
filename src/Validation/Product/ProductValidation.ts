@@ -1,5 +1,5 @@
 import { baseSchema } from "../baseSchema";
-import joi from "joi";
+import joi, { custom } from "joi";
 export const createProductValidation = baseSchema.concat(
     joi.object({
         name: joi.object({
@@ -59,9 +59,10 @@ export const ProductIdValidationSchemaForAdmin = baseSchema.concat(
         productId: joi.string().required(),
     }).required()
 );
-export const productIdValidationSchemaForUser = joi.object({
+export const getUserProductByIdValidation = joi.object({
+    customer: joi.string().optional(),
     productId: joi.string().required(),
-}).required()
+}).required();
 
 export const getAdminProductsValidation = baseSchema.concat(
     joi.object({
