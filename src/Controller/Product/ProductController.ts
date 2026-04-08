@@ -146,10 +146,10 @@ export const softDeleteProduct = asyncHandler(
 );
 export const restoreProduct = asyncHandler(
   async (req: Request, res: Response) => {
-    const product = await findProductById(req.params._id as string);
+    const product = await findProductById(req.params.productId as string);
     if (!product) throw new ApiError(404, ErrorMessages.PRODUCT_NOT_FOUND);
     if (!product.isDeleted) throw new ApiError(400, 'Product is not deleted');
-    await ProductService.restoreProduct(req.params._id as string);
+    await ProductService.restoreProduct(req.params.productId as string);
     return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_RESTORED));
   }
 );
@@ -166,7 +166,7 @@ export const SearchProducts = asyncHandler(
   async (req: Request, res: Response) => {
     const { searchQuery } = req.query;
     const products = await ProductService.productSearch(searchQuery as string);
-    return res.json(new ApiResponse(200, { products }, "Success"));
+    return res.json(new ApiResponse(200, { products }, SuccessMessage.PRODUCT_FOUND));
   }
 );
 export const findAdminProductById = asyncHandler(
@@ -246,11 +246,19 @@ export const getUserProductById = asyncHandler(
     return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_FOUND));
   }
 );
-export const findProductsStock = asyncHandler(
+export const getStockForProducts = asyncHandler(
   async (req: Request, res: Response) => {
-    const { variantIds } = req.body;
-    const products = await ProductService.getProductsStock(variantIds);
-    return res.json(new ApiResponse(200, { products }, SuccessMessage.PRODUCT_FOUND));
+    const { variantIds } = req.body 
+
+    const stock = await ProductService.getProductsStock(variantIds);
+
+    return res.json(
+      new ApiResponse(
+        200,
+        { stock },
+        SuccessMessage.VARIANT_STOCK_FETCHED
+      )
+    );
   }
 );
 export const getAnalysis = asyncHandler(async (req: Request, res: Response) => {

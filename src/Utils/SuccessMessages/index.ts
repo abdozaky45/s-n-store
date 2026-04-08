@@ -51,6 +51,7 @@ enum SuccessMessage {
   VARIANT_UPDATED = "Variant updated successfully",
   VARIANT_FOUND = "Variant found successfully",
   VARIANT_DELETED = "Variant deleted successfully",
+  VARIANT_STOCK_FETCHED = "Variant stock fetched successfully",
   GROUP_SIZE_CREATED = "Group size created successfully",
   GROUP_SIZE_UPDATED = "Group size updated successfully",
   SIZE_GROUP_FETCHED = "Group size fetched successfully",

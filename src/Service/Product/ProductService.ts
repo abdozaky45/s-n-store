@@ -11,6 +11,7 @@ import AuthModel from "../../Model/User/auth/AuthModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteProductImages } from "../../Controller/Aws/AwsController";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
+import { getVariantStock } from "../Variant/VariantService";
 export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
   if (!salePrice || salePrice === 0 || salePrice >= price) {
     return {
@@ -272,12 +273,13 @@ export const hardDeleteProduct = async (_id: string) => {
     session.endSession();
   }
 };
-// edits
 export const getProductsStock = async (variantIds: string[]) => {
-  const variants = await VariantModel.find({
-    _id: { $in: variantIds },
-  }).select("product size color quantity isSoldOut");
-  return variants;
+ const variants = await getVariantStock(variantIds);
+  const result: Record<string, number> = {};
+  for (const variant of variants) {
+    result[variant._id.toString()] = variant.quantity ?? 0;
+  }
+  return result;
 };
 export const getAnalytics = async () => {
   const totalRevenue = await OrderModel.aggregate([
