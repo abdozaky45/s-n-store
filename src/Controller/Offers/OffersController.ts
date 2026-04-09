@@ -3,7 +3,7 @@ import { ApiError, ApiResponse, asyncHandler } from "../../Utils/ErrorHandling";
 import ErrorMessages from "../../Utils/Error";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { IOffer } from "../../Model/Offers/IOffers";
-import { createOffer, deleteOffer, getActiveOffers, getAllOffers, getOfferById, toggleOffer, updateOffer } from "../../Service/Offers/OffersService";
+import * as OfferService from "../../Service/Offers/OffersService";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
 import { deleteImage } from "../Aws/AwsController";
 
@@ -21,21 +21,21 @@ export const createOfferController = asyncHandler(
       minOrderAmount,
       discountAmount
     };
-    const offer = await createOffer(offerData);
+    const offer = await OfferService.createOffer(offerData);
     return res.status(201).json(new ApiResponse(201, { offer }, SuccessMessage.OFFER_CREATED));
   }
 );
 
 export const getAllOffersController = asyncHandler(
   async (req: Request, res: Response) => {
-    const offers = await getAllOffers();
+    const offers = await OfferService.getAllOffers();
     return res.json(new ApiResponse(200, { offers }, SuccessMessage.OFFER_FOUND));
   }
 );
 
 export const getActiveOffersController = asyncHandler(
   async (req: Request, res: Response) => {
-    const offers = await getActiveOffers();
+    const offers = await OfferService.getActiveOffers();
     return res.json(new ApiResponse(200, { offers }, SuccessMessage.OFFER_FOUND));
   }
 );
@@ -43,7 +43,7 @@ export const getActiveOffersController = asyncHandler(
 export const getOfferByIdController = asyncHandler(
   async (req: Request, res: Response) => {
     const { offerId } = req.params as { offerId: string };
-    const offer = await getOfferById(offerId);
+    const offer = await OfferService.getOfferById(offerId);
     if (!offer) throw new ApiError(404, ErrorMessages.OFFER_NOT_FOUND);
     return res.json(new ApiResponse(200, { offer }, SuccessMessage.OFFER_FOUND));
   }
@@ -53,7 +53,7 @@ export const updateOfferController = asyncHandler(
   async (req: Request, res: Response) => {
     const { offerId } = req.params as { offerId: string };
 
-    const offer = await getOfferById(offerId);
+    const offer = await OfferService.getOfferById(offerId);
     if (!offer) throw new ApiError(404, ErrorMessages.OFFER_NOT_FOUND);
 
     if (req.body.image && offer.image?.mediaId) {
@@ -74,7 +74,7 @@ export const updateOfferController = asyncHandler(
         mediaId: extractMediaId(req.body.image),
       };
     }
-    const updated = await updateOffer(offerId, updateData);
+    const updated = await OfferService.updateOffer(offerId, updateData);
     return res.json(new ApiResponse(200, { offer: updated }, SuccessMessage.OFFER_UPDATED));
   }
 );
@@ -82,12 +82,12 @@ export const updateOfferController = asyncHandler(
 export const deleteOfferController = asyncHandler(
   async (req: Request, res: Response) => {
     const { offerId } = req.params as { offerId: string };
-    const offer = await getOfferById(offerId);
+    const offer = await OfferService.getOfferById(offerId);
     if (!offer) throw new ApiError(404, ErrorMessages.OFFER_NOT_FOUND);
     if (offer.image.mediaId) {
     await deleteImage(offer.image.mediaId);
   }
-    await deleteOffer(offerId);
+    await OfferService.deleteOffer(offerId);
     return res.json(new ApiResponse(200, {}, SuccessMessage.OFFER_DELETED));
   }
 );
@@ -95,9 +95,9 @@ export const deleteOfferController = asyncHandler(
 export const toggleOfferController = asyncHandler(
   async (req: Request, res: Response) => {
     const { offerId } = req.params as { offerId: string };
-    const offer = await getOfferById(offerId);
+    const offer = await OfferService.getOfferById(offerId);
     if (!offer) throw new ApiError(404, ErrorMessages.OFFER_NOT_FOUND);
-    const updated = await toggleOffer(offerId, req.body.isActive);
+    const updated = await OfferService.toggleOffer(offerId, req.body.isActive);
     return res.json(new ApiResponse(200, { offer: updated }, SuccessMessage.OFFER_UPDATED));
   }
 );
