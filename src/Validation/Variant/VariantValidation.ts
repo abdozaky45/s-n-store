@@ -16,6 +16,24 @@ export const updateVariantQuantityValidation = baseSchema.concat(
     productId: joi.string().required(),
   }).required()
 );
+export const updateManyVariantsValidation = baseSchema.concat(joi.object({
+  productId: joi.string().hex().length(24).required(),
+  variants: joi.array().items(
+    joi.object({
+      _id: joi.string().hex().length(24).required(),
+      size: joi.string().optional(),
+      color: joi.string().hex().length(24).optional(),
+      quantity: joi.number().integer().min(0).optional(),
+    })
+  ).min(1).required(),
+}));
+
+export const deleteManyVariantsValidation = baseSchema.concat(joi.object({
+  productId: joi.string().hex().length(24).required(),
+  variantIds: joi.array().items(
+    joi.string().hex().length(24)
+  ).min(1).required(),
+}));
 
 export const variantIdValidation = baseSchema.concat(
   joi.object({

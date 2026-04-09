@@ -1,4 +1,4 @@
-import joi from "joi";
+import joi, { string } from "joi";
 import { baseSchema } from "../baseSchema";
 import { offerTypeArray } from "../../Utils/OfferType";
 
@@ -6,10 +6,7 @@ export const createOfferValidation = baseSchema.concat(
     joi.object({
         type: joi.string().valid(...offerTypeArray).required(),
         isActive: joi.boolean().required(),
-        image: joi.object({
-            mediaUrl: joi.string().required(),
-            mediaId: joi.string().required(),
-        }).required(),
+        image:joi.string().required(),
         description: joi.object({
             ar: joi.string().required(),
             en: joi.string().required(),
@@ -24,10 +21,7 @@ export const updateOfferValidation = baseSchema.concat(
         offerId: joi.string().required(),
         type: joi.string().valid(...offerTypeArray).optional(),
         isActive: joi.boolean().optional(),
-        image: joi.object({
-            mediaUrl: joi.string().required(),
-            mediaId: joi.string().required(),
-        }).optional(),
+        image: joi.string().optional(),
         description: joi.object({
             ar: joi.string().optional(),
             en: joi.string().optional(),

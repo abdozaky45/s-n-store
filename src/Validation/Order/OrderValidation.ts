@@ -2,23 +2,18 @@
 import joi from "joi";
 import { baseSchema } from "../baseSchema";
 import { orderStatusArray } from "../../Utils/OrderStatusType";
-export const createOrderValidation = baseSchema.concat(
-  joi.object({
-    customer: joi.string().required(),
-    shipping: joi.string().required(),
-    products: joi.array().items(
-      joi.object({
-        productId: joi.string().required(),
-        variantId: joi.string().required(),
-        name: joi.string().required(),
-        quantity: joi.number().min(1).required(),
-        size: joi.string().required(),
-        color: joi.string().required(),
-        itemPrice: joi.number().required(),
-      })
-    ).min(1).required(),
-  }).required()
-);
+export const createOrderValidation = joi.object({
+  customer: joi.string().required(),
+  customerInfo: joi.string().required(),
+  products: joi.array().items(
+    joi.object({
+      productId: joi.string().required(),
+      variantId: joi.string().required(),
+      quantity: joi.number().min(1).required(),
+    })
+  ).min(1).required(),
+}).required()
+
 
 export const orderIdValidation = baseSchema.concat(
   joi.object({

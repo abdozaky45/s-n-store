@@ -7,6 +7,7 @@ import { IOrder } from "./Iorder";
 const OrderSchema = new Schema<IOrder>({
   orderNumber: RequiredString,
   customer: RefType(SchemaTypesReference.Customer, true),
+  customerInfo: RefType(SchemaTypesReference.CustomerInfo, true),
   shipping: RefType(SchemaTypesReference.Shipping, true),
   email:NotRequiredString,
   products: [{

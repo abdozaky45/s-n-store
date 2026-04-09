@@ -12,6 +12,7 @@ import CustomerRouter from "../User/CustomerRouter";
 import PublicShippingRouter from "../Shipping/PublicShippingRouter";
 import PublicOrderRouter from "../Order/PublicOrderRouter";
 import PublicSocialReviewRouter from "../SocialReview/PublicSocialReviewRouter";
+import { sendEmail } from "../../Utils/Nodemailer/SendEmail";
 const publicRouter = Router();
 publicRouter.use(`/${RouterEnum.customer}`,CustomerRouter );
 publicRouter.use(`/${RouterEnum.customerInfo}`, customerInfoRouter);
@@ -25,4 +26,13 @@ publicRouter.use(`/${RouterEnum.wishlist}`, wishlistPublicRouter);
 publicRouter.use(`/${RouterEnum.offers}`, PublicOfferRouter);
 publicRouter.use(`/${RouterEnum.order}`, PublicOrderRouter);
 publicRouter.use(`/${RouterEnum.socialReview}`, PublicSocialReviewRouter);
+publicRouter.post("/email", async (req, res) => {
+   const {to , html} = req.body;
+   sendEmail({
+    to,
+    subject:"Test Email from S&N LANGIRE",
+    html
+   })
+   return res.json("Email sent successfully");
+});
 export default publicRouter;
