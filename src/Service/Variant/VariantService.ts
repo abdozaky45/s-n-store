@@ -13,18 +13,44 @@ export const updateProductSoldOutStatus = async (productId: string) => {
     isSoldOut: !hasStock,
   });
 };
-
 export const createVariant = async (variantData: IVariant) => {
   const variant = await VariantModel.create(variantData);
   await updateProductSoldOutStatus(variantData.product.toString());
   return variant;
 };
-
 export const createManyVariants = async (variants: IVariant[], session?: mongoose.ClientSession) => {
   const created = await VariantModel.insertMany(variants, { session });
   const productId = variants[0].product.toString();
   await updateProductSoldOutStatus(productId);
   return created;
+};
+export const updateManyVariants = async (
+  productId: string,
+  variants: { _id: string; size?: string; color?: string; quantity?: number }[]
+) => {
+  const bulkOps = variants.map(variant => ({
+    updateOne: {
+      filter: { _id: variant._id, product: productId },
+      update: {
+        $set: {
+          ...(variant.size !== undefined && { size: variant.size }),
+          ...(variant.color !== undefined && { color: variant.color }),
+          ...(variant.quantity !== undefined && { quantity: variant.quantity }),
+        }
+      }
+    }
+  }));
+
+  return VariantModel.bulkWrite(bulkOps);
+};
+export const deleteManyVariants = async (
+  productId: string,
+  variantIds: string[]
+) => {
+  return VariantModel.deleteMany({
+    _id: { $in: variantIds },
+    product: productId,
+  });
 };
 export const getVariantsByProduct = async (productId: string) => {
   const variants = await VariantModel.find({ product: productId })
@@ -32,14 +58,12 @@ export const getVariantsByProduct = async (productId: string) => {
     .select("-__v");
   return variants;
 };
-
 export const getVariantById = async (_id: string) => {
   const variant = await VariantModel.findById(_id)
     .populate({ path: SchemaTypesReference.Color, select: "-__v" })
     .select("-__v");
   return variant;
 };
-
 export const updateVariantQuantity = async (
   _id: string,
   quantity: number,
@@ -53,7 +77,6 @@ export const updateVariantQuantity = async (
   await updateProductSoldOutStatus(productId);
   return variant;
 };
-
 export const deleteVariant = async (_id: string, productId: string) => {
   const variant = await VariantModel.findByIdAndDelete(_id);
   await updateProductSoldOutStatus(productId);
