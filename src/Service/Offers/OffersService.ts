@@ -23,6 +23,8 @@ export const getOfferById = async (_id: string | Types.ObjectId) => {
 };
 
 export const updateOffer = async (_id: string | Types.ObjectId, offerData: Partial<IOffer>) => {
+  
+  
   const offer = await OfferModel.findByIdAndUpdate(_id, offerData, { new: true }).select("-__v");
   return offer;
 };
