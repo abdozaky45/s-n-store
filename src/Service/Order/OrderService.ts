@@ -10,6 +10,11 @@ import ProductModel from "../../Model/Product/ProductModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { updateProductSoldOutStatus } from "../Variant/VariantService"; // not forget to implement this function in VariantService ,controller and route
+import CustomerInfoModel from "../../Model/User/Customer/CustomerInfoModel";
+import IShipping from "../../Model/Shipping/Ishipping";
+import { checkCustomerInfo } from "../User/CustomerInfoService";
+import ErrorMessages from "../../Utils/Error";
+import { getProductsByIds } from "../../Shared/ProductServiceShared";
 class OrderService {
   generateOrderNumber = (): string => {
     const timestamp = Date.now().toString().slice(-6);
@@ -41,8 +46,8 @@ class OrderService {
   };
   // Create Order (User)
   async createOrder(orderData: {
+    customerInfo: string;
     customer: string;
-    shipping: string;
     products: {
       productId: string;
       variantId: string;
@@ -53,24 +58,27 @@ class OrderService {
     session.startTransaction();
 
     try {
-      const shippingData = await ShippingModel.findById(orderData.shipping).session(session);
-      if (!shippingData) {
-        throw new Error("Shipping method not found");
+      const CustomerInfo = await checkCustomerInfo(
+        orderData.customerInfo,
+        orderData.customer,
+        session
+      );
+      if (!CustomerInfo || !CustomerInfo.shipping) {
+        throw new Error(ErrorMessages.CUSTOMER_INFO_NOT_FOUND_OR_INVALID);
       }
+      const shipping = CustomerInfo.shipping as IShipping;
+      const shippingCost = shipping.cost;
       const variantIds = orderData.products.map((p) => p.variantId);
       const variants = await VariantModel.find({ _id: { $in: variantIds } })
-        .populate({ path: "color", select: "name hex -_id" })
+        .populate({ path: SchemaTypesReference.Color, select: "name hex -_id" })
         .session(session);
       if (variants.length !== variantIds.length) {
-        throw new Error("Some variants not found");
+        throw new Error(ErrorMessages.VARIANTS_NOT_FOUND);
       }
       const productIds = [...new Set(orderData.products.map((p) => p.productId))];
-      const products_db = await ProductModel.find({ _id: { $in: productIds } })
-        .select("name finalPrice")
-        .session(session);
-
+      const products_db = await getProductsByIds(productIds, session);
       if (products_db.length !== productIds.length) {
-        throw new Error("Some products not found");
+        throw new Error(ErrorMessages.PRODUCTS_NOT_FOUND);
       }
       for (const item of orderData.products) {
         const variant = variants.find((v) => v._id.toString() === item.variantId);
@@ -104,11 +112,12 @@ class OrderService {
       const subTotal = products.reduce((acc, p) => acc + p.totalPrice, 0);
       const { discount, freeShipping, appliedOffer } =
         await this.calculateOrderOffers(subTotal);
-      const finalShippingCost = freeShipping ? 0 : shippingData.cost;
+      const finalShippingCost = freeShipping ? 0 : shippingCost;
       const totalAmount = subTotal - discount + finalShippingCost;
       const order = await OrderModel.create([{
         customer: orderData.customer,
-        shipping: orderData.shipping,
+        customerInfo: orderData.customerInfo,
+        shipping: CustomerInfo.shipping,
         products,
         subTotal,
         shippingCost: finalShippingCost,

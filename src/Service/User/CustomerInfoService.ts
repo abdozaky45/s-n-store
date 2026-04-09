@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, ClientSession } from "mongoose";
 import ICustomerInfo from "../../Model/User/Customer/ICustomerInfoModel";
 import CustomerInfoModel from "../../Model/User/Customer/CustomerInfoModel";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
@@ -31,4 +31,17 @@ export const gitCutsomerInfoByCustomerId = async (customer: string | Types.Objec
 export const checkIfPrimaryPhoneExists = async (customer: string | Types.ObjectId) => {
   const user = await CustomerInfoModel.findOne({ customer });
   return user;
+};
+export const checkCustomerInfo = async (
+  _id: Types.ObjectId | string,
+  customer: string | Types.ObjectId,
+  session?: ClientSession
+) => {
+  return await CustomerInfoModel.findOne({
+    _id,
+    customer,
+  })
+    .populate(SchemaTypesReference.Shipping)
+    .session(session || null)
+    .lean();
 };

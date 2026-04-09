@@ -18,6 +18,7 @@ interface ProductOrder {
 interface IOrder {
   orderNumber: string;
   customer: Types.ObjectId | string | ICustomer;
+  customerInfo: Types.ObjectId | string;
   shipping: Types.ObjectId | string | IShipping;
   email?: string;
   products: ProductOrder[];

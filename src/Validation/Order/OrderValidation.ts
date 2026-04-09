@@ -4,7 +4,7 @@ import { baseSchema } from "../baseSchema";
 import { orderStatusArray } from "../../Utils/OrderStatusType";
 export const createOrderValidation = joi.object({
   customer: joi.string().required(),
-  shipping: joi.string().required(),
+  customerInfo: joi.string().required(),
   products: joi.array().items(
     joi.object({
       productId: joi.string().required(),

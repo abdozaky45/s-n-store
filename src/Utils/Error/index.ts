@@ -56,6 +56,9 @@ enum ErrorMessages {
   CUSTOMER_INFO_NOT_FOUND = "Customer info not found or incorrect customer ID",
   NO_MEDIA_ID_PROVIDED = "No media ID provided",
   SOCIAL_REVIEW_NOT_FOUND = "Review not found",
+  VARIANTS_NOT_FOUND = "Some variants not found",
   VARIANTS_NOT_MATCHED = "No variants matched — check productId or variant IDs",
+  CUSTOMER_INFO_NOT_FOUND_OR_INVALID = "Customer information not found or customer or invalid",
+  PRODUCTS_NOT_FOUND = "Some products not found"
 }
 export default ErrorMessages;
