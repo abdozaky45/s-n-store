@@ -24,11 +24,14 @@ import OfferRouter from "./Router/Offers/OffersRouter";
 import OrderRouter from "./Router/Order/OrderRouter";
 import SocialReviewRouter from "./Router/SocialReview/SocialReviewRouter";
 import wishlistRouter from "./Router/Wishlist/WishlistRouter";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./Swagger/swagger";
 const app: Application = express();
 app.use(express.json());
 app.use(cors(getCorsOptions()));
 app.options(/.*/, cors(getCorsOptions()));
 app.use(express.urlencoded({ extended: true }));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get("/", async (_, res) => {
   return res.json("Hello world!");
 });
