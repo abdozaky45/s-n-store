@@ -47,7 +47,7 @@ export const updateOrderStatusValidation = baseSchema.concat(
 export const getAllOrdersValidation = baseSchema.concat(
   joi.object({
     status: joi.string().valid(...orderStatusArray).optional(),
-    orderNumber: joi.string().optional(),
+    search: joi.string().optional(),
     page: joi.number().optional(),
   }).required()
 );

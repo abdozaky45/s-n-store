@@ -25,7 +25,7 @@ class OrderController {
       const customerExists = await checkCustomerExists(customerId);
       if (!customerExists) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
       const { page, search} = req.query;
-      const orders = await OrderService.getUserOrders(
+      const orders = await OrderService.getAllUserOrders(
         customerId,
         Number(page),
         search as string

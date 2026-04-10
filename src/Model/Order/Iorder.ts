@@ -20,7 +20,6 @@ interface IOrder {
   customer: Types.ObjectId | string | ICustomer;
   customerInfo: Types.ObjectId | string;
   shipping: Types.ObjectId | string | IShipping;
-  email?: string;
   products: ProductOrder[];
   subTotal: number;
   shippingCost: number;

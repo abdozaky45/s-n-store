@@ -159,6 +159,7 @@ class OrderService {
   // Get Order Details by ID (Admin)
   async getOrderById(_id: string) {
     const order = await OrderModel.findById(_id)
+      .populate({ path: "products.productId", select: "defaultImage albumImages" })
       .populate({ path: SchemaTypesReference.Customer, select: "-_id -__v" })
       .populate({ path: SchemaTypesReference.CustomerInfo, select: "-_id -__v" })
       .populate({ path: SchemaTypesReference.Shipping, select: "-_id -__v" })
@@ -167,7 +168,7 @@ class OrderService {
     return order;
   };
   // Get All Orders with Pagination and Filtering (User)
-  async getUserOrders(
+  async getAllUserOrders(
     customerId: string,
     page?: number,
     searchTerm?: string
@@ -190,6 +191,7 @@ class OrderService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
+        .populate({ path: "products.productId", select: "defaultImage" })
         .populate({ path: "products.color", select: "-_id -__v" })
         .select("products orderNumber status subTotal shippingCost discount totalAmount freeShipping createdAt"),
       OrderModel.countDocuments(filter),
@@ -373,10 +375,11 @@ class OrderService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate({ path: "customer", select: "-__v" })
-        .populate({ path: "shipping", select: "-__v" })
+        .populate({ path: "products.productId", select: "defaultImage" })
+        .populate({ path: SchemaTypesReference.Customer, select: "-_id -__v" })
+        .populate({ path: SchemaTypesReference.CustomerInfo, select: "-_id -__v" })
+        .populate({ path: SchemaTypesReference.Shipping, select: "-_id -__v" })
         .populate({ path: "products.color", select: "-__v" })
-        .populate({ path: "appliedOffer", select: "-__v" })
         .select("-__v"),
       OrderModel.countDocuments(query),
     ]);
@@ -388,7 +391,7 @@ class OrderService {
       totalPages: Math.ceil(totalItems / limit),
       filters: {
         status: status || null,
-        orderNumber: orderNumber?.trim() || null,
+        searchTerm: orderNumber?.trim() || null,
       },
     };
   }
