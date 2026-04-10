@@ -8,28 +8,20 @@ PublicOrderRouter.post(
   Validation(orderValidation.createOrderValidation),
   OrderController.createOrderController
 );
-
 PublicOrderRouter.get(
-  "/track/customer/:customerId",
-  Validation(orderValidation.customerIdValidation),
-  OrderController.trackOrdersByCustomerIdController
+  "/:orderId",
+  Validation(orderValidation.userOrderIdValidation),
+  OrderController.getOrderByIdController
 );
-
 PublicOrderRouter.get(
-  "/track/:orderNumber",
-  Validation(orderValidation.orderNumberValidation),
-  OrderController.trackOrderByOrderNumberController
-);
-
-PublicOrderRouter.get(
-  "/user/:customerId",
+  "/customer/:customerId",
   Validation(orderValidation.getUserOrdersValidation),
   OrderController.getUserOrdersController
 );
 
 PublicOrderRouter.patch(
   "/cancel/:orderId",
-  Validation(orderValidation.orderIdValidation),
+  Validation(orderValidation.userOrderIdValidation),
   OrderController.cancelOrderController
 );
 export default PublicOrderRouter;

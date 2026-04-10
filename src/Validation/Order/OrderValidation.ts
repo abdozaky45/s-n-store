@@ -15,11 +15,16 @@ export const createOrderValidation = joi.object({
 }).required()
 
 
-export const orderIdValidation = baseSchema.concat(
+export const userOrderIdValidation = joi.object({
+  orderId: joi.string().required(),
+}).required()
+
+export const AdminOrderIdValidation = baseSchema.concat(
   joi.object({
     orderId: joi.string().required(),
   }).required()
 );
+
 
 export const orderNumberValidation = baseSchema.concat(
   joi.object({
@@ -27,11 +32,10 @@ export const orderNumberValidation = baseSchema.concat(
   }).required()
 );
 
-export const customerIdValidation = baseSchema.concat(
-  joi.object({
-    customerId: joi.string().required(),
-  }).required()
-);
+export const customerIdValidation = joi.object({
+  customerId: joi.string().required(),
+}).required()
+
 
 export const updateOrderStatusValidation = baseSchema.concat(
   joi.object({
@@ -48,13 +52,12 @@ export const getAllOrdersValidation = baseSchema.concat(
   }).required()
 );
 
-export const getUserOrdersValidation = baseSchema.concat(
-  joi.object({
-    customerId: joi.string().required(),
-    page: joi.number().optional(),
-    searchTerm: joi.string().optional(),
-  }).required()
-);
+export const getUserOrdersValidation = joi.object({
+  customerId: joi.string().required(),
+  page: joi.number().optional(),
+  search: joi.string().optional(),
+}).required()
+
 
 
 
