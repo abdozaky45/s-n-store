@@ -8,12 +8,14 @@
     "@types/lodash": "^4.17.24",
     "@types/node": "^25.4.0",
     "@types/nodemailer": "^7.0.11",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "scripts": {
     "build": "npx tsc",
-     "start": "node --max-old-space-size=512 dist/index.js",
+    "start": "node --max-old-space-size=512 dist/index.js",
     "dev": "nodemon src/index.ts",
     "test": "npm run build && jasmine"
   },
@@ -22,7 +24,7 @@
     "@aws-sdk/client-sns": "^3.1006.0",
     "@aws-sdk/s3-request-presigner": "^3.1006.0",
     "agenda": "^5.0.0",
-    "aws-sdk": "^2.1693.0",
+    "aws-sdk": "^1.18.0",
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",
     "bullmq": "^5.70.4",
@@ -40,6 +42,8 @@
     "nanoid": "^5.1.6",
     "nodemailer": "^8.0.2",
     "nodemon": "^3.1.14",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }
