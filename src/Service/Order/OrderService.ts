@@ -4,13 +4,11 @@ import { Types } from "mongoose";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import OfferModel from "../../Model/Offers/Offers";
 import { OfferTypeEnum } from "../../Utils/OfferType";
-import ShippingModel from "../../Model/Shipping/ShippingModel";
 import mongoose from "mongoose";
 import ProductModel from "../../Model/Product/ProductModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
 import VariantModel from "../../Model/Variant/VariantModel";
-import { updateProductSoldOutStatus } from "../Variant/VariantService"; // not forget to implement this function in VariantService ,controller and route
-import CustomerInfoModel from "../../Model/User/Customer/CustomerInfoModel";
+import { getVariantsByIds, updateProductSoldOutStatus } from "../Variant/VariantService"; // not forget to implement this function in VariantService ,controller and route
 import IShipping from "../../Model/Shipping/Ishipping";
 import { checkCustomerInfo } from "../User/CustomerInfoService";
 import ErrorMessages from "../../Utils/Error";
@@ -69,9 +67,7 @@ class OrderService {
       const shipping = CustomerInfo.shipping as IShipping;
       const shippingCost = shipping.cost;
       const variantIds = orderData.products.map((p) => p.variantId);
-      const variants = await VariantModel.find({ _id: { $in: variantIds } })
-        .populate({ path: SchemaTypesReference.Color, select: "name hex -_id" })
-        .session(session);
+      const variants = await getVariantsByIds(variantIds, session);
       if (variants.length !== variantIds.length) {
         throw new Error(ErrorMessages.VARIANTS_NOT_FOUND);
       }
@@ -102,9 +98,7 @@ class OrderService {
           variantId: new Types.ObjectId(p.variantId),
           quantity: p.quantity,
           size: variant.size,
-          color: variant.color instanceof Types.ObjectId
-            ? variant.color
-            : new Types.ObjectId((variant.color as any)._id),
+          color: new Types.ObjectId(variant.color.toString()),
           itemPrice: product.finalPrice,
           totalPrice: product.finalPrice * p.quantity,
         };
@@ -162,53 +156,55 @@ class OrderService {
       session.endSession();
     }
   }
-  // Track Orders by Customer ID (User)
-  async trackOrdersByCustomerId(customerId: string) {
-    const orders = await OrderModel.find({ customer: customerId })
-      .populate({
-        path: SchemaTypesReference.Customer,
-        select: "-__v"
-      })
-      .populate({
-        path: SchemaTypesReference.Shipping,
-        select: "-__v"
-      })
-      .populate({
-        path: "products.color",
-        select: "-__v"
-      })
-      .populate({
-        path: "appliedOffer",
-        select: "-__v"
-      })
-      .select("-__v")
-      .sort({ createdAt: -1 });
-
-    return orders;
-  };
-  // Track Order by orderNumber (User)
-  async trackOrderByOrderNumber(orderNumber: string) {
-    const order = await OrderModel.findOne({ orderNumber })
-      .populate({
-        path: SchemaTypesReference.Customer,
-        select: "-__v"
-      })
-      .populate({
-        path: SchemaTypesReference.Shipping,
-        select: "-__v"
-      })
-      .populate({
-        path: "products.color",
-        select: "-__v"
-      })
-      .populate({
-        path: "appliedOffer",
-        select: "-__v"
-      })
+  // Get Order Details by ID (Admin)
+  async getOrderById(_id: string) {
+    const order = await OrderModel.findById(_id)
+      .populate({ path: "products.productId", select: "defaultImage albumImages" })
+      .populate({ path: SchemaTypesReference.Customer, select: "-_id -__v" })
+      .populate({ path: SchemaTypesReference.CustomerInfo, select: "-_id -__v" })
+      .populate({ path: SchemaTypesReference.Shipping, select: "-_id -__v" })
+      .populate({ path: "products.color", select: "-_id -__v" })
       .select("-__v");
-
     return order;
   };
+  // Get All Orders with Pagination and Filtering (User)
+  async getAllUserOrders(
+    customerId: string,
+    page?: number,
+    searchTerm?: string
+  ) {
+    const limit = 10;
+    page = !page || page < 1 || isNaN(page) ? 1 : page;
+    const skip = limit * (page - 1);
+
+    const filter: any = { customer: customerId };
+
+    if (searchTerm && searchTerm.trim()) {
+      filter.orderNumber = {
+        $regex: searchTerm.trim(),
+        $options: "i"
+      };
+    }
+
+    const [orders, totalItems] = await Promise.all([
+      OrderModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({ path: "products.productId", select: "defaultImage" })
+        .populate({ path: "products.color", select: "-_id -__v" })
+        .select("products orderNumber status subTotal shippingCost discount totalAmount freeShipping createdAt"),
+      OrderModel.countDocuments(filter),
+    ]);
+
+    return {
+      orders,
+      currentPage: page,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+      searchTerm: searchTerm || null,
+    };
+  }
   // Cancel Order (User)
   async cancelOrder(_id: string) {
     const session = await mongoose.startSession();
@@ -216,7 +212,7 @@ class OrderService {
     try {
       const order = await OrderModel.findById(_id).session(session);
       if (!order) {
-        throw new Error("Order not found");
+        throw new Error(ErrorMessages.ORDER_NOT_FOUND);
       }
       const cancellableStatuses = [
         orderStatusType.under_review,
@@ -263,16 +259,6 @@ class OrderService {
     } finally {
       session.endSession();
     }
-  };
-  // Get Order Details by ID (Admin)
-  async getOrderById(_id: string) {
-    const order = await OrderModel.findById(_id)
-      .populate({ path: SchemaTypesReference.Customer, select: "-__v" })
-      .populate({ path: SchemaTypesReference.Shipping, select: "-__v" })
-      .populate({ path: "products.color", select: "-__v" })
-      .populate({ path: "appliedOffers", select: "-__v" })
-      .select("-__v");
-    return order;
   };
   // Apply Free Shipping Offer (Admin)
   async applyFreeShipping(_id: string) {
@@ -389,10 +375,11 @@ class OrderService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate({ path: "customer", select: "-__v" })
-        .populate({ path: "shipping", select: "-__v" })
+        .populate({ path: "products.productId", select: "defaultImage" })
+        .populate({ path: SchemaTypesReference.Customer, select: "-_id -__v" })
+        .populate({ path: SchemaTypesReference.CustomerInfo, select: "-_id -__v" })
+        .populate({ path: SchemaTypesReference.Shipping, select: "-_id -__v" })
         .populate({ path: "products.color", select: "-__v" })
-        .populate({ path: "appliedOffer", select: "-__v" })
         .select("-__v"),
       OrderModel.countDocuments(query),
     ]);
@@ -404,50 +391,8 @@ class OrderService {
       totalPages: Math.ceil(totalItems / limit),
       filters: {
         status: status || null,
-        orderNumber: orderNumber?.trim() || null,
+        searchTerm: orderNumber?.trim() || null,
       },
-    };
-  }
-  // Get All Orders with Pagination and Filtering (User)
-  async getUserOrders(
-    customerId: string,
-    page?: number,
-    searchTerm?: string
-  ) {
-    const limit = 10;
-    page = !page || page < 1 || isNaN(page) ? 1 : page;
-    const skip = limit * (page - 1);
-
-    const filter: any = { customer: customerId };
-
-    if (searchTerm && searchTerm.trim()) {
-      const term = searchTerm.trim();
-
-
-      filter.orderNumber = {
-        $regex: term,
-        $options: "i"
-      };
-    }
-
-    const [orders, totalItems] = await Promise.all([
-      OrderModel.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate({ path: "shipping", select: "-__v" })
-        .populate({ path: "products.color", select: "-__v" })
-        .populate({ path: "appliedOffer", select: "-__v" })
-        .select("-__v"),
-      OrderModel.countDocuments(filter),
-    ]);
-
-    return {
-      orders,
-      currentPage: page,
-      totalItems,
-      totalPages: Math.ceil(totalItems / limit),
-      searchTerm: searchTerm || null,
     };
   }
 }

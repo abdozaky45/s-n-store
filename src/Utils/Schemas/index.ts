@@ -35,7 +35,7 @@ const NotRequiredUniqueEmail = {
   sparse : true,
   lowercase: true,
   trim: true,
-  set: (email: string) => email.toLowerCase(),
+ set: (email: string) => email ? email.toLowerCase() : undefined,
 };
 const RequiredUniquePhone = {
   type: String,

@@ -11,7 +11,7 @@ OrderRouter.get(
 
 OrderRouter.get(
   "/admin/:orderId",
-  Validation(orderValidation.orderIdValidation),
+  Validation(orderValidation.AdminOrderIdValidation),
   OrderController.getOrderByIdController
 );
 
@@ -23,7 +23,7 @@ OrderRouter.patch(
 
 OrderRouter.patch(
   "/admin/free-shipping/:orderId",
-  Validation(orderValidation.orderIdValidation),
+  Validation(orderValidation.AdminOrderIdValidation),
   OrderController.applyFreeShippingController
 );
 export default OrderRouter;

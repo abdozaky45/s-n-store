@@ -17,6 +17,7 @@ export const addCustomerInfo = asyncHandler(
       shipping: req.body.shipping,
       postalCode: req.body.postalCode,
       additionalPhone: req.body.additionalPhone,
+      email: req.body.email
     };
     const checkCustomer = await checkCustomerExists(userData.customer as string);
     if (!checkCustomer) {
@@ -42,7 +43,7 @@ export const updateCustomerInfo = asyncHandler(
     }
     const allowedFields: (keyof ICustomerInfo)[] = [
       'customer', 'firstName', 'lastName', 'address',
-      'apartmentSuite', 'shipping', 'postalCode', 'additionalPhone'
+      'apartmentSuite', 'shipping', 'postalCode', 'additionalPhone', 'email'
     ];
     const customerData = allowedFields.reduce((acc, field) => {
       if (req.body[field] !== undefined) acc[field] = req.body[field];

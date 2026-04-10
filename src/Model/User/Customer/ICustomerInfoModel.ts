@@ -10,4 +10,5 @@ export default interface ICustomerInfo {
   shipping: string | Types.ObjectId | IShipping;
   postalCode?: string;
   additionalPhone?: string;
+  email?: string;
 }

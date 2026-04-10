@@ -1,3 +1,4 @@
+import e from "cors";
 import joi  from "joi";
 export const addCustomerInfoValidation = joi
   .object({
@@ -9,6 +10,7 @@ export const addCustomerInfoValidation = joi
     shipping: joi.string().required(),
     postalCode: joi.string().min(3).max(6).allow("").optional(),
     additionalPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
+    email: joi.string().email({ tlds: { allow: false } }).optional()
   })
   .required();
 export const updateCustomerInfo =
@@ -23,6 +25,7 @@ export const updateCustomerInfo =
       shipping: joi.string().optional(),
       postalCode: joi.string().min(3).max(6).optional().allow(""),
       additionalPhone: joi.string().pattern(/^(\+?2)?01[0-25]\d{8}$/).allow("").optional(),
+      email: joi.string().email({ tlds: { allow: false } }).optional()
 
     })
     .required();

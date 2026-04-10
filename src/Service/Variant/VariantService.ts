@@ -87,3 +87,7 @@ export const getVariantStock = async (variantIds: string[]) => {
     _id: { $in: variantIds },
   }).select("_id quantity");
 }
+export const getVariantsByIds = async (variantIds: string[], session?: mongoose.ClientSession) => {
+  const variants = await VariantModel.find({ _id: { $in: variantIds } }).session(session || null);
+  return variants;
+}
