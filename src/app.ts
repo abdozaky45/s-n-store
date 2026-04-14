@@ -15,7 +15,7 @@ import AwsRouter from "./Router/Aws/AwsRouter";
 import ProductRouter from "./Router/Product/ProductRouter";
 import imageSliderRouter from "./Router/ImageSlider/ImageSliderRouter";
 import shippingRouter from "./Router/Shipping/ShippingRouter";
-import { getCorsOptions } from "./config";
+
 import subCategoryRouter from "./Router/SubCategory/SubCategoryRouter";
 import SizeCategoryRouter from "./Router/SizeCategory/SizeCategoryRouter";
 import ColorRouter from "./Router/Color/ColorRouter";
@@ -28,8 +28,14 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Swagger/swagger";
 const app: Application = express();
 app.use(express.json());
-app.use(cors(getCorsOptions()));
-app.options(/.*/, cors(getCorsOptions()));
+const devCorsOptions: cors.CorsOptions = {
+  origin: "*",
+  methods: "*",
+  allowedHeaders: "*",
+  credentials: false,
+};
+app.use(cors(devCorsOptions));
+app.options(/.*/, cors(devCorsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get("/", async (_, res) => {
