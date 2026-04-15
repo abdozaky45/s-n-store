@@ -228,7 +228,7 @@ export const getAllProductsForUser = async ({
       .populate(
 
         {
-          path: "variants", select: "color",
+          path: "variants", select: "-_id color",
           populate: { path: SchemaTypesReference.Color, select: "-_id -__v" }
         }),
     ProductModel.countDocuments(query),
