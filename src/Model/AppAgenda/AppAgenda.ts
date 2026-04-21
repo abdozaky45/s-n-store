@@ -27,7 +27,7 @@ const appAgenda = async () => {
       ),
       ProductModel.updateMany(
         { isDeleted: false, isSale: true, saleEndDate: { $gt: 0, $lt: moment().valueOf() } },
-        { isSale: false, salePrice: 0, saleStartDate: 0, saleEndDate: 0, $set: { finalPrice: "$price" } }
+        [{ $set: { isSale: false, salePrice: 0, saleStartDate: 0, saleEndDate: 0, finalPrice: "$price" } }]
       ),
     ]);
   });

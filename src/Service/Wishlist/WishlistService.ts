@@ -39,7 +39,6 @@ export const getProductWishlist = async (customer: string | Types.ObjectId, prod
     customer,
     product
   });
-  console.log("wishlist entry:", wishlist);
   return wishlist;
 }
 export const getAllWishlist = async (page: number) => {
