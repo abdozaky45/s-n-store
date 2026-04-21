@@ -12,6 +12,9 @@ import VariantModel from "../../Model/Variant/VariantModel";
 import { deleteProductImages } from "../../Controller/Aws/AwsController";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
 import { getVariantStock } from "../Variant/VariantService";
+import CategoryModel from "../../Model/Category/CategoryModel";
+import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
+import WishListModel from "../../Model/Wishlist/WishlistModel";
 export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
   if (!salePrice || salePrice === 0 || salePrice >= price) {
     return {
@@ -228,7 +231,7 @@ export const getAllProductsForUser = async ({
       .populate(
 
         {
-          path: "variants", select: "-_id color",
+          path: "variants", select: "color size quantity",
           populate: { path: SchemaTypesReference.Color, select: "-_id -__v" }
         }),
     ProductModel.countDocuments(query),
@@ -282,18 +285,99 @@ export const getProductsStock = async (variantIds: string[]) => {
   return result;
 };
 export const getAnalytics = async () => {
-  const totalRevenue = await OrderModel.aggregate([
-    { $match: { status: orderStatusType.delivered } },
-    { $group: { _id: null, total: { $sum: "$price" } } },
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const last7DaysDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  const [
+    totalProducts,
+    soldOutProducts,
+    topSellingProducts,
+    mostWishlistedProducts,
+    productPriceStats,
+    totalCategories,
+    totalSubCategories,
+    totalOrders,
+    todaySalesResult,
+    totalRevenueResult,
+    averageOrderResult,
+    ordersByStatusResult,
+    last7DaysResult,
+    totalCustomers,
+  ] = await Promise.all([
+    ProductModel.countDocuments({ isDeleted: false }),
+    ProductModel.countDocuments({ isDeleted: false, isSoldOut: true }),
+    ProductModel.find({ isDeleted: false })
+      .sort({ soldItems: -1 })
+      .limit(10)
+      .select("name soldItems defaultImage finalPrice"),
+    WishListModel.aggregate([
+      { $group: { _id: "$product", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+      { $lookup: { from: "products", localField: "_id", foreignField: "_id", as: "product" } },
+      { $unwind: "$product" },
+      { $project: { _id: 0, count: 1, product: { _id: 1, name: 1, defaultImage: 1, finalPrice: 1 } } },
+    ]),
+    ProductModel.aggregate([
+      { $match: { isDeleted: false } },
+      { $group: { _id: null, totalFinalPrice: { $sum: "$finalPrice" }, totalWholesalePrice: { $sum: "$wholesalePrice" } } },
+    ]),
+    CategoryModel.countDocuments({ isDeleted: false }),
+    SubCategoryModel.countDocuments({ isDeleted: false }),
+    OrderModel.countDocuments(),
+    OrderModel.aggregate([
+      { $match: { createdAt: { $gte: startOfToday }, status: { $ne: orderStatusType.cancelled } } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" }, orders: { $sum: 1 } } },
+    ]),
+    OrderModel.aggregate([
+      { $match: { status: orderStatusType.delivered } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+    ]),
+    OrderModel.aggregate([
+      { $match: { status: { $ne: orderStatusType.cancelled } } },
+      { $group: { _id: null, avg: { $avg: "$totalAmount" } } },
+    ]),
+    OrderModel.aggregate([
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+    ]),
+    OrderModel.aggregate([
+      { $match: { createdAt: { $gte: last7DaysDate }, status: { $ne: orderStatusType.cancelled } } },
+      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, total: { $sum: "$totalAmount" }, orders: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]),
+    AuthModel.countDocuments(),
   ]);
-  const totalOrders = await OrderModel.countDocuments();
-  const totalCustomers = await AuthModel.countDocuments();
-  const totalProducts = await ProductModel.countDocuments();
+
+  const ordersByStatus = ordersByStatusResult.reduce((acc: Record<string, number>, item: any) => {
+    acc[item._id] = item.count;
+    return acc;
+  }, {});
 
   return {
-    totalRevenue: totalRevenue[0]?.total ?? 0,
-    totalOrders,
-    totalCustomers,
-    totalProducts,
+    products: {
+      total: totalProducts,
+      soldOut: soldOutProducts,
+      topSelling: topSellingProducts,
+      mostWishlisted: mostWishlistedProducts,
+      totalFinalPrice: productPriceStats[0]?.totalFinalPrice ?? 0,
+      totalWholesalePrice: productPriceStats[0]?.totalWholesalePrice ?? 0,
+    },
+    categories: {
+      total: totalCategories,
+      subCategories: totalSubCategories,
+    },
+    orders: {
+      total: totalOrders,
+      todaySales: todaySalesResult[0]?.total ?? 0,
+      todayOrders: todaySalesResult[0]?.orders ?? 0,
+      totalRevenue: totalRevenueResult[0]?.total ?? 0,
+      averageOrderValue: Math.round(averageOrderResult[0]?.avg ?? 0),
+      byStatus: ordersByStatus,
+      last7Days: last7DaysResult,
+    },
+    customers: {
+      total: totalCustomers,
+    },
   };
 };
