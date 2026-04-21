@@ -1,81 +1,47 @@
 export const SendWelcomeEmail = () => {
-    return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+  return `<!DOCTYPE html>
+<html lang="ar" dir="rtl" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <title>أهلاً بك - S&N Langire</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style type="text/css">
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+    body { margin: 0 !important; padding: 0 !important; background-color: #fff0f5; }
+    a { color: inherit; }
 
-    body {
-      background-color: #fff0f5;
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
-      padding: 40px 20px;
-    }
+    .wrapper-table { width: 100%; background-color: #fff0f5; }
+    .inner-table { width: 600px; }
 
-    .wrapper {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* ===== HEADER ===== */
-    .header {
-      background: linear-gradient(135deg, #ff6fa8 0%, #ff3d7f 60%, #e0005e 100%);
+    .header-td {
+      background: #e0005e;
       border-radius: 24px 24px 0 0;
       padding: 56px 40px 44px;
       text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -60px; left: -60px;
-      width: 240px; height: 240px;
-      background: rgba(255,255,255,0.07);
-      border-radius: 50%;
-    }
-
-    .header::after {
-      content: '';
-      position: absolute;
-      bottom: -80px; right: -40px;
-      width: 280px; height: 280px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 50%;
-    }
-
-    .header-circle {
-      position: absolute;
-      top: 30px; right: 30px;
-      width: 80px; height: 80px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 50%;
     }
 
     .brand {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Cormorant Garamond', Georgia, serif;
       font-size: 36px;
       color: #ffffff;
       letter-spacing: 4px;
       text-transform: uppercase;
-      position: relative;
-      z-index: 1;
+      display: block;
     }
-
     .brand span { color: #ffe0ef; }
 
     .brand-tagline {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 11px;
       color: rgba(255,255,255,0.7);
       letter-spacing: 5px;
       text-transform: uppercase;
       margin-top: 6px;
-      position: relative;
-      z-index: 1;
+      display: block;
     }
 
     .header-divider {
@@ -83,322 +49,380 @@ export const SendWelcomeEmail = () => {
       height: 2px;
       background: rgba(255,255,255,0.4);
       margin: 20px auto;
-      position: relative;
-      z-index: 1;
+      display: block;
     }
 
     .header-welcome {
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 18px;
       font-weight: 500;
       color: rgba(255,255,255,0.95);
-      position: relative;
-      z-index: 1;
-      font-style: normal;
       letter-spacing: 1px;
+      display: block;
     }
 
-    /* ===== HERO BANNER ===== */
-    .hero {
-      background: linear-gradient(160deg, #fff0f7 0%, #ffe4f0 50%, #ffd6e8 100%);
+    .hero-td {
+      background: #ffe4f0;
       padding: 48px 40px;
       text-align: center;
-      position: relative;
       border-left: 1px solid #ffe0ef;
       border-right: 1px solid #ffe0ef;
     }
 
-    .hero-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-      display: block;
-    }
+    .hero-icon { font-size: 64px; display: block; margin-bottom: 16px; }
 
     .hero-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 38px; font-weight: 600; letter-spacing: 1px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 38px;
+      font-weight: 600;
       color: #1a0010;
-      margin-bottom: 12px;
+      margin: 0 0 12px 0;
       line-height: 1.4;
     }
-
     .hero-title span { color: #ff3d7f; }
 
     .hero-text {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 17px;
       color: #666;
       line-height: 2.1;
-      max-width: 420px;
       margin: 0 auto;
-      font-weight: 400;
+      max-width: 420px;
     }
 
-    /* ===== BODY ===== */
-    .body {
+    .body-td {
       background: #ffffff;
       padding: 48px 40px;
       border-left: 1px solid #ffe0ef;
       border-right: 1px solid #ffe0ef;
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
     }
 
-    /* Features */
-    .features {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin: 32px 0;
-    }
+    .feature-row { margin-bottom: 16px; }
 
-    .feature-card {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+    .feature-td {
       background: #fff8fb;
       border: 1px solid #ffe0ef;
       border-radius: 16px;
       padding: 20px 24px;
+      vertical-align: middle;
     }
 
-    .feature-icon {
-      font-size: 38px; font-weight: 600; letter-spacing: 1px;
-      flex-shrink: 0;
+    .feature-icon-td {
       width: 56px;
       height: 56px;
-      background: linear-gradient(135deg, #ff6fa8, #ff3d7f);
+      background: #ff3d7f;
       border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 26px;
+      padding: 0;
     }
 
-    .feature-text h3 {
+    .feature-gap { width: 16px; }
+
+    .feature-title {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 17px;
       color: #1a0010;
       font-weight: 700;
-      margin-bottom: 5px;
+      margin: 0 0 5px 0;
     }
 
-    .feature-text p {
+    .feature-desc {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 15px;
       color: #999;
       line-height: 1.7;
+      margin: 0;
     }
 
-    /* Divider */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 32px 0;
-    }
-    .divider-line { flex: 1; height: 1px; background: #ffe0ef; }
-    .divider-icon { color: #ff6fa8; font-size: 18px; }
-
-    /* CTA Button */
-    .cta-wrap { text-align: center; margin: 36px 0; }
+    .divider-line { height: 1px; background-color: #ffe0ef; border: none; margin: 32px 0; }
 
     .cta-btn {
       display: inline-block;
-      background: linear-gradient(135deg, #ff6fa8, #e0005e);
-      color: #ffffff;
+      background: #e0005e;
+      color: #ffffff !important;
       text-decoration: none;
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 17px;
       font-weight: 700;
       padding: 18px 48px;
       border-radius: 50px;
       letter-spacing: 1px;
-      box-shadow: 0 8px 24px rgba(255, 61, 127, 0.35);
     }
 
     .cta-sub {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 13px;
       color: #bbb;
       margin-top: 12px;
+      display: block;
     }
 
-    /* Quote */
-    .quote-box {
-      background: linear-gradient(135deg, #ff3d7f, #e0005e);
+    .quote-td {
+      background: #e0005e;
       border-radius: 20px;
       padding: 32px 36px;
       text-align: center;
-      margin: 32px 0;
     }
 
     .quote-text {
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 17px;
       font-weight: 500;
       color: #ffffff;
-      font-style: normal;
       line-height: 2.1;
       letter-spacing: 0.3px;
+      margin: 0;
     }
 
     .quote-author {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 13px;
       color: rgba(255,255,255,0.65);
       margin-top: 12px;
       letter-spacing: 2px;
       text-transform: uppercase;
+      display: block;
     }
 
-    /* ===== FOOTER ===== */
-    .footer {
-      background: linear-gradient(135deg, #1a0010, #2d0020);
+    .footer-td {
+      background: #1a0010;
       border-radius: 0 0 24px 24px;
-      padding: 40px 40px;
+      padding: 40px;
       text-align: center;
     }
 
     .footer-brand {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Cormorant Garamond', Georgia, serif;
       font-size: 22px;
       color: #ff6fa8;
       letter-spacing: 3px;
+      display: block;
       margin-bottom: 8px;
     }
 
     .footer-tagline {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 11px;
       color: rgba(255,255,255,0.3);
       letter-spacing: 3px;
       text-transform: uppercase;
-      margin-bottom: 24px;
+      display: block;
+      margin-bottom: 20px;
     }
 
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin: 16px 0;
-    }
-
-    .footer-links a {
-      color: rgba(255,255,255,0.45);
+    .footer-link {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
+      color: rgba(255,255,255,0.45) !important;
       text-decoration: none;
       font-size: 13px;
     }
 
-    .footer-separator {
-      width: 40px;
-      height: 1px;
-      background: rgba(255,255,255,0.1);
-      margin: 20px auto;
-    }
+    .footer-separator { height: 1px; background-color: rgba(255,255,255,0.1); border: none; margin: 20px auto; width: 40px; display: block; }
 
     .footer-text {
+      font-family: 'IBM Plex Sans Arabic', Arial, sans-serif;
       font-size: 12px;
       color: rgba(255,255,255,0.25);
       line-height: 1.9;
+      margin: 0;
     }
 
     .heart { color: #ff6fa8; }
+    .pink { color: #ff3d7f; }
+
+    @media only screen and (max-width: 620px) {
+      .inner-table { width: 100% !important; }
+      .header-td { padding: 40px 20px 32px !important; border-radius: 16px 16px 0 0 !important; }
+      .hero-td { padding: 36px 20px !important; }
+      .body-td { padding: 32px 20px !important; }
+      .footer-td { padding: 28px 20px !important; border-radius: 0 0 16px 16px !important; }
+      .brand { font-size: 28px !important; }
+      .hero-title { font-size: 28px !important; }
+      .hero-text { font-size: 15px !important; }
+      .cta-btn { padding: 16px 32px !important; font-size: 15px !important; }
+      .quote-td { padding: 24px 20px !important; }
+      .quote-text { font-size: 15px !important; }
+    }
+
+    @media only screen and (max-width: 400px) {
+      .brand { font-size: 24px !important; letter-spacing: 2px !important; }
+      .hero-title { font-size: 24px !important; }
+      .feature-title { font-size: 15px !important; }
+      .feature-desc { font-size: 13px !important; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrapper">
+  <table class="wrapper-table" cellpadding="0" cellspacing="0" border="0" role="presentation">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
 
-    <!-- Header -->
-    <div class="header">
-      <div class="header-circle"></div>
-      <div class="brand">S<span>&</span>N Langire</div>
-      <div class="brand-tagline">Elegance · Comfort · Style</div>
-      <div class="header-divider"></div>
-      <div class="header-welcome">يسعدنا وجودك معنا ✨</div>
-    </div>
+        <table class="inner-table" cellpadding="0" cellspacing="0" border="0" role="presentation">
 
-    <!-- Hero -->
-    <div class="hero">
-      <span class="hero-icon">🌸</span>
-      <h2 class="hero-title">أهلاً وسهلاً بك في<br/><span>S&N Langire</span></h2>
-      <p class="hero-text">
-        انضممت إلى عالم من الأناقة والجمال.<br/>
-        نحن هنا لنقدم لك أفضل تجربة تسوّق ممكنة،
-        بأعلى معايير الجودة والذوق الرفيع.
-      </p>
-    </div>
+          <!-- Header -->
+          <tr>
+            <td class="header-td">
+              <span class="brand">S<span>&amp;</span>N Langire</span>
+              <span class="brand-tagline">Elegance · Comfort · Style</span>
+              <span class="header-divider"></span>
+              <span class="header-welcome">يسعدنا وجودك معنا ✨</span>
+            </td>
+          </tr>
 
-    <!-- Body -->
-    <div class="body">
+          <!-- Hero -->
+          <tr>
+            <td class="hero-td">
+              <span class="hero-icon">🌸</span>
+              <h2 class="hero-title">أهلاً وسهلاً بك في<br/><span>S&amp;N Langire</span></h2>
+              <p class="hero-text">
+                انضممت إلى عالم من الأناقة والجمال.<br/>
+                نحن هنا لنقدم لك أفضل تجربة تسوّق ممكنة،
+                بأعلى معايير الجودة والذوق الرفيع.
+              </p>
+            </td>
+          </tr>
 
-      <div class="features">
-        <div class="feature-card">
-          <div class="feature-icon">🚚</div>
-          <div class="feature-text">
-            <h3>شحن سريع وآمن</h3>
-            <p>نوصل طلبك لباب بيتك بكل عناية واحترافية</p>
-          </div>
-        </div>
+          <!-- Body -->
+          <tr>
+            <td class="body-td">
 
-        <div class="feature-card">
-          <div class="feature-icon">💎</div>
-          <div class="feature-text">
-            <h3>جودة لا تُضاهى</h3>
-            <p>منتجات مختارة بعناية فائقة لتناسب ذوقك الراقي</p>
-          </div>
-        </div>
+              <!-- Feature Cards -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
 
-        <div class="feature-card">
-          <div class="feature-icon">🔄</div>
-          <div class="feature-text">
-            <h3>سياسة إرجاع مرنة</h3>
-            <p>نضمن لك حق الإرجاع خلال 14 يوم من استلام طلبك</p>
-          </div>
-        </div>
+                <tr class="feature-row">
+                  <td class="feature-td">
+                    <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">
+                      <tr>
+                        <td class="feature-icon-td">🚚</td>
+                        <td class="feature-gap"></td>
+                        <td>
+                          <p class="feature-title">شحن سريع وآمن</p>
+                          <p class="feature-desc">نوصل طلبك لباب بيتك بكل عناية واحترافية</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-        <div class="feature-card">
-          <div class="feature-icon">💬</div>
-          <div class="feature-text">
-            <h3>دعم على مدار الساعة</h3>
-            <p>فريقنا دائماً موجود للمساعدة في أي وقت</p>
-          </div>
-        </div>
-      </div>
+                <tr><td style="height:16px;"></td></tr>
 
-      <div class="divider">
-        <div class="divider-line"></div>
-        <div class="divider-icon">💗</div>
-        <div class="divider-line"></div>
-      </div>
+                <tr class="feature-row">
+                  <td class="feature-td">
+                    <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">
+                      <tr>
+                        <td class="feature-icon-td">💎</td>
+                        <td class="feature-gap"></td>
+                        <td>
+                          <p class="feature-title">جودة لا تُضاهى</p>
+                          <p class="feature-desc">منتجات مختارة بعناية فائقة لتناسب ذوقك الراقي</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-      <div class="cta-wrap">
-        <a href="#" class="cta-btn">🛍️ ابدأ التسوّق الآن</a>
-        <p class="cta-sub">اكتشف أحدث التشكيلات المميزة</p>
-      </div>
+                <tr><td style="height:16px;"></td></tr>
 
-      <div class="quote-box">
-        <div class="quote-text">
-          "الأناقة ليست في ما ترتدين،<br/>بل في كيف تشعرين بنفسك."
-        </div>
-        <div class="quote-author">— S&N Langire</div>
-      </div>
+                <tr class="feature-row">
+                  <td class="feature-td">
+                    <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">
+                      <tr>
+                        <td class="feature-icon-td">🔄</td>
+                        <td class="feature-gap"></td>
+                        <td>
+                          <p class="feature-title">سياسة إرجاع مرنة</p>
+                          <p class="feature-desc">نضمن لك حق الإرجاع خلال 14 يوم من استلام طلبك</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-      <p style="font-size:15px; color:#888; text-align:center; line-height:2.2; font-family:'IBM Plex Sans Arabic', sans-serif;">
-        سنكون دائماً بجانبك 💗<br/>
-        هنوصلك بأحدث المنتجات والعروض الحصرية<br/>
-        حتى تكوني دائماً في قمة الأناقة ✨
-      </p>
+                <tr><td style="height:16px;"></td></tr>
 
-    </div>
+                <tr class="feature-row">
+                  <td class="feature-td">
+                    <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">
+                      <tr>
+                        <td class="feature-icon-td">💬</td>
+                        <td class="feature-gap"></td>
+                        <td>
+                          <p class="feature-title">دعم على مدار الساعة</p>
+                          <p class="feature-desc">فريقنا دائماً موجود للمساعدة في أي وقت</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-    <!-- Footer -->
-    <div class="footer">
-      <div class="footer-brand">S&N Langire</div>
-      <div class="footer-tagline">Elegance · Comfort · Style</div>
-      <div class="footer-links">
-        <a href="#">تواصل معنا</a>
-        <a href="#">سياسة الخصوصية</a>
-        <a href="#">إلغاء الاشتراك</a>
-      </div>
-      <div class="footer-separator"></div>
-      <div class="footer-text">
-        صُنع بـ <span class="heart">♥</span> لك أنت<br/>
-        © 2026 S&N Langire. جميع الحقوق محفوظة.
-      </div>
-    </div>
+              </table>
 
-  </div>
+              <!-- Divider -->
+              <hr class="divider-line"/>
+
+              <!-- CTA -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                <tr>
+                  <td align="center" style="padding: 4px 0 36px;">
+                    <a href="#" class="cta-btn">🛍️ ابدأ التسوّق الآن</a>
+                    <span class="cta-sub">اكتشف أحدث التشكيلات المميزة</span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Quote -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                <tr>
+                  <td class="quote-td">
+                    <p class="quote-text">
+                      "الأناقة ليست في ما ترتدين،<br/>بل في كيف تشعرين بنفسك."
+                    </p>
+                    <span class="quote-author">— S&amp;N Langire</span>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="font-family:'IBM Plex Sans Arabic',Arial,sans-serif; font-size:15px; color:#888; text-align:center; line-height:2.2; margin:32px 0 0;">
+                سنكون دائماً بجانبك 💗<br/>
+                هنوصلك بأحدث المنتجات والعروض الحصرية<br/>
+                حتى تكوني دائماً في قمة الأناقة ✨
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td class="footer-td">
+              <span class="footer-brand">S&amp;N Langire</span>
+              <span class="footer-tagline">Elegance · Comfort · Style</span>
+
+              <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center">
+                <tr>
+                  <td style="padding: 0 12px;"><a href="#" class="footer-link">تواصل معنا</a></td>
+                  <td style="color:rgba(255,255,255,0.2); font-size:12px;">|</td>
+                  <td style="padding: 0 12px;"><a href="#" class="footer-link">سياسة الخصوصية</a></td>
+                  <td style="color:rgba(255,255,255,0.2); font-size:12px;">|</td>
+                  <td style="padding: 0 12px;"><a href="#" class="footer-link">إلغاء الاشتراك</a></td>
+                </tr>
+              </table>
+
+              <hr class="footer-separator"/>
+
+              <p class="footer-text">
+                صُنع بـ <span class="heart">♥</span> لك أنت<br/>
+                © 2026 S&amp;N Langire. جميع الحقوق محفوظة.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
-}
+};
