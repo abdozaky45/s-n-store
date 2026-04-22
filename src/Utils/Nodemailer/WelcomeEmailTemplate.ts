@@ -333,8 +333,8 @@ export const SendWelcomeEmail = () => {
                         <td class="feature-icon-td">🔄</td>
                         <td class="feature-gap"></td>
                         <td>
-                          <p class="feature-title">سياسة إرجاع مرنة</p>
-                          <p class="feature-desc">نضمن لك حق الإرجاع خلال 14 يوم من استلام طلبك</p>
+                        <p class="feature-title">منتجات صحية وآمنة</p>
+                        <p class="feature-desc">حرصًا على سلامتكم، لا يمكن إرجاع أو استبدال الملابس الداخلية بعد فتح العبوة</p>  
                         </td>
                       </tr>
                     </table>
