@@ -6,6 +6,7 @@ import { IOffer } from "../../Model/Offers/IOffers";
 import * as OfferService from "../../Service/Offers/OffersService";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
 import { deleteImage } from "../Aws/AwsController";
+import { sendOfferNotificationToCustomers } from "../../Utils/Nodemailer/SendOfferNotification";
 
 export const createOfferController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -22,6 +23,7 @@ export const createOfferController = asyncHandler(
       discountAmount
     };
     const offer = await OfferService.createOffer(offerData);
+    if (offer.isActive) sendOfferNotificationToCustomers([offer]);
     return res.status(201).json(new ApiResponse(201, { offer }, SuccessMessage.OFFER_CREATED));
   }
 );
@@ -75,6 +77,7 @@ export const updateOfferController = asyncHandler(
       };
     }
     const updated = await OfferService.updateOffer(offerId, updateData);
+    if (!offer.isActive && updated?.isActive) sendOfferNotificationToCustomers([updated]);
     return res.json(new ApiResponse(200, { offer: updated }, SuccessMessage.OFFER_UPDATED));
   }
 );
@@ -98,6 +101,7 @@ export const toggleOfferController = asyncHandler(
     const offer = await OfferService.getOfferById(offerId);
     if (!offer) throw new ApiError(404, ErrorMessages.OFFER_NOT_FOUND);
     const updated = await OfferService.toggleOffer(offerId, req.body.isActive);
+    if (!offer.isActive && updated?.isActive) sendOfferNotificationToCustomers([updated]);
     return res.json(new ApiResponse(200, { offer: updated }, SuccessMessage.OFFER_UPDATED));
   }
 );

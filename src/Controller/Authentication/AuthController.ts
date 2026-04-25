@@ -22,11 +22,15 @@ export const registerWithEmail = asyncHandler(
     let user = await findUserByEmail(email);
     if (!user) {
       user = await createUserAccount(email);
-      sendEmail({
-        to: email,
-        subject: "Welcome to S&N LANGIRE",
-        html: SendWelcomeEmail(),
-      });
+      try {
+        await sendEmail({
+          to: email,
+          subject: "Welcome to S&N LANGIRE",
+          html: SendWelcomeEmail(),
+        });
+      } catch (emailError) {
+        console.error("Failed to send welcome email:", emailError);
+      }
       return res.status(201).json(
         new ApiResponse(201, null, SuccessMessage.USER_CREATED)
       );
