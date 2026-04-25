@@ -4,6 +4,9 @@ import OrderService from '../../Service/Order/OrderService';
 import ErrorMessages from '../../Utils/Error';
 import SuccessMessage from '../../Utils/SuccessMessages';
 import { checkCustomerExists } from '../../Service/User/CustomerService';
+import { sendOrderConfirmationEmail } from '../../Utils/Nodemailer/SendOrderConfirmation';
+import { sendAdminOrderNotification } from '../../Utils/Nodemailer/SendAdminNotification';
+import { sendCancelOrderNotification } from '../../Utils/Nodemailer/SendCancelNotification';
 
 class OrderController {
   createOrderController = asyncHandler(
@@ -14,7 +17,8 @@ class OrderController {
         customer,
         products,
       });
-      // send email to customer and admin
+      sendOrderConfirmationEmail(customerInfo, order);
+      sendAdminOrderNotification(order);
       return res.status(201).json(new ApiResponse(201, { order }, SuccessMessage.ORDER_CREATED));
     }
   );
@@ -38,6 +42,7 @@ class OrderController {
     async (req: Request, res: Response) => {
       const { orderId } = req.params as { orderId: string };
       const order = await OrderService.cancelOrder(orderId);
+      sendCancelOrderNotification(order);
       return res.json(new ApiResponse(200, { order }, SuccessMessage.ORDER_CANCELLED));
     }
   );
