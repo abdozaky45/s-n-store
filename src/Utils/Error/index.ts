@@ -25,6 +25,7 @@ enum ErrorMessages {
   UNAUTHORIZED_ACCESS = "Unauthorized access",
   CATEGORY_NOT_FOUND_OR_EALREADY_DELETED = "Category not found or already deleted",
   NO_FILES_PROVIDED = "No files provided",
+  INVALID_FILE_TYPE = "Unsupported file type",
   DATA_IS_REQUIRED = "Data is Required",
   PLEASE_PROVIDE_EITHER_AN_EMAIL_ADDRESS_OR_A_PHONE_NUMBER_BUT_NOT_BOTH = "Please provide either an email address or a phone number, but not both",
   EMAIL_OR_PHONE_NOT_FOUND = "Email or Phone is valid",

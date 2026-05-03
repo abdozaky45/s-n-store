@@ -11,7 +11,8 @@ export const CreateCategory = asyncHandler(
     const {
       name,
       groupSize,
-      imageUrl
+      imageUrl,
+      svgUrl,
     } = req.body;
     const mediaId = extractMediaId(imageUrl);
     const existingGroupSize = await checkGroupSizeExists(groupSize);
@@ -23,6 +24,7 @@ export const CreateCategory = asyncHandler(
       groupSize,
       mediaUrl: imageUrl,
       mediaId,
+      ...(svgUrl ? { svgMediaUrl: svgUrl, svgMediaId: extractMediaId(svgUrl) } : {}),
       createdBy: req.body.currentUser.userInfo._id,
     });
     return res.json(
@@ -40,6 +42,7 @@ export const updateCategory = asyncHandler(
       groupSize,
       name,
       imageUrl,
+      svgUrl,
     } = req.body;
     if (groupSize) {
       const existingGroupSize = await checkGroupSizeExists(groupSize);
@@ -51,7 +54,7 @@ export const updateCategory = asyncHandler(
       groupSize,
       name,
       imageUrl,
-
+      svgUrl,
     );
     if (!updates) {
       return res.json(
@@ -125,6 +128,18 @@ export const getCategoryById = asyncHandler(
       throw new ApiError(400, ErrorMessages.DATA_IS_REQUIRED);
     }
     const category = await CategoryService.getCategoryById(req.params._id as string);
+    if (!category) {
+      throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
+    }
+    return res.json(new ApiResponse(200, { category }));
+  }
+);
+export const getCategoryByIdUser = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!req.params._id) {
+      throw new ApiError(400, ErrorMessages.DATA_IS_REQUIRED);
+    }
+    const category = await CategoryService.getCategoryByIdUser(req.params._id as string);
     if (!category) {
       throw new ApiError(404, ErrorMessages.CATEGORY_NOT_FOUND);
     }

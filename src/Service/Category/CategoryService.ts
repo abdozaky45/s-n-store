@@ -12,21 +12,23 @@ export const createCategory = async ({
   groupSize,
   mediaUrl,
   mediaId,
+  svgMediaUrl,
+  svgMediaId,
   createdBy,
 }: {
   name: { ar: string; en: string };
   groupSize: string | Types.ObjectId;
   mediaUrl: string;
   mediaId: string;
+  svgMediaUrl?: string;
+  svgMediaId?: string;
   createdBy: Types.ObjectId;
 }) => {
   const category = await CategoryModel.create({
     name,
     groupSize,
-    image: {
-      mediaUrl,
-      mediaId,
-    },
+    image: { mediaUrl, mediaId },
+    ...(svgMediaUrl && svgMediaId ? { image_svg: { mediaUrl: svgMediaUrl, mediaId: svgMediaId } } : {}),
     createdBy,
   });
   return category;
@@ -42,11 +44,23 @@ export const getCategoryById = async (_id: string) => {
   return category;
 };
 
+export const getCategoryByIdUser = async (_id: string) => {
+  const category = await CategoryModel.findById(_id)
+    .select("-__v -image_svg")
+    .populate(SchemaTypesReference.SubCategory)
+    .populate({
+      path: SchemaTypesReference.SizeCategory,
+      select: 'size order -_id',
+    });
+  return category;
+};
+
 export const prepareCategoryUpdates = async (
   category: ICategory&{_id: Types.ObjectId},
   groupSize?: string | Types.ObjectId,
   name?: { ar?: string; en?: string },
   imageUrl?: string,
+  svgUrl?: string,
 ) => {
   let updated = false;
   if (name && (name.ar || name.en)) {
@@ -67,6 +81,11 @@ export const prepareCategoryUpdates = async (
       category.image.mediaId = mediaId;
       updated = true;
     }
+  }
+  if (svgUrl && svgUrl !== category.image_svg?.mediaUrl) {
+    const svgMediaId = extractMediaId(svgUrl);
+    category.image_svg = { mediaUrl: svgUrl, mediaId: svgMediaId };
+    updated = true;
   }
   return updated ? category : null;
 };
@@ -121,7 +140,7 @@ export const restoreCategory = async (_id: string) => {
 export const getAllCategories = async () => {
   const categories =
     await CategoryModel.find({ isDeleted: false })
-      .select("name image")
+      .select("name image image_svg")
       .populate({
         path: SchemaTypesReference.SubCategory,
         select: "name image -category",
@@ -138,9 +157,12 @@ export const hardDeleteCategory = async (_id: string) => {
   try {
     const products = await ProductModel.find({ category: _id }).select("_id defaultImage albumImages sizeChartImage");
     const subCategories = await SubCategoryModel.find({ category: _id }).select("_id image");
-    const category = await CategoryModel.findById(_id).select("image");
+    const category = await CategoryModel.findById(_id).select("image image_svg");
     if (category?.image?.mediaId) {
       await deleteImage(category.image.mediaId);
+    }
+    if (category?.image_svg?.mediaId) {
+      await deleteImage(category.image_svg.mediaId);
     }
     for (const sub of subCategories) {
       if (sub.image?.mediaId) {

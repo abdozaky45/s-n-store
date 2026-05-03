@@ -9,6 +9,10 @@ const CategorySchema = new Schema<ICategory>({
   },
   groupSize: RefType(SchemaTypesReference.GroupSize, true),
   image: ImageSchema,
+  image_svg: {
+    mediaUrl: { type: String },
+    mediaId: { type: String },
+  },
   createdBy: RefType(SchemaTypesReference.User, true),
   isDeleted: NotRequiredBoolean
 }, {
