@@ -15,6 +15,7 @@ enum SchemaTypesReference {
   Shipping = "shipping",
   Offer = "offer",
   Order = "order",
-  SocialReview = "socialReview"
+  SocialReview = "socialReview",
+  CategoryIcon = "categoryIcon"
 }
 export default SchemaTypesReference;

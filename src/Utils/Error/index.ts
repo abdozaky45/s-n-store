@@ -60,6 +60,8 @@ enum ErrorMessages {
   VARIANTS_NOT_FOUND = "Some variants not found",
   VARIANTS_NOT_MATCHED = "No variants matched — check productId or variant IDs",
   CUSTOMER_INFO_NOT_FOUND_OR_INVALID = "Customer information not found or customer or invalid",
-  PRODUCTS_NOT_FOUND = "Some products not found"
+  PRODUCTS_NOT_FOUND = "Some products not found",
+  CATEGORY_ICON_NOT_FOUND = "Category icon not found",
+  CATEGORY_ICON_KEY_EXISTS = "An icon with this key already exists"
 }
 export default ErrorMessages;

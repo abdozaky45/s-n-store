@@ -12,7 +12,7 @@ export const CreateCategory = asyncHandler(
       name,
       groupSize,
       imageUrl,
-      svgUrl,
+      iconId,
     } = req.body;
     const mediaId = extractMediaId(imageUrl);
     const existingGroupSize = await checkGroupSizeExists(groupSize);
@@ -24,7 +24,7 @@ export const CreateCategory = asyncHandler(
       groupSize,
       mediaUrl: imageUrl,
       mediaId,
-      ...(svgUrl ? { svgMediaUrl: svgUrl, svgMediaId: extractMediaId(svgUrl) } : {}),
+      ...(iconId ? { iconId } : {}),
       createdBy: req.body.currentUser.userInfo._id,
     });
     return res.json(
@@ -42,7 +42,7 @@ export const updateCategory = asyncHandler(
       groupSize,
       name,
       imageUrl,
-      svgUrl,
+      iconId,
     } = req.body;
     if (groupSize) {
       const existingGroupSize = await checkGroupSizeExists(groupSize);
@@ -54,7 +54,7 @@ export const updateCategory = asyncHandler(
       groupSize,
       name,
       imageUrl,
-      svgUrl,
+      iconId,
     );
     if (!updates) {
       return res.json(

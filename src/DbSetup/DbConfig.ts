@@ -1,5 +1,8 @@
 import mongoose, { connect } from "mongoose";
 import "dotenv/config";
+import dns from "dns";
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const Db_Connection = process.env.DB_URL ?? "Not connected to DB";
 
