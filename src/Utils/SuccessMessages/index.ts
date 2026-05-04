@@ -70,6 +70,9 @@ enum SuccessMessage {
   SOCIAL_REVIEW_FOUND = "Social review found successfully",
   SOCIAL_REVIEW_DELETED = "Social review deleted successfully",
   SOCIAL_REVIEW_UPDATED_NO_CHANGES = "No changes to update",
+  CATEGORY_ICON_CREATED = "Category icon created successfully",
+  CATEGORY_ICON_UPDATED = "Category icon updated successfully",
+  CATEGORY_ICON_DELETED = "Category icon deleted successfully",
   NULL = "NULL"
 
 }

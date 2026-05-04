@@ -10,7 +10,7 @@ interface categoryImage {
     };
     groupSize:string | Types.ObjectId;
     image: categoryImage;
-    image_svg?: categoryImage;
+    image_svg?: Types.ObjectId | string;
     createdBy:Types.ObjectId | string;
     isDeleted?: boolean;
   }

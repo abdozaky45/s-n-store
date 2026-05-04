@@ -12,23 +12,21 @@ export const createCategory = async ({
   groupSize,
   mediaUrl,
   mediaId,
-  svgMediaUrl,
-  svgMediaId,
+  iconId,
   createdBy,
 }: {
   name: { ar: string; en: string };
   groupSize: string | Types.ObjectId;
   mediaUrl: string;
   mediaId: string;
-  svgMediaUrl?: string;
-  svgMediaId?: string;
+  iconId?: string;
   createdBy: Types.ObjectId;
 }) => {
   const category = await CategoryModel.create({
     name,
     groupSize,
     image: { mediaUrl, mediaId },
-    ...(svgMediaUrl && svgMediaId ? { image_svg: { mediaUrl: svgMediaUrl, mediaId: svgMediaId } } : {}),
+    ...(iconId ? { image_svg: iconId } : {}),
     createdBy,
   });
   return category;
@@ -40,6 +38,10 @@ export const getCategoryById = async (_id: string) => {
     .populate({
       path: SchemaTypesReference.SizeCategory,
       select: 'size order -_id',
+    })
+    .populate({
+      path: 'image_svg',
+      select: 'key svg -_id',
     });
   return category;
 };
@@ -60,7 +62,7 @@ export const prepareCategoryUpdates = async (
   groupSize?: string | Types.ObjectId,
   name?: { ar?: string; en?: string },
   imageUrl?: string,
-  svgUrl?: string,
+  iconId?: string,
 ) => {
   let updated = false;
   if (name && (name.ar || name.en)) {
@@ -82,9 +84,8 @@ export const prepareCategoryUpdates = async (
       updated = true;
     }
   }
-  if (svgUrl && svgUrl !== category.image_svg?.mediaUrl) {
-    const svgMediaId = extractMediaId(svgUrl);
-    category.image_svg = { mediaUrl: svgUrl, mediaId: svgMediaId };
+  if (iconId && iconId !== category.image_svg?.toString()) {
+    category.image_svg = iconId;
     updated = true;
   }
   return updated ? category : null;
@@ -145,6 +146,10 @@ export const getAllCategories = async () => {
         path: SchemaTypesReference.SubCategory,
         select: "name image -category",
       })
+      .populate({
+        path: 'image_svg',
+        select: 'key svg -_id',
+      });
   return categories;
 };
 export const getDeletedCategoryList = async () => {
@@ -157,12 +162,9 @@ export const hardDeleteCategory = async (_id: string) => {
   try {
     const products = await ProductModel.find({ category: _id }).select("_id defaultImage albumImages sizeChartImage");
     const subCategories = await SubCategoryModel.find({ category: _id }).select("_id image");
-    const category = await CategoryModel.findById(_id).select("image image_svg");
+    const category = await CategoryModel.findById(_id).select("image");
     if (category?.image?.mediaId) {
       await deleteImage(category.image.mediaId);
-    }
-    if (category?.image_svg?.mediaId) {
-      await deleteImage(category.image_svg.mediaId);
     }
     for (const sub of subCategories) {
       if (sub.image?.mediaId) {

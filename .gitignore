@@ -3,5 +3,6 @@ node_modules
 .claude
 postman_collection.json
 /dist
+src/seeds/
 
 

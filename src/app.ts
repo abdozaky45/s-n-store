@@ -24,6 +24,7 @@ import OfferRouter from "./Router/Offers/OffersRouter";
 import OrderRouter from "./Router/Order/OrderRouter";
 import SocialReviewRouter from "./Router/SocialReview/SocialReviewRouter";
 import wishlistRouter from "./Router/Wishlist/WishlistRouter";
+import categoryIconRouter from "./Router/CategoryIcon/CategoryIconRouter";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Swagger/swagger";
 const app: Application = express();
@@ -106,6 +107,11 @@ app.use(
   `/${RouterEnum.socialReview}`,
   checkRole([UserTypeEnum.ADMIN]),
   SocialReviewRouter
+);
+app.use(
+  `/${RouterEnum.categoryIcon}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  categoryIconRouter
 );
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);
