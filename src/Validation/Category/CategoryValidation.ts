@@ -8,7 +8,7 @@ export const createCategoryValidation = baseSchema.concat(
         }).required(),
         groupSize: joi.string().required(),
         imageUrl: joi.string().required(),
-        iconId: joi.string().optional(),
+        iconId: joi.string().required(),
     }).required()
 );
 export const updateCategoryValidation = baseSchema.concat(
