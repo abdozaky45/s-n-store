@@ -37,6 +37,13 @@ const NotRequiredUniqueEmail = {
   trim: true,
  set: (email: string) => email ? email.toLowerCase() : undefined,
 };
+const NotRequiredEmail = {
+  type: String,
+  sparse : true,
+  lowercase: true,
+  trim: true,
+ set: (email: string) => email ? email.toLowerCase() : undefined,
+};
 const RequiredUniquePhone = {
   type: String,
   required: true,
@@ -192,6 +199,7 @@ export {
   RequiredUniqueNumber,
   NotRequiredTimeStamp,
   RequiredUniqueEmail,
+  NotRequiredEmail,
   NotRequiredUniqueEmail,
   RequiredUniquePhone,
   createdAtTokenModel,

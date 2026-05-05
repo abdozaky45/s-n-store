@@ -1,6 +1,7 @@
 import {Schema, model } from "mongoose";
 import ICustomerInfo from "./ICustomerInfoModel";
 import {
+  NotRequiredEmail,
   NotRequiredString,
   NotRequiredUniqueEmail,
   RefType,
@@ -18,7 +19,7 @@ const customerInfoSchema = new Schema<ICustomerInfo>({
   shipping: RefType(SchemaTypesReference.Shipping, true),
   postalCode: NotRequiredString,
   additionalPhone: NotRequiredString,
-  email:NotRequiredUniqueEmail
+  email:NotRequiredEmail
 }, {_id: true});
 const CustomerInfoModel = model(SchemaTypesReference.CustomerInfo, customerInfoSchema);
 export default CustomerInfoModel;
