@@ -177,6 +177,7 @@ export const getAllProductsForUser = async ({
   category,
   subCategory,
   size,
+  color,
   isSale,
   isNewArrival,
   isBestSeller,
@@ -186,6 +187,7 @@ export const getAllProductsForUser = async ({
   category?: string;
   subCategory?: string;
   size?: string;
+  color?: string;
   isSale?: boolean;
   isNewArrival?: boolean;
   isBestSeller?: boolean;
@@ -211,9 +213,12 @@ export const getAllProductsForUser = async ({
       query.isBestSeller = true;
     }
   }
-  if (size) {
-    const variants = await VariantModel.find({ size }).distinct(SchemaTypesReference.Product);
-    query._id = { $in: variants };
+  if (size || color) {
+    const variantFilter: any = {};
+    if (size)  variantFilter.size  = size;
+    if (color) variantFilter.color = color;
+    const matchingProductIds = await VariantModel.find(variantFilter).distinct(SchemaTypesReference.Product);
+    query._id = { $in: matchingProductIds };
   }
   const sortOption: any =
     sort === sortProductEnum.priceLowToHigh ? { finalPrice: 1 } :

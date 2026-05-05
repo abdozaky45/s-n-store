@@ -80,6 +80,7 @@ export const getUserAllProductsValidation = joi.object({
     category: joi.string().optional(),
     subCategory: joi.string().optional(),
     size: joi.string().optional(),
+    color: joi.string().optional(),
     isSale: joi.boolean().optional(),
     isNewArrival: joi.boolean().optional(),
     isBestSeller: joi.boolean().optional(),
