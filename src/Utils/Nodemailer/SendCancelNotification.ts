@@ -3,15 +3,14 @@ import { generateCancelOrderEmail } from './CancelOrderTemplate';
 import { IOrder } from '../../Model/Order/Iorder';
 import CustomerModel from '../../Model/User/Customer/CustomerModel';
 import moment from '../DateAndTime';
+import AuthModel from '../../Model/User/auth/AuthModel';
+import { UserTypeEnum } from '../UserType';
 
 export const sendCancelOrderNotification = async (
   order: IOrder & { orderNumber: string; _id: any }
 ): Promise<void> => {
-  const adminEmails = [
-    process.env.EMAIL,
-    process.env.EMAIL1,
-    process.env.EMAIL2,
-  ].filter(Boolean) as string[];
+  const admins = await AuthModel.find({ role: UserTypeEnum.ADMIN }).select('email').lean();
+  const adminEmails = admins.map((a) => a.email).filter(Boolean) as string[];
 
   if (adminEmails.length === 0) return;
 
