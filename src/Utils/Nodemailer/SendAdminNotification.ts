@@ -2,15 +2,14 @@ import { sendEmail } from './SendEmail';
 import { generateAdminOrderEmail } from './AdminOrderTemplate';
 import { IOrder } from '../../Model/Order/Iorder';
 import moment from '../DateAndTime';
+import AuthModel from '../../Model/User/auth/AuthModel';
+import { UserTypeEnum } from '../UserType';
 
 export const sendAdminOrderNotification = async (
   order: IOrder & { orderNumber: string }
 ): Promise<void> => {
-  const adminEmails = [
-    process.env.EMAIL,
-    process.env.EMAIL1,
-    process.env.EMAIL2,
-  ].filter(Boolean) as string[];
+  const admins = await AuthModel.find({ role: UserTypeEnum.ADMIN }).select('email').lean();
+  const adminEmails = admins.map((a) => a.email).filter(Boolean) as string[];
 
   if (adminEmails.length === 0) return;
 
