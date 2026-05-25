@@ -1,4 +1,21 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload, TokenExpiredError, JsonWebTokenError, NotBeforeError } from 'jsonwebtoken';
+import ErrorMessages from '../Error';
+
+export enum TokenErrorCode {
+  TOKEN_MISSING = 'AUTH_TOKEN_MISSING',
+  TOKEN_EXPIRED = 'AUTH_TOKEN_EXPIRED',
+  TOKEN_INVALID = 'AUTH_TOKEN_INVALID',
+  TOKEN_SIGNATURE_MISSING = 'AUTH_TOKEN_SIGNATURE_MISSING',
+}
+
+export class TokenError extends Error {
+  code: TokenErrorCode;
+  constructor(code: TokenErrorCode, message: string) {
+    super(message);
+    this.name = 'TokenError';
+    this.code = code;
+  }
+}
 
 interface TokenOptions {
   payload?: object;
@@ -31,17 +48,22 @@ export const verifyToken = ({
   signature = process.env.TOKEN_SIGNATURE,
 }: VerifyTokenOptions): JwtPayload | null => {
   if (!signature) {
-    throw new Error("Token signature is not defined");
+    throw new TokenError(TokenErrorCode.TOKEN_SIGNATURE_MISSING, ErrorMessages.TOKEN_SIGNATURE_MISSING);
   }
 
   if (!token) {
-    throw new Error("Token must be provided");
+    throw new TokenError(TokenErrorCode.TOKEN_MISSING, ErrorMessages.TOKEN_MISSING);
   }
   try {
     const decoded = jwt.verify(token, signature) as JwtPayload;
     return decoded;
   } catch (error) {
-    throw new Error("Invalid token or expired");
+    if (error instanceof TokenExpiredError) {
+      throw new TokenError(TokenErrorCode.TOKEN_EXPIRED, ErrorMessages.TOKEN_EXPIRED);
+    }
+    if (error instanceof JsonWebTokenError || error instanceof NotBeforeError) {
+      throw new TokenError(TokenErrorCode.TOKEN_INVALID, ErrorMessages.TOKEN_INVALID);
+    }
+    throw new TokenError(TokenErrorCode.TOKEN_INVALID, ErrorMessages.TOKEN_INVALID);
   }
 };
-

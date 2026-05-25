@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiResponse, asyncHandler } from "../Utils/ErrorHandling";
 import { ApiError } from "../Utils/ErrorHandling";
-import { verifyToken } from "../Utils/GenerateAndVerifyToken";
+import { verifyToken, TokenError, TokenErrorCode } from "../Utils/GenerateAndVerifyToken";
 import ErrorMessages from "../Utils/Error";
 import { findUserByAccessTokenAndUserId } from "../Service/Authentication/AuthService";
+
 const checkAuthority = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     if (req.originalUrl.startsWith("/public")) {
@@ -11,14 +12,18 @@ const checkAuthority = asyncHandler(
     }
     const { authorization } = req.headers;
     if (!authorization) {
-      return res.status(401).json(new ApiResponse(401, null, ErrorMessages.Token_PAYLOAD_INVALID));
+      return res.status(401).json(new ApiResponse(401, null, ErrorMessages.TOKEN_MISSING));
     }
     const token = authorization.split(" ")[1];
     let decoded;
     try {
       decoded = verifyToken({ token });
     } catch (error) {
-      return res.status(401).json(new ApiResponse(401, null, ErrorMessages.Token_PAYLOAD_INVALID));
+      if (error instanceof TokenError) {
+        const status = error.code === TokenErrorCode.TOKEN_SIGNATURE_MISSING ? 500 : 401;
+        return res.status(status).json(new ApiResponse(status, null, error.message));
+      }
+      return res.status(401).json(new ApiResponse(401, null, ErrorMessages.TOKEN_INVALID));
     }
     if (!decoded?._id) {
       throw new ApiError(401, ErrorMessages.INVALID_PAYLOAD);
