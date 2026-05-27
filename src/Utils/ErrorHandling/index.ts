@@ -12,10 +12,37 @@ export const globalErrorHandling = (
 ) => {
   console.log({ error: error, stack: error.stack, message: error.message });
 
-  return res.status(error.cause || 400).json({
+  let statusCode: number = error.statusCode || error.cause || 500;
+  let message: string = error.message;
+  let errors: any = error.errors;
+
+  if (error?.code === 11000) {
+    statusCode = 409;
+    const field = Object.keys(error.keyValue || {})[0];
+    message = field
+      ? `Duplicate value for field: ${field}`
+      : "Duplicate value";
+    errors = undefined;
+  } else if (error?.name === "ValidationError") {
+    statusCode = 400;
+    message = "Validation failed";
+    errors = Object.values(error.errors || {}).map((e: any) => ({
+      field: e.path,
+      message: e.message,
+    }));
+  } else if (error?.name === "CastError") {
+    statusCode = 400;
+    message = `Invalid value for field: ${error.path}`;
+    errors = undefined;
+  } else if (!(error instanceof ApiError)) {
+    statusCode = error.statusCode || 500;
+    if (statusCode >= 500) message = "Internal server error";
+  }
+
+  return res.status(statusCode).json({
     success: false,
-    message: error.message,
-    error: error.errors,
+    message,
+    error: errors,
   });
 };
 
