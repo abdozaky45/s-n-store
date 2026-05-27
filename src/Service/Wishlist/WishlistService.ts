@@ -1,6 +1,7 @@
 import WishListModel from "../../Model/Wishlist/WishlistModel";
 import { Types } from "mongoose";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
+import CustomerInfoModel from "../../Model/User/Customer/CustomerInfoModel";
 
 export const AddProductToWishlist = async (
   customer: string,
@@ -47,7 +48,8 @@ export const getAllWishlist = async (page: number) => {
   const skip = limit * (page - 1);
   const totalItems = await WishListModel.countDocuments();
   const totalPages = Math.ceil(totalItems / limit);
-  const products = await WishListModel.find({}).select("-_id -customer")
+  const products = await WishListModel.find({})
+    .select("-_id")
     .populate({
       path: SchemaTypesReference.Product,
       select:
@@ -57,8 +59,41 @@ export const getAllWishlist = async (page: number) => {
         select: "name image"
       }
     })
+    .populate({
+      path: SchemaTypesReference.Customer,
+      select: "phone"
+    })
     .skip(skip)
     .limit(limit)
+    .lean()
     .exec();
-  return { totalItems, totalPages, currentPage: page, products };
+  const customerIds = [
+    ...new Set(
+      products
+        .map((p: any) => p.customer?._id?.toString())
+        .filter(Boolean)
+    ),
+  ];
+  const infos = await CustomerInfoModel.find({
+    customer: { $in: customerIds },
+    email: { $exists: true, $ne: null, $nin: ["", null] },
+  })
+    .select("customer email")
+    .lean();
+  const emailMap = new Map<string, string>();
+  for (const info of infos as any[]) {
+    const key = info.customer.toString();
+    if (!emailMap.has(key) && info.email) emailMap.set(key, info.email);
+  }
+  const items = products.map((p: any) => ({
+    ...p,
+    customer: p.customer
+      ? {
+          _id: p.customer._id,
+          phone: p.customer.phone ?? null,
+          email: emailMap.get(p.customer._id.toString()) ?? null,
+        }
+      : null,
+  }));
+  return { totalItems, totalPages, currentPage: page, products: items };
 };
