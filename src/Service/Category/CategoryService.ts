@@ -141,14 +141,18 @@ export const restoreCategory = async (_id: string) => {
 export const getAllCategories = async () => {
   const categories =
     await CategoryModel.find({ isDeleted: false })
-      .select("name image image_svg")
+      .select("name image image_svg groupSize")
       .populate({
         path: SchemaTypesReference.SubCategory,
         select: "name image -category",
       })
       .populate({
+        path: SchemaTypesReference.GroupSize,
+        select: 'name',
+      })
+      .populate({
         path: 'image_svg',
-        select: 'key svg -_id',
+        select: 'key svg',
       });
   return categories;
 };

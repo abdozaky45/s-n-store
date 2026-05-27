@@ -1,0 +1,1589 @@
+{
+  "info": {
+    "_postman_id": "sn-admin-api-v2",
+    "name": "S&N Admin API",
+    "description": "Complete admin API collection for the S&N store dashboard. All admin endpoints require Bearer token authentication.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Email-based authentication with one-time activation codes.",
+      "item": [
+        {
+          "name": "Register / Request Activation Email",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/authentication/register-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["authentication", "register-email"]
+            },
+            "description": "Send the admin email to receive a 6-digit activation code. If the email does not exist, a new user account is created."
+          },
+          "response": [
+            {
+              "name": "Admin — code sent",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": { \"email\": \"admin@example.com\" },\n  \"message\": \"email sent successfully\",\n  \"success\": true\n}"
+            },
+            {
+              "name": "New user created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": null,\n  \"message\": \"User created successfully\",\n  \"success\": true\n}"
+            },
+            {
+              "name": "Non-admin user",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": null,\n  \"message\": \"Welcome email sent successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Activate Account & Get Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"activeCode\": \"518371\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/authentication/active-account",
+              "host": ["{{baseUrl}}"],
+              "path": ["authentication", "active-account"]
+            },
+            "description": "Submit the 6-digit activation code. Returns an accessToken (JWT). Code expires after 5 minutes."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  },\n  \"message\": \"account activated successfully\",\n  \"success\": true\n}"
+            },
+            {
+              "name": "Wrong code",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"message\": \"activeCode is incorrect\",\n  \"error\": []\n}"
+            },
+            {
+              "name": "Code expired",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"message\": \"active code is expired\",\n  \"error\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Resend Activation Code",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/authentication/email-new-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["authentication", "email-new-code"]
+            },
+            "description": "Request a fresh activation code if the previous one expired."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": {},\n  \"message\": \"email sent successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "File Uploads (AWS S3)",
+      "description": "Upload and delete images via pre-signed S3 URLs. Required before creating any resource with images.",
+      "item": [
+        {
+          "name": "Get Pre-signed Upload URL(s)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"folder\": \"Product\",\n  \"files\": [\n    { \"contentType\": \"image/jpg\" }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/aws/get-presigned-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["aws", "get-presigned-url"]
+            },
+            "description": "Get pre-signed URL(s) for uploading files. Allowed folders: Offers, ImageSlider, Category, SubCategory, SocialReview, Product. Allowed types: image/jpeg, image/jpg, image/png, image/gif, image/webp, image/svg+xml, image/bmp, image/tiff."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": {\n    \"preSignedURLs\": [\n      {\n        \"preSignedURL\": \"https://bucket.s3.amazonaws.com/Product/userId_timestamp_0?X-Amz-...\",\n        \"mediaUrl\": \"https://bucket.s3.amazonaws.com/Product/userId_timestamp_0\"\n      }\n    ]\n  },\n  \"message\": \"Success\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Image",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileName\": \"Offers/69cd86918e13c19f521dd29b_1775755379177_0\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/aws/delete-presigned-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["aws", "delete-presigned-url"]
+            },
+            "description": "Delete an image from S3. The fileName is the mediaId path portion."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Group & Size Management",
+      "description": "Groups define sizing types (letters/numeric). Sizes belong to groups. Set up before categories.",
+      "item": [
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"letters\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/group-size/group",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "group"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": { \"groupSize\": { \"_id\": \"...\", \"name\": \"letters\" } },\n  \"message\": \"Group size created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Groups",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/group-size/group-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "group-all"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Group by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/group-size/group/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "group", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Group",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"numeric\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/group-size/update-group/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "update-group", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Size",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupSize\": \"<groupId>\",\n  \"size\": \"XL\",\n  \"order\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/group-size/size",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "size"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": { \"sizeCategory\": { \"_id\": \"...\", \"groupSize\": \"...\", \"size\": \"XL\", \"order\": 5 } },\n  \"message\": \"Size category created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Size",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupSize\": \"<groupId>\",\n  \"size\": \"XXL\",\n  \"order\": 6\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/group-size/size/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "size", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Size",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/group-size/size/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "size", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Sizes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/group-size/all-size",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "all-size"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sizes by Group ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/group-size/all-sizes-by-group/:groupId",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "all-sizes-by-group", ":groupId"],
+              "variable": [{ "key": "groupId", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Size by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/group-size/one-size/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["group-size", "one-size", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Category Management",
+      "description": "Manage product categories. Requires groupSize and iconId.",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"حمالة صدر\", \"en\": \"Bras\" },\n  \"groupSize\": \"<groupId>\",\n  \"imageUrl\": \"https://bucket.s3.amazonaws.com/Category/...\",\n  \"iconId\": \"<categoryIconId>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/category/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "create"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": { \"category\": { \"_id\": \"...\", \"name\": { \"ar\": \"حمالة صدر\", \"en\": \"Bras\" }, \"groupSize\": \"...\", \"image\": { \"mediaUrl\": \"...\", \"mediaId\": \"...\" } } },\n  \"message\": \"Category created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"...\", \"en\": \"...\" },\n  \"groupSize\": \"<groupId>\",\n  \"imageUrl\": \"...\",\n  \"iconId\": \"...\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/category/update/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "update", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft Delete Category",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/category/soft-delete/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "soft-delete", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Cascading: also soft-deletes all sub-categories and products under this category."
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Category",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/category/restore/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "restore", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Cascading: also restores all sub-categories and products under this category."
+          },
+          "response": []
+        },
+        {
+          "name": "Hard Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/category/hard-delete/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "hard-delete", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Cascading: permanently deletes all sub-categories, products, variants, and S3 images under this category. Irreversible."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/category/get-all-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "get-all-categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Deleted Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/category/all-categories-deleted",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "all-categories-deleted"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/category/get-one-category/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["category", "get-one-category", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Category Icons",
+      "description": "SVG icons assigned to categories. Each icon has a unique key.",
+      "item": [
+        {
+          "name": "Create Icon",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"bras\",\n  \"svg\": \"<svg>...</svg>\",\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/icons",
+              "host": ["{{baseUrl}}"],
+              "path": ["icons"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": { \"icon\": { \"_id\": \"...\", \"key\": \"bras\", \"svg\": \"<svg>...</svg>\", \"isActive\": true } },\n  \"message\": \"Category icon created successfully\",\n  \"success\": true\n}"
+            },
+            {
+              "name": "Duplicate key",
+              "status": "Conflict",
+              "code": 409,
+              "body": "{\n  \"success\": false,\n  \"message\": \"An icon with this key already exists\",\n  \"error\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Icons",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/icons",
+              "host": ["{{baseUrl}}"],
+              "path": ["icons"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Icon by Key",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/icons/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["icons", ":key"],
+              "variable": [{ "key": "key", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Icon",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"svg\": \"<svg>...</svg>\",\n  \"isActive\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/icons/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["icons", ":key"],
+              "variable": [{ "key": "key", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Icon",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/icons/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["icons", ":key"],
+              "variable": [{ "key": "key", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sub-Category Management",
+      "description": "Sub-categories belong to a category and require a groupSize.",
+      "item": [
+        {
+          "name": "Create Sub-Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"ملابس رياضية\", \"en\": \"Sportswear\" },\n  \"groupSize\": \"<groupId>\",\n  \"category\": \"<categoryId>\",\n  \"imageUrl\": \"https://bucket.s3.amazonaws.com/SubCategory/...\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "create"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Sub-Category",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"...\", \"en\": \"...\" },\n  \"groupSize\": \"<groupId>\",\n  \"category\": \"<categoryId>\",\n  \"imageUrl\": \"...\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/update/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "update", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft Delete Sub-Category",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/soft-delete/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "soft-delete", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Cascading: also soft-deletes all products under this sub-category."
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Sub-Category",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/restore/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "restore", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Cascading: also restores all products under this sub-category."
+          },
+          "response": []
+        },
+        {
+          "name": "Hard Delete Sub-Category",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/hard-delete/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "hard-delete", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Cascading: permanently deletes all products, variants, and S3 images under this sub-category. Irreversible."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Sub-Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/get-all-sub-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "get-all-sub-categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Deleted Sub-Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/all-deleted-sub-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "all-deleted-sub-categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sub-Category by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/sub-category/get-one-sub-category/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["sub-category", "get-one-sub-category", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Color Management",
+      "description": "Colors referenced by product variants.",
+      "item": [
+        {
+          "name": "Create Color",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"أحمر\", \"en\": \"Red\" },\n  \"hex\": \"#FF0000\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/color",
+              "host": ["{{baseUrl}}"],
+              "path": ["color"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": { \"color\": { \"_id\": \"...\", \"name\": { \"ar\": \"أحمر\", \"en\": \"Red\" }, \"hex\": \"#FF0000\" } },\n  \"message\": \"Color created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Color",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"أزرق\", \"en\": \"Blue\" },\n  \"hex\": \"#0000FF\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/color/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["color", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "All fields optional. If name is sent, both ar and en are required inside it."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Color",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/color/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["color", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Colors",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/color",
+              "host": ["{{baseUrl}}"],
+              "path": ["color"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Color by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/color/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["color", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shipping Management",
+      "description": "Shipping options shown at checkout. Accessible by admin and user roles.",
+      "item": [
+        {
+          "name": "Create Shipping",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"القاهرة\", \"en\": \"Cairo\" },\n  \"cost\": 75\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipping",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipping"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": {\n    \"shipping\": {\n      \"_id\": \"69cd883f8e13c19f521dd2ae\",\n      \"name\": { \"ar\": \"القاهرة\", \"en\": \"Cairo\" },\n      \"cost\": 75\n    }\n  },\n  \"message\": \"Shipping created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Shipping",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"الاسكندرية\", \"en\": \"Alexandria\" },\n  \"cost\": 90\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shipping/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipping", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "All fields optional. If name is sent, both ar and en are required inside it."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Shipping",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/shipping/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipping", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Shipping",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/shipping",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipping"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipping by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/shipping/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipping", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product Management",
+      "description": "CRUD for products. Requires categories, colors, and at least one variant.",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"بنطلون قطني\", \"en\": \"Cotton Pants\" },\n  \"description\": { \"ar\": \"بنطلون قطني مريح\", \"en\": \"Comfortable cotton pants\" },\n  \"price\": 500,\n  \"wholesalePrice\": 200,\n  \"salePrice\": 350,\n  \"saleStartDate\": 0,\n  \"saleEndDate\": 0,\n  \"category\": \"<categoryId>\",\n  \"subCategory\": \"<subCategoryId>\",\n  \"defaultImage\": \"https://bucket.s3.amazonaws.com/Product/...\",\n  \"albumImages\": [\n    \"https://bucket.s3.amazonaws.com/Product/...\"\n  ],\n  \"sizeChartImage\": \"https://bucket.s3.amazonaws.com/Product/...\",\n  \"variants\": [\n    { \"size\": \"xs\", \"color\": \"<colorId>\", \"quantity\": 10 },\n    { \"size\": \"s\", \"color\": \"<colorId>\", \"quantity\": 5 },\n    { \"size\": \"m\", \"color\": \"<colorId>\", \"quantity\": 8 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "create"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": { \"product\": { \"_id\": \"...\", \"name\": { \"ar\": \"...\", \"en\": \"...\" } } },\n  \"message\": \"Product created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": { \"ar\": \"...\", \"en\": \"...\" },\n  \"price\": 600,\n  \"isBestSeller\": true,\n  \"isNewArrival\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product/update/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "update", ":productId"],
+              "variable": [{ "key": "productId", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft Delete Product",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/product/soft-delete/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "soft-delete", ":productId"],
+              "variable": [{ "key": "productId", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Product",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/product/restore/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "restore", ":productId"],
+              "variable": [{ "key": "productId", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Hard Delete Product",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/product/hard-delete/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "hard-delete", ":productId"],
+              "variable": [{ "key": "productId", "value": "" }]
+            },
+            "description": "Permanently deletes the product, its variants, and all associated S3 images."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Products (Paginated + Filtered)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/product/get-all-products?page=1&category=&subCategory=&isSale=&isNewArrival=&isBestSeller=&isSoldOut=&isDeleted=",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "get-all-products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "category", "value": "", "description": "Filter by category _id" },
+                { "key": "subCategory", "value": "", "description": "Filter by sub-category _id" },
+                { "key": "isSale", "value": "", "description": "true = only sale products" },
+                { "key": "isNewArrival", "value": "", "description": "true = only new arrivals" },
+                { "key": "isBestSeller", "value": "", "description": "true = only best sellers" },
+                { "key": "isSoldOut", "value": "", "description": "true = only sold out" },
+                { "key": "isDeleted", "value": "", "description": "true = show deleted products" }
+              ]
+            },
+            "description": "20 items per page. Sorted by createdAt descending."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": {\n    \"products\": [],\n    \"currentPage\": 1,\n    \"totalItems\": 42,\n    \"totalPages\": 3\n  },\n  \"message\": \"Product found successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/product/get-one-product/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "get-one-product", ":productId"],
+              "variable": [{ "key": "productId", "value": "" }]
+            },
+            "description": "Returns product with populated category, subCategory, and variants (with color details)."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Products (Fuzzy)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/product/search?searchQuery=cotton",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "search"],
+              "query": [
+                { "key": "searchQuery", "value": "cotton" }
+              ]
+            },
+            "description": "Fuzzy search by name (Arabic and English). Returns _id and name only."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Analysis",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/product/get-analysis",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "get-analysis"]
+            },
+            "description": "Dashboard analytics: product stats, category counts, order metrics, customer totals, last 7 days revenue."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": {\n    \"analysis\": {\n      \"products\": { \"total\": 150, \"soldOut\": 5, \"topSelling\": [], \"mostWishlisted\": [], \"totalFinalPrice\": 75000, \"totalWholesalePrice\": 30000 },\n      \"categories\": { \"total\": 8, \"subCategories\": 24 },\n      \"orders\": { \"total\": 560, \"todaySales\": 2500, \"todayOrders\": 3, \"totalRevenue\": 150000, \"averageOrderValue\": 268, \"byStatus\": {}, \"last7Days\": [] },\n      \"customers\": { \"total\": 320 }\n    }\n  },\n  \"message\": \"Success\",\n  \"success\": true\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Variant Management",
+      "description": "Manage individual size + color + stock combinations on products.",
+      "item": [
+        {
+          "name": "Create Variant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"<productId>\",\n  \"size\": \"XS\",\n  \"color\": \"<colorId>\",\n  \"quantity\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/variant",
+              "host": ["{{baseUrl}}"],
+              "path": ["variant"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": { \"variant\": { \"_id\": \"...\", \"size\": \"XS\", \"color\": \"...\", \"quantity\": 5 } },\n  \"message\": \"Variant created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Variant (Quantity)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"<productId>\",\n  \"quantity\": 15\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/variant/:variantId",
+              "host": ["{{baseUrl}}"],
+              "path": ["variant", ":variantId"],
+              "variable": [{ "key": "variantId", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Variant",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"<productId>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/variant/:variantId",
+              "host": ["{{baseUrl}}"],
+              "path": ["variant", ":variantId"],
+              "variable": [{ "key": "variantId", "value": "" }]
+            },
+            "description": "productId in body is used to update the product's sold-out status after deletion."
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Update Variants",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"<productId>\",\n  \"variants\": [\n    { \"_id\": \"<variantId>\", \"color\": \"<colorId>\", \"size\": \"m\", \"quantity\": 55 },\n    { \"_id\": \"<variantId>\", \"color\": \"<colorId>\", \"size\": \"l\", \"quantity\": 20 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/variant/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["variant", "bulk"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Delete Variants",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"<productId>\",\n  \"variantIds\": [\"<variantId1>\", \"<variantId2>\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/variant/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["variant", "bulk"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Variants by Product",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/variant/product/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["variant", "product", ":productId"],
+              "variable": [{ "key": "productId", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Variant by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/variant/:variantId",
+              "host": ["{{baseUrl}}"],
+              "path": ["variant", ":variantId"],
+              "variable": [{ "key": "variantId", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Image Slider (Hero Section)",
+      "description": "Banner images on the storefront. Each record holds small (mobile) + large (desktop) images.",
+      "item": [
+        {
+          "name": "Create Hero Section",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"images\": {\n    \"image1\": {\n      \"imageUrl\": \"https://bucket.s3.amazonaws.com/ImageSlider/...\",\n      \"imageType\": \"small\"\n    },\n    \"image2\": {\n      \"imageUrl\": \"https://bucket.s3.amazonaws.com/ImageSlider/...\",\n      \"imageType\": \"large\"\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hero-section/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["hero-section", "create"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Hero Section",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"images\": {\n    \"image1\": {\n      \"imageUrl\": \"https://bucket.s3.amazonaws.com/ImageSlider/...\",\n      \"imageType\": \"small\"\n    },\n    \"image2\": {\n      \"imageUrl\": \"https://bucket.s3.amazonaws.com/ImageSlider/...\",\n      \"imageType\": \"large\"\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hero-section/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["hero-section", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Hero Section",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/hero-section/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["hero-section", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Also deletes associated S3 images."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Hero Sections",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hero-section/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["hero-section", "all"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Hero Section by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hero-section/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["hero-section", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Social Reviews",
+      "description": "Social proof images on the storefront.",
+      "item": [
+        {
+          "name": "Create Social Review",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"https://bucket.s3.amazonaws.com/SocialReview/...\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/social-review",
+              "host": ["{{baseUrl}}"],
+              "path": ["social-review"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Social Review",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"https://bucket.s3.amazonaws.com/SocialReview/...\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/social-review/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["social-review", ":_id"],
+              "variable": [{ "key": "_id", "value": "", "description": "24-char hex ObjectId" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Social Review",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/social-review/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["social-review", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            },
+            "description": "Also deletes the associated S3 image."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Social Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/social-review",
+              "host": ["{{baseUrl}}"],
+              "path": ["social-review"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Social Review by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/social-review/:_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["social-review", ":_id"],
+              "variable": [{ "key": "_id", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Offers",
+      "description": "Promotions applied automatically at checkout. Types: fixed_discount, free_shipping.",
+      "item": [
+        {
+          "name": "Create Offer (Fixed Discount)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"fixed_discount\",\n  \"isActive\": true,\n  \"image\": \"https://bucket.s3.amazonaws.com/Offers/...\",\n  \"description\": {\n    \"ar\": \"اشتري بـ 3000 جنيه واحصل على خصم 100 جنيه\",\n    \"en\": \"Shop for 3000 EGP and get 100 EGP off\"\n  },\n  \"minOrderAmount\": 3000,\n  \"discountAmount\": 100\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/offers",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"statusCode\": 201,\n  \"data\": { \"offer\": { \"_id\": \"...\", \"type\": \"fixed_discount\", \"isActive\": true } },\n  \"message\": \"Offer created successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Offer (Free Shipping)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"free_shipping\",\n  \"isActive\": true,\n  \"image\": \"https://bucket.s3.amazonaws.com/Offers/...\",\n  \"description\": {\n    \"ar\": \"شحن مجاني عند الشراء بـ 500 جنيه\",\n    \"en\": \"Free shipping on orders above 500 EGP\"\n  },\n  \"minOrderAmount\": 500,\n  \"discountAmount\": 0\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/offers",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Offer",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": { \"ar\": \"...\", \"en\": \"...\" },\n  \"minOrderAmount\": 2000\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/offers/:offerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", ":offerId"],
+              "variable": [{ "key": "offerId", "value": "" }]
+            },
+            "description": "If a new image is provided, the old S3 image is deleted automatically."
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Offer Active/Inactive",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/offers/toggle/:offerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", "toggle", ":offerId"],
+              "variable": [{ "key": "offerId", "value": "" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Offer",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/offers/:offerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", ":offerId"],
+              "variable": [{ "key": "offerId", "value": "" }]
+            },
+            "description": "Also deletes the associated S3 image."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Offers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/offers",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Offer by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/offers/:offerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", ":offerId"],
+              "variable": [{ "key": "offerId", "value": "" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Wishlist (Admin View)",
+      "description": "View all products customers have added to their wishlists.",
+      "item": [
+        {
+          "name": "Get All Wishlist Items (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/wishlist?page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number (integer, min: 1)" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order Management",
+      "description": "Admin order management: view, filter, update status, apply free shipping.",
+      "item": [
+        {
+          "name": "Get All Orders (Paginated + Filtered)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/order/admin/all?page=1&status=&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "admin", "all"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number (10 per page)" },
+                { "key": "status", "value": "", "description": "under_review, confirmed, ordered, shipped, delivered, cancelled, deleted" },
+                { "key": "search", "value": "", "description": "Search by order number (fuzzy)" }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"statusCode\": 200,\n  \"data\": {\n    \"orders\": [],\n    \"currentPage\": 1,\n    \"totalItems\": 56,\n    \"totalPages\": 6,\n    \"filters\": { \"status\": null, \"searchTerm\": null }\n  },\n  \"message\": \"Order found successfully\",\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/order/admin/:orderId",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "admin", ":orderId"],
+              "variable": [{ "key": "orderId", "value": "" }]
+            },
+            "description": "Returns order with populated customer, customerInfo, shipping, product images, and colors."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order/admin/status/:orderId",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "admin", "status", ":orderId"],
+              "variable": [{ "key": "orderId", "value": "" }]
+            },
+            "description": "Valid statuses: under_review, confirmed, ordered, shipped, delivered, cancelled, deleted. Stock is automatically adjusted on status transitions."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Free Shipping",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/order/admin/free-shipping/:orderId",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "admin", "free-shipping", ":orderId"],
+              "variable": [{ "key": "orderId", "value": "" }]
+            },
+            "description": "Sets shipping cost to 0 and recalculates totalAmount. No request body needed."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
