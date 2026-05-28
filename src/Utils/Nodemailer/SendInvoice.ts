@@ -108,7 +108,7 @@ export const generateOrderEmail = (data: OrderEmailData): string => {
               <div style="font-family:'Cairo',Arial,sans-serif; font-size:14px; color:#8b6070; line-height:2; max-width:420px; margin:0 auto;">
                 مرحباً ${firstName} ${lastName}،<br/>
                 تم استلام طلبك بنجاح وسيتم مراجعته في أقرب وقت.<br/>
-                ستصلك رسالة تأكيد عند شحن طلبك.
+                ستصلكِ رسالة تأكيد عند شحن طلبك.
               </div>
               <div style="display:inline-block; background:#ffffff; border:1.5px solid #e8a0bc; border-radius:30px; padding:8px 24px; margin-top:20px; font-family:'Cairo',Arial,sans-serif; font-size:13px; color:#8b3a5a; font-weight:600; letter-spacing:1px;">رقم الطلب: ${orderNumber}</div>
             </td>
@@ -158,9 +158,9 @@ export const generateOrderEmail = (data: OrderEmailData): string => {
           <tr>
             <td class="cta-td" style="background:linear-gradient(135deg,#2d1a24,#5c2d42); padding:36px 40px; text-align:center;">
               <div style="font-family:'Cairo',Arial,sans-serif; font-size:13px; color:rgba(255,230,240,0.85); margin-bottom:20px; line-height:2;">
-                يمكنك متابعة حالة طلبك في أي وقت<br/>من خلال الموقع الإلكتروني باستخدام رقم هاتفك.
+                يمكنكِ متابعة حالة طلبك في أي وقت<br/>من خلال الموقع الإلكتروني باستخدام رقم هاتفك.
               </div>
-              <a href="#" class="cta-btn" style="display:inline-block; background:linear-gradient(135deg,#c2547a,#e87aa0); color:#ffffff; text-decoration:none; padding:14px 36px; border-radius:30px; font-family:'Cairo',Arial,sans-serif; font-size:14px; font-weight:600; letter-spacing:1px;">تابع طلبك الآن</a>
+              <a href="https://sn-lingerie.com/orders" class="cta-btn" style="display:inline-block; background:linear-gradient(135deg,#c2547a,#e87aa0); color:#ffffff; text-decoration:none; padding:14px 36px; border-radius:30px; font-family:'Cairo',Arial,sans-serif; font-size:14px; font-weight:600; letter-spacing:1px;">تابعي طلبك الآن</a>
             </td>
           </tr>
 

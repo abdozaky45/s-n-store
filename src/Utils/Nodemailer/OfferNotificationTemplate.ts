@@ -142,7 +142,7 @@ export const generateOfferNotificationEmail = (offers: OfferItem[]): string => {
           <tr>
             <td style="background:#ffffff; padding:0 40px 44px; text-align:center; border-left:1px solid #ffe0ef; border-right:1px solid #ffe0ef;">
               <div style="height:1px; background:#ffe0ef; margin-bottom:32px;"></div>
-              <a href="#" class="cta-btn" style="display:inline-block; background:#e0005e; color:#ffffff; text-decoration:none; font-family:'IBM Plex Sans Arabic',Arial,sans-serif; font-size:16px; font-weight:700; padding:17px 48px; border-radius:50px; letter-spacing:1px;">🛒 تسوّقي الآن</a>
+              <a href="https://sn-lingerie.com/" class="cta-btn" style="display:inline-block; background:#e0005e; color:#ffffff; text-decoration:none; font-family:'IBM Plex Sans Arabic',Arial,sans-serif; font-size:16px; font-weight:700; padding:17px 48px; border-radius:50px; letter-spacing:1px;">🛒 تسوّقي الآن</a>
               <span style="font-family:'IBM Plex Sans Arabic',Arial,sans-serif; font-size:12px; color:#bbb; margin-top:12px; display:block;">العروض لفترة محدودة — لا تفوتيها ✨</span>
             </td>
           </tr>
@@ -170,9 +170,7 @@ export const generateOfferNotificationEmail = (offers: OfferItem[]): string => {
               <span style="font-family:'IBM Plex Sans Arabic',Arial,sans-serif; font-size:11px; color:rgba(255,255,255,0.25); letter-spacing:3px; text-transform:uppercase; display:block; margin-bottom:18px;">Elegance · Comfort · Style</span>
               <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center">
                 <tr>
-                  <td style="padding:0 10px;"><a href="#" style="font-family:'IBM Plex Sans Arabic',Arial,sans-serif; color:rgba(255,255,255,0.4); text-decoration:none; font-size:12px;">تواصلي معنا</a></td>
-                  <td style="color:rgba(255,255,255,0.15); font-size:12px;">|</td>
-                  <td style="padding:0 10px;"><a href="#" style="font-family:'IBM Plex Sans Arabic',Arial,sans-serif; color:rgba(255,255,255,0.4); text-decoration:none; font-size:12px;">إلغاء الاشتراك</a></td>
+                  <td style="padding:0 10px;"><a href="https://wa.me/201009898943" style="font-family:'IBM Plex Sans Arabic',Arial,sans-serif; color:rgba(255,255,255,0.4); text-decoration:none; font-size:12px;">تواصلي معنا</a></td>
                 </tr>
               </table>
               <div style="height:1px; background:rgba(255,255,255,0.08); width:40px; margin:16px auto;"></div>
