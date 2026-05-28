@@ -168,8 +168,8 @@ export const getAllProductsForAdmin = async ({
 export const getUserProductById = async (id: string | Types.ObjectId) => {
   const product = await ProductModel.findOne({ _id: id, isDeleted: false })
     .select("-wholesalePrice -isDeleted -createdAt -createdBy -__v")
-    .populate({ path: SchemaTypesReference.Category, select: "name" })
-    .populate({ path: SchemaTypesReference.SubCategory, select: "name" })
+    .populate({ path: SchemaTypesReference.Category, select: "_id name" })
+    .populate({ path: SchemaTypesReference.SubCategory, select: "_id name" })
     .populate({ path: "variants", select: "-__v", populate: { path: SchemaTypesReference.Color, select: "-__v" } })
   return product;
 }
