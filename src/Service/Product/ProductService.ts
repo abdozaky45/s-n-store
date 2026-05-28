@@ -104,7 +104,7 @@ export const getAdminProductById = async (_id: string) => {
     .select("-createdBy -createdAt -isDeleted -__v")
     .populate({ path: SchemaTypesReference.Category, select: "_id name" })
     .populate({ path: SchemaTypesReference.SubCategory, select: "_id name" })
-    .populate({ path: "variants", select: "-__v", populate: { path: SchemaTypesReference.Color, select: "-_id -__v" } })
+    .populate({ path: "variants", select: "-__v", populate: { path: SchemaTypesReference.Color, select: "-__v" } })
 
   return product;
 };
