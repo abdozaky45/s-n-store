@@ -278,7 +278,7 @@ export const SendWelcomeEmail = () => {
               <span class="hero-icon">🌸</span>
               <h2 class="hero-title">أهلاً وسهلاً بك في<br/><span>S&amp;N Langire</span></h2>
               <p class="hero-text">
-                انضممت إلى عالم من الأناقة والجمال.<br/>
+                انضممتِ إلى عالم من الأناقة والجمال.<br/>
                 نحن هنا لنقدم لك أفضل تجربة تسوّق ممكنة،
                 بأعلى معايير الجودة والذوق الرفيع.
               </p>
@@ -367,7 +367,7 @@ export const SendWelcomeEmail = () => {
               <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
                 <tr>
                   <td align="center" style="padding: 4px 0 36px;">
-                    <a href="#" class="cta-btn">🛍️ ابدأ التسوّق الآن</a>
+                    <a href="https://sn-lingerie.com/" class="cta-btn">🛍️ ابدأي التسوّق الآن</a>
                     <span class="cta-sub">اكتشف أحدث التشكيلات المميزة</span>
                   </td>
                 </tr>
@@ -402,11 +402,7 @@ export const SendWelcomeEmail = () => {
 
               <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center">
                 <tr>
-                  <td style="padding: 0 12px;"><a href="#" class="footer-link">تواصل معنا</a></td>
-                  <td style="color:rgba(255,255,255,0.2); font-size:12px;">|</td>
-                  <td style="padding: 0 12px;"><a href="#" class="footer-link">سياسة الخصوصية</a></td>
-                  <td style="color:rgba(255,255,255,0.2); font-size:12px;">|</td>
-                  <td style="padding: 0 12px;"><a href="#" class="footer-link">إلغاء الاشتراك</a></td>
+                  <td style="padding: 0 12px;"><a href="https://wa.me/201009898943" class="footer-link">تواصلي معنا</a></td>
                 </tr>
               </table>
 

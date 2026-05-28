@@ -243,14 +243,14 @@ export const activeCodeTemplate = (activeCode: string) => {
                   </tr>
                 </table>
 
-                <span class="code-note">لا تشارك هذا الكود مع <strong>أي شخص</strong></span>
+                <span class="code-note">لا تشاركي هذا الكود مع <strong>أي شخص</strong></span>
               </div>
 
               <!-- Divider -->
               <hr class="divider-line"/>
 
               <p style="font-family:'Tajawal',Arial,sans-serif; font-size:14px; color:#aaa; text-align:center; line-height:2; margin:0;">
-                إذا لم تقم بإنشاء هذا الحساب، يمكنك تجاهل هذا البريد بأمان.
+                إذا لم تقومي بإنشاء هذا الحساب، يمكنكِ تجاهل هذا البريد بأمان.
               </p>
 
             </td>
@@ -263,11 +263,7 @@ export const activeCodeTemplate = (activeCode: string) => {
 
               <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center">
                 <tr>
-                  <td style="padding: 0 12px;"><a href="#" class="footer-link">تواصل معنا</a></td>
-                  <td style="color:rgba(255,255,255,0.2); font-size:12px;">|</td>
-                  <td style="padding: 0 12px;"><a href="#" class="footer-link">سياسة الخصوصية</a></td>
-                  <td style="color:rgba(255,255,255,0.2); font-size:12px;">|</td>
-                  <td style="padding: 0 12px;"><a href="#" class="footer-link">إلغاء الاشتراك</a></td>
+                  <td style="padding: 0 12px;"><a href="https://wa.me/201009898943" class="footer-link">تواصلي معنا</a></td>
                 </tr>
               </table>
 

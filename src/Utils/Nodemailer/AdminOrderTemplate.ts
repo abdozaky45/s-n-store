@@ -180,7 +180,7 @@ export const generateAdminOrderEmail = (data: AdminOrderEmailData): string => {
           <!-- CTA -->
           <tr>
             <td class="cta-td" style="padding:32px 40px; text-align:center; background:rgba(255,255,255,0.02);">
-              <a href="#" style="display:inline-block; background:linear-gradient(135deg,#c2547a,#e87aa0); color:#ffffff; text-decoration:none; padding:14px 36px; border-radius:30px; font-family:'Cairo',Arial,sans-serif; font-size:14px; font-weight:700; letter-spacing:1px;">عرض الطلب في لوحة التحكم</a>
+              <a href="https://dashboard.sn-lingerie.com/orders?page=1&amp;search=&amp;status=under_review" style="display:inline-block; background:linear-gradient(135deg,#c2547a,#e87aa0); color:#ffffff; text-decoration:none; padding:14px 36px; border-radius:30px; font-family:'Cairo',Arial,sans-serif; font-size:14px; font-weight:700; letter-spacing:1px;">عرض الطلب في لوحة التحكم</a>
               <div style="font-family:'Cairo',Arial,sans-serif; font-size:12px; color:rgba(240,160,192,0.4); margin-top:12px;">يرجى مراجعة الطلب والتأكيد في أقرب وقت ممكن</div>
             </td>
           </tr>
