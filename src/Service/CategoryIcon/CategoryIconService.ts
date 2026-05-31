@@ -11,7 +11,7 @@ export const getAllCategoryIcons = async () => {
 };
 
 export const getActiveCategoryIcons = async () => {
-  return CategoryIconModel.find({ isActive: true }).select("-__v");
+  return CategoryIconModel.find({ isActive: true }).sort({ createdAt: -1 }).select("-__v");
 };
 
 export const getCategoryIconByKey = async (key: string) => {
