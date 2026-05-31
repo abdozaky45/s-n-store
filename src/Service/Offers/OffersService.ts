@@ -13,7 +13,7 @@ export const getAllOffers = async () => {
 };
 
 export const getActiveOffers = async () => {
-  const offers = await OfferModel.find({ isActive: true }).select("-__v");
+  const offers = await OfferModel.find({ isActive: true }).sort({ createdAt: -1 }).select("-__v");
   return offers;
 };
 
