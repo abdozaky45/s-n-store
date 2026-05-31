@@ -95,6 +95,7 @@ export const softDeleteSubCategory = async (_id: string) => {
 };
 export const getAllSubCategories = async () => {
   const subCategories = await SubCategoryModel.find({ isDeleted: false })
+  .sort({ createdAt: -1 })
   .select("-isDeleted -__v")
   .populate({
     path: SchemaTypesReference.Category,
@@ -103,7 +104,7 @@ export const getAllSubCategories = async () => {
   return subCategories;
 };
 export const findAllDeletedSubCategories = async () => {
-  const subCategories = await SubCategoryModel.find({ isDeleted: true }).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
+  const subCategories = await SubCategoryModel.find({ isDeleted: true }).sort({ createdAt: -1 }).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
   return subCategories;
 }
 export const restoreSubCategory = async (_id: string) => {

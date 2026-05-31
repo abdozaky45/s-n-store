@@ -8,7 +8,7 @@ export const createOffer = async (offerData: IOffer) => {
 };
 
 export const getAllOffers = async () => {
-  const offers = await OfferModel.find().select("-__v");
+  const offers = await OfferModel.find().sort({ createdAt: -1 }).select("-__v");
   return offers;
 };
 

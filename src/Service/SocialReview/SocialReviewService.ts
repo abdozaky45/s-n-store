@@ -33,7 +33,7 @@ export const deleteSocialReview = async (review: ISocialReview&{ _id: string | T
     return deletedReview;
 };
 export const getAllSocialReviews = async () => {
-    const reviews = await SocialReviewModel.find({})
+    const reviews = await SocialReviewModel.find({}).sort({ createdAt: -1 })
     return reviews;
 }
 export const getSocialReviewById = async (reviewId: string) => {

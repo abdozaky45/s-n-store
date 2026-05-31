@@ -6,7 +6,8 @@ import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 const GroupSizeSchema = new mongoose.Schema<IGroupSize>({
     name:RequiredString
 },{
-    id: false
+    id: false,
+    timestamps: true
 });
 const GroupSizeModel = mongoose.model(SchemaTypesReference.GroupSize, GroupSizeSchema);
 export default GroupSizeModel;

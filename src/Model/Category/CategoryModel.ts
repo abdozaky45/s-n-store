@@ -13,6 +13,7 @@ const CategorySchema = new Schema<ICategory>({
   createdBy: RefType(SchemaTypesReference.User, true),
   isDeleted: NotRequiredBoolean
 }, {
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
   id: false

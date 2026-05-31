@@ -6,7 +6,7 @@ const SizeCategorySchema = new Schema<ISizeCategory>({
     groupSize: RefType(SchemaTypesReference.GroupSize, true),
     size: RequiredString,
     order: RequiredNumber
-});
+}, { timestamps: true });
 SizeCategorySchema.index({ groupSize: 1, size: 1, order: 1 }, { unique: true });
 const SizeCategoryModel = model(SchemaTypesReference.SizeCategory, SizeCategorySchema);
 export default SizeCategoryModel;

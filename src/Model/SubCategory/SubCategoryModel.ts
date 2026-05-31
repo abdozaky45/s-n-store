@@ -13,6 +13,7 @@ const SubCategorySchema = new Schema<ISubCategory>({
   createdBy: RefType(SchemaTypesReference.User, true),
   isDeleted: NotRequiredBoolean
 }, {
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
   id: false
