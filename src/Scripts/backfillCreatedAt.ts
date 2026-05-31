@@ -1,5 +1,9 @@
 import mongoose, { connect, Model } from "mongoose";
 import "dotenv/config";
+import dns from "dns";
+
+// Match the app's DB setup: the local resolver may refuse Atlas SRV lookups.
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 import ColorModel from "../Model/Color/ColorModel";
 import CategoryModel from "../Model/Category/CategoryModel";
