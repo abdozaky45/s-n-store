@@ -12,7 +12,7 @@ export const getGroupSizeById = async (_id: string | Types.ObjectId) => {
     return groupSize;
 }
 export const getAllGroupSizes = async () => {
-    const groupSizes = await GroupSizeModel.find().select("-__v");
+    const groupSizes = await GroupSizeModel.find().sort({ createdAt: -1 }).select("-__v");
     return groupSizes;
 }
 export const updateGroupSize = async (_id: string, name: string) => {
@@ -32,7 +32,7 @@ export const getSizeCategoriesByGroupId = async (groupId: string) => {
     return sizeCategories;
 }
 export const getAllSizeCategories = async () => {
-    const sizeCategories = await SizeCategoryModel.find().select("-__v");
+    const sizeCategories = await SizeCategoryModel.find().sort({ createdAt: -1 }).select("-__v");
     return sizeCategories;
 }
 export const updateSizeCategory = async (_id: string, sizeCategoryData: Partial<ISizeCategory>) => {

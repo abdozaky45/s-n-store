@@ -8,6 +8,6 @@ const ColorSchema = new Schema<IColor>({
         en: { type: String, required: true },
     },
     hex:RequiredString,
-});
+}, { timestamps: true });
 const ColorModel = model(SchemaTypesReference.Color, ColorSchema);
 export default ColorModel;

@@ -8,7 +8,7 @@ const ImageSliderSchema = new Schema<IImageSlider>({
   image2: ImageSlider,
   },
   createdBy: RefType(SchemaTypesReference.User, true),
-});
+}, { timestamps: true });
 const ImageSliderModel = model(
   SchemaTypesReference.imageSlider,
   ImageSliderSchema

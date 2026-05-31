@@ -15,7 +15,7 @@ export const getColorById = async (_id: string) => {
 };
 
 export const getAllColors = async () => {
-  const colors = await ColorModel.find().select("-__v");
+  const colors = await ColorModel.find().sort({ createdAt: -1 }).select("-__v");
   return colors;
 };
 

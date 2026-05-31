@@ -141,6 +141,7 @@ export const restoreCategory = async (_id: string) => {
 export const getAllCategories = async () => {
   const categories =
     await CategoryModel.find({ isDeleted: false })
+      .sort({ createdAt: -1 })
       .select("name image image_svg groupSize")
       .populate({
         path: SchemaTypesReference.SubCategory,
@@ -157,7 +158,7 @@ export const getAllCategories = async () => {
   return categories;
 };
 export const getDeletedCategoryList = async () => {
-  const categories = await CategoryModel.find({ isDeleted: true }).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
+  const categories = await CategoryModel.find({ isDeleted: true }).sort({ createdAt: -1 }).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
   return categories;
 };
 export const hardDeleteCategory = async (_id: string) => {

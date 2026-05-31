@@ -7,7 +7,7 @@ class ShippingService {
         return Shipping;
     }
     async getAllShipping() {
-        const Shipping = await ShippingModel.find().select("-__v");
+        const Shipping = await ShippingModel.find().sort({ createdAt: -1 }).select("-__v");
         return Shipping;
     }
     async getShippingById(ShippingId: Types.ObjectId | string): Promise<(IShipping & { _id: Types.ObjectId }) | null> {

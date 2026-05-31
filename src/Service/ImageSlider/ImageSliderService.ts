@@ -22,6 +22,6 @@ export const deleteImageSlider = async (_id: string) => {
     return imageSlider;
 }
 export const getAllImageSliders = async () => {
-    const imageSlider = await ImageSliderModel.find();
+    const imageSlider = await ImageSliderModel.find().sort({ createdAt: -1 });
     return imageSlider;
 }   

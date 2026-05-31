@@ -6,7 +6,7 @@ import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 const SocialReviewSchema = new Schema<ISocialReview>({
     image: ImageSchema,
     createdBy: RefType(SchemaTypesReference.User, true),
-}, { id: false }
+}, { id: false, timestamps: true }
 );
 const SocialReviewModel = model(SchemaTypesReference.SocialReview, SocialReviewSchema);
 export default SocialReviewModel;

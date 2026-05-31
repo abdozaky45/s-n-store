@@ -14,6 +14,6 @@ const offerSchema = new Schema<IOffer>({
     },
     discountAmount: RequiredNumber,
     minOrderAmount: RequiredNumber
-});
+}, { timestamps: true });
 const OfferModel = model(SchemaTypesReference.Offer, offerSchema);
 export default OfferModel;
