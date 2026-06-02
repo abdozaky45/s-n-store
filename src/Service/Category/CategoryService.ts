@@ -13,6 +13,7 @@ export const createCategory = async ({
   mediaUrl,
   mediaId,
   iconId,
+  order,
   createdBy,
 }: {
   name: { ar: string; en: string };
@@ -20,6 +21,7 @@ export const createCategory = async ({
   mediaUrl: string;
   mediaId: string;
   iconId?: string;
+  order?: number;
   createdBy: Types.ObjectId;
 }) => {
   const category = await CategoryModel.create({
@@ -27,6 +29,7 @@ export const createCategory = async ({
     groupSize,
     image: { mediaUrl, mediaId },
     ...(iconId ? { image_svg: iconId } : {}),
+    ...(order !== undefined ? { order } : {}),
     createdBy,
   });
   return category;
@@ -63,6 +66,7 @@ export const prepareCategoryUpdates = async (
   name?: { ar?: string; en?: string },
   imageUrl?: string,
   iconId?: string,
+  order?: number,
 ) => {
   let updated = false;
   if (name && (name.ar || name.en)) {
@@ -86,6 +90,10 @@ export const prepareCategoryUpdates = async (
   }
   if (iconId && iconId !== category.image_svg?.toString()) {
     category.image_svg = iconId;
+    updated = true;
+  }
+  if (order !== undefined && order !== category.order) {
+    category.order = order;
     updated = true;
   }
   return updated ? category : null;
@@ -141,8 +149,8 @@ export const restoreCategory = async (_id: string) => {
 export const getAllCategories = async () => {
   const categories =
     await CategoryModel.find({ isDeleted: false })
-      .sort({ createdAt: -1 })
-      .select("name image image_svg groupSize")
+      .sort({ order: 1, createdAt: -1 })
+      .select("name image image_svg groupSize order")
       .populate({
         path: SchemaTypesReference.SubCategory,
         select: "name image -category",

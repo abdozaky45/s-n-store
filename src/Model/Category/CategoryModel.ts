@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import ICategory from "./Icategory";
-import { ImageSchema, NotRequiredBoolean, RefType, RequiredBooleanDefaultTrue, RequiredNumber, RequiredString } from "../../Utils/Schemas";
+import { ImageSchema, NotRequiredBoolean, NotRequiredNumber, RefType, RequiredBooleanDefaultTrue, RequiredNumber, RequiredString } from "../../Utils/Schemas";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 const CategorySchema = new Schema<ICategory>({
   name: {
@@ -10,6 +10,7 @@ const CategorySchema = new Schema<ICategory>({
   groupSize: RefType(SchemaTypesReference.GroupSize, true),
   image: ImageSchema,
   image_svg: RefType(SchemaTypesReference.CategoryIcon, false),
+  order: NotRequiredNumber,
   createdBy: RefType(SchemaTypesReference.User, true),
   isDeleted: NotRequiredBoolean
 }, {

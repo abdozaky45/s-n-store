@@ -11,6 +11,7 @@ interface categoryImage {
     groupSize:string | Types.ObjectId;
     image: categoryImage;
     image_svg?: Types.ObjectId | string;
+    order?: number;
     createdBy:Types.ObjectId | string;
     isDeleted?: boolean;
   }

@@ -9,6 +9,7 @@ export const createCategoryValidation = baseSchema.concat(
         groupSize: joi.string().required(),
         imageUrl: joi.string().required(),
         iconId: joi.string().required(),
+        order: joi.number().integer().min(0).optional(),
     }).required()
 );
 export const updateCategoryValidation = baseSchema.concat(
@@ -21,6 +22,7 @@ export const updateCategoryValidation = baseSchema.concat(
         groupSize: joi.string().optional(),
         imageUrl: joi.string().optional(),
         iconId: joi.string().optional(),
+        order: joi.number().integer().min(0).optional(),
         isNewArrival: joi.boolean().optional(),
     }).required()
 );
