@@ -79,18 +79,45 @@ optional here.
 - Only fields that are **present** in the request are updated; omitted fields are
   left unchanged.
 
+### 4. Update product + its variants in one request — `PATCH /product/update/:productId`
+
+This endpoint now **also accepts an optional `variants` array**, so you can edit
+the product fields and its variants in a single call.
+
+```jsonc
+{
+  "name": { "ar": "...", "en": "..." }, // any product fields are optional
+  "price": 300,
+  "variants": [
+    { "_id": "<variantId>", "color": "<colorId>", "quantity": 20 }, // update existing
+    { "size": "44", "quantity": 10 },                                // create new (no _id, no color)
+    { "size": "38", "color": "<colorId>", "quantity": 7 }            // create new (with color)
+  ]
+}
+```
+
+Reconciliation rules:
+
+- **Item with `_id`** → updates that existing variant (only the fields you send:
+  `size` / `color` / `quantity`).
+- **Item without `_id`** → creates a new variant. `quantity` is **required**,
+  `size` defaults to `"one size"`, `color` is optional.
+- **Existing variants that are NOT in the array are kept untouched** — this
+  endpoint never deletes. To remove a variant, use `DELETE /variant/bulk`.
+- Product fields and variants are saved together in a single transaction (all or
+  nothing).
+
+> You can still use the dedicated `/variant` endpoints below if you prefer to
+> manage variants separately — both approaches work.
+
 ---
 
-## Endpoints that do NOT touch color (do not change these flows)
+## Endpoints that do NOT touch color
 
 | Endpoint | What it does |
 |---|---|
-| `PATCH /product/update/:productId` | Updates product fields only (name, price, category, images, flags…). **Does not handle variants or color.** |
 | `PATCH /variant/:variantId` | Updates the variant **quantity only**. Does not touch color. |
-
-So "editing a product's colors/variants" always goes through the **`/variant`**
-endpoints (`POST /variant`, `PATCH /variant/bulk`, `DELETE /variant/bulk`), never
-through `PATCH /product/update`.
+| `DELETE /variant/bulk` | Removes variants. This is the **only** way to delete a variant. |
 
 ---
 
@@ -133,6 +160,7 @@ neutral placeholder). Do not read `color.name` / `color.hex` without a null chec
 | `variants[].color` in `POST /product/create` | required | **optional** |
 | `color` in `POST /variant` | required | **optional** |
 | `variants[].color` in `PATCH /variant/bulk` | optional | optional (unchanged) |
+| `variants` in `PATCH /product/update` | not allowed (error) | **accepted (optional)** |
 
 ---
 
@@ -140,8 +168,12 @@ neutral placeholder). Do not read `color.name` / `color.hex` without a null chec
 
 - **Color filter** (`GET` product list with `?color=<id>`) is unchanged. Products
   created without a color simply won't appear when filtering by a color.
-- The bulk update **sets** a color but does not currently support **clearing** an
-  existing color (sending `null` is not accepted). If "remove color from an
-  existing variant" is needed in the UI, ask backend to add support for it.
+- **Sending `variants` to `PATCH /product/update` used to fail** with
+  `"variants" is not allowed`. It is now supported (create + update; never delete).
+- Updating a variant (via `PATCH /variant/bulk` or `PATCH /product/update`)
+  **sets** a color but does not currently support **clearing** an existing color
+  (sending `null` is not accepted). If "remove color from an existing variant" is
+  needed in the UI, ask backend to add support for it.
+- Deleting variants is only possible via `DELETE /variant/bulk`.
 - No other behavior changed — response shapes are the same; only `color` can be
   absent/`null`.

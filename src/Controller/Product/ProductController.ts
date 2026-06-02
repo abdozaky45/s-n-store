@@ -5,7 +5,7 @@ import moment from "../../Utils/DateAndTime";
 import * as ProductService from "../../Service/Product/ProductService";
 import SuccessMessage from "../../Utils/SuccessMessages";
 import { IProduct, IUpdateProductBody } from "../../Model/Product/Iproduct";
-import { createManyVariants } from "../../Service/Variant/VariantService";
+import { createManyVariants, upsertProductVariants, updateProductSoldOutStatus } from "../../Service/Variant/VariantService";
 import IVariant from "../../Model/Variant/IVariantModel";
 import mongoose from "mongoose";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
@@ -110,6 +110,10 @@ export const updateProduct = asyncHandler(
       throw new ApiError(400, ErrorMessages.SUBCATEGORY_NOT_FOUND);
     }
 
+    const variants = req.body.variants as
+      | { _id?: string; size?: string; color?: string; quantity?: number }[]
+      | undefined;
+
     const finalPrices = ProductService.ratioCalculatePrice(
       req.body.price ?? product.price,
       req.body.salePrice ?? product.salePrice!,
@@ -128,11 +132,27 @@ export const updateProduct = asyncHandler(
 
     const updates = await ProductService.updateProduct(product, body);
 
-    if (!updates) {
+    if (!updates && !variants?.length) {
       return res.json(new ApiResponse(200, {}, SuccessMessage.PRODUCT_NOT_UPDATED));
     }
 
-    await product.save();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      if (updates) await product.save({ session });
+      if (variants?.length) {
+        await upsertProductVariants(productId, variants, session);
+      }
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+
+    if (variants?.length) await updateProductSoldOutStatus(productId);
+
     return res.json(new ApiResponse(200, { product }, SuccessMessage.PRODUCT_UPDATED));
   }
 );

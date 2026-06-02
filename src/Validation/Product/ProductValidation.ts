@@ -50,6 +50,18 @@ export const updateProductValidation = baseSchema.concat(
         defaultImage: joi.string().optional(),
         albumImages: joi.array().items(joi.string()).optional(),
         sizeChartImage: joi.string().allow(null).optional(),
+        variants: joi.array().items(
+            joi.object({
+                _id: joi.string().hex().length(24).optional(),
+                size: joi.string().optional(),
+                color: joi.string().optional(),
+                quantity: joi.number().min(0).when("_id", {
+                    is: joi.exist(),
+                    then: joi.optional(),
+                    otherwise: joi.required(),
+                }),
+            })
+        ).optional(),
         isBestSeller: joi.boolean().optional(),
         isNewArrival: joi.boolean().optional(),
     }).required()
