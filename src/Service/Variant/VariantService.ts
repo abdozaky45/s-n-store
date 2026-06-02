@@ -24,6 +24,41 @@ export const createManyVariants = async (variants: IVariant[], session?: mongoos
   await updateProductSoldOutStatus(productId);
   return created;
 };
+export const upsertProductVariants = async (
+  productId: string,
+  variants: { _id?: string; size?: string; color?: string; quantity?: number }[],
+  session?: mongoose.ClientSession
+) => {
+  // Items without `_id` are new variants to create; items with `_id` update an
+  // existing variant of this product. Nothing is deleted here — removing a
+  // variant stays a separate, explicit action (DELETE /variant/bulk).
+  const toCreate = variants
+    .filter((v) => !v._id)
+    .map((v) => ({
+      product: productId,
+      size: v.size ?? "one size",
+      color: v.color,
+      quantity: v.quantity ?? 0,
+    }));
+
+  const updateOps = variants
+    .filter((v) => v._id)
+    .map((v) => ({
+      updateOne: {
+        filter: { _id: v._id, product: productId },
+        update: {
+          $set: {
+            ...(v.size !== undefined && { size: v.size }),
+            ...(v.color !== undefined && { color: v.color }),
+            ...(v.quantity !== undefined && { quantity: v.quantity }),
+          },
+        },
+      },
+    }));
+
+  if (toCreate.length) await VariantModel.insertMany(toCreate, { session });
+  if (updateOps.length) await VariantModel.bulkWrite(updateOps, { session });
+};
 export const updateManyVariants = async (
   productId: string,
   variants: { _id: string; size?: string; color?: string; quantity?: number }[]
