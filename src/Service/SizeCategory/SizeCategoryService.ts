@@ -28,11 +28,11 @@ export const getSizeCategoryById = async (_id: string) => {
     return sizeCategory;
 }
 export const getSizeCategoriesByGroupId = async (groupId: string) => {
-    const sizeCategories = await SizeCategoryModel.find({ groupSize: groupId }).select("-__v");
+    const sizeCategories = await SizeCategoryModel.find({ groupSize: groupId }).sort({ order: 1 }).select("-__v");
     return sizeCategories;
 }
 export const getAllSizeCategories = async () => {
-    const sizeCategories = await SizeCategoryModel.find().sort({ createdAt: -1 }).select("-__v");
+    const sizeCategories = await SizeCategoryModel.find().sort({ order: 1 }).select("-__v");
     return sizeCategories;
 }
 export const updateSizeCategory = async (_id: string, sizeCategoryData: Partial<ISizeCategory>) => {
