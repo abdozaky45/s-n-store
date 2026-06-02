@@ -5,7 +5,7 @@ import IVariant from "./IVariantModel";
 const VariantSchema = new Schema<IVariant>({
   product: RefType(SchemaTypesReference.Product, true),
   size: RequiredDefaultStringSize,
-  color: RefType(SchemaTypesReference.Color, true),
+  color: RefType(SchemaTypesReference.Color, false),
   quantity: RequiredMinNumber,
 });
 VariantSchema.set("toJSON", {

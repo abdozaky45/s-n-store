@@ -10,7 +10,7 @@ interface ProductOrder {
   variantId: Types.ObjectId | string;
   quantity: number;
   size: string;
-  color: Types.ObjectId | string;
+  color?: Types.ObjectId | string;
   itemPrice: number;
   totalPrice: number;
 }
