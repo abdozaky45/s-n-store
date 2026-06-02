@@ -5,7 +5,7 @@ export const createVariantValidation = baseSchema.concat(
   joi.object({
     productId: joi.string().required(),
     size: joi.string().required(),
-    color: joi.string().required(),
+    color: joi.string().optional(),
     quantity: joi.number().min(0).required(),
   }).required()
 );

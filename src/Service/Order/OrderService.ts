@@ -98,7 +98,7 @@ class OrderService {
           variantId: new Types.ObjectId(p.variantId),
           quantity: p.quantity,
           size: variant.size,
-          color: new Types.ObjectId(variant.color.toString()),
+          color: variant.color ? new Types.ObjectId(variant.color.toString()) : undefined,
           itemPrice: product.finalPrice,
           totalPrice: product.finalPrice * p.quantity,
         };

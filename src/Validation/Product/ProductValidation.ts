@@ -21,7 +21,7 @@ export const createProductValidation = baseSchema.concat(
         variants: joi.array().items(
             joi.object({
                 size: joi.string().default("one size"),
-                color: joi.string().required(),
+                color: joi.string().optional(),
                 quantity: joi.number().min(0).required(),
             })
         ).required(),
