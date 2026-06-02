@@ -15,7 +15,8 @@ export const getColorById = async (_id: string) => {
 };
 
 export const getAllColors = async () => {
-  const colors = await ColorModel.find().sort({ createdAt: -1 }).select("-__v");
+  // Ascending so colors display in insertion order (basics first, then the rest).
+  const colors = await ColorModel.find().sort({ createdAt: 1 }).select("-__v");
   return colors;
 };
 
