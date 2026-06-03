@@ -52,14 +52,10 @@ export const updateProductValidation = baseSchema.concat(
         sizeChartImage: joi.string().allow(null).optional(),
         variants: joi.array().items(
             joi.object({
-                _id: joi.string().hex().length(24).optional(),
+                _id: joi.string().hex().length(24).optional(), // ignored — matching is by (size + color)
                 size: joi.string().optional(),
                 color: joi.string().optional(),
-                quantity: joi.number().min(0).when("_id", {
-                    is: joi.exist(),
-                    then: joi.optional(),
-                    otherwise: joi.required(),
-                }),
+                quantity: joi.number().min(0).required(),
             })
         ).optional(),
         isBestSeller: joi.boolean().optional(),
