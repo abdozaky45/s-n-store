@@ -13,6 +13,7 @@ import PublicShippingRouter from "../Shipping/PublicShippingRouter";
 import PublicOrderRouter from "../Order/PublicOrderRouter";
 import PublicSocialReviewRouter from "../SocialReview/PublicSocialReviewRouter";
 import categoryIconPublicRouter from "../CategoryIcon/CategoryIconPublicRouter";
+import SizeCategoryPublicRouter from "../SizeCategory/SizeCategoryPublicRouter";
 import { sendEmail } from "../../Utils/Nodemailer/SendEmail";
 const publicRouter = Router();
 publicRouter.use(`/${RouterEnum.customer}`,CustomerRouter );
@@ -28,6 +29,7 @@ publicRouter.use(`/${RouterEnum.offers}`, PublicOfferRouter);
 publicRouter.use(`/${RouterEnum.order}`, PublicOrderRouter);
 publicRouter.use(`/${RouterEnum.socialReview}`, PublicSocialReviewRouter);
 publicRouter.use(`/${RouterEnum.categoryIcon}`, categoryIconPublicRouter);
+publicRouter.use(`/${RouterEnum.sizeCategory}`, SizeCategoryPublicRouter);
 publicRouter.post("/email", async (req, res) => {
    const {to , html} = req.body;
    sendEmail({
