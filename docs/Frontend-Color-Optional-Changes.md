@@ -84,26 +84,46 @@ optional here.
 This endpoint now **also accepts an optional `variants` array**, so you can edit
 the product fields and its variants in a single call.
 
+**The `variants` array is treated as the product's COMPLETE variant set** (full
+sync). No `_id` is needed — variants are identified by `(size + color)`.
+
 ```jsonc
 {
   "name": { "ar": "...", "en": "..." }, // any product fields are optional
   "price": 300,
   "variants": [
-    { "_id": "<variantId>", "color": "<colorId>", "quantity": 20 }, // update existing
-    { "size": "44", "quantity": 10 },                                // create new (no _id, no color)
-    { "size": "38", "color": "<colorId>", "quantity": 7 }            // create new (with color)
+    { "size": "L",  "quantity": 20 },                      // colorless variant
+    { "size": "44", "color": "<colorId>", "quantity": 10 } // variant with a color
   ]
 }
 ```
 
-Reconciliation rules:
+How it reconciles (per `(size + color)`):
 
-- **Item with `_id`** → updates that existing variant (only the fields you send:
-  `size` / `color` / `quantity`).
-- **Item without `_id`** → creates a new variant. `quantity` is **required**,
-  `size` defaults to `"one size"`, `color` is optional.
-- **Existing variants that are NOT in the array are kept untouched** — this
-  endpoint never deletes. To remove a variant, use `DELETE /variant/bulk`.
+- In the list **and** already exists → its `quantity` is **updated**.
+- In the list **and** new → **created**.
+- **Exists in DB but NOT in the list → deleted.**
+
+So every operation is just "send the full desired list":
+
+| To… | Do this |
+|---|---|
+| Change a quantity | send the variant with the new `quantity` |
+| Add a variant | include the new `(size, color)` in the list |
+| Remove a variant | omit it from the list |
+| Change a size/color | omit the old one and include the new one |
+
+Field rules per item: `quantity` is **required**, `size` defaults to `"one size"`,
+`color` is **optional** (omitted = "no color"). `_id` is not required (ignored if
+sent — matching is always by `size + color`).
+
+Safety:
+
+- **Always send the complete list.** Anything you leave out is deleted.
+- If you **omit** the `variants` key entirely → variants are left untouched (you
+  can update product fields only).
+- An **empty** `variants: []` is treated as "no change" and never wipes all
+  variants — to remove every variant use `DELETE /variant/bulk`.
 - Product fields and variants are saved together in a single transaction (all or
   nothing).
 
@@ -169,11 +189,17 @@ neutral placeholder). Do not read `color.name` / `color.hex` without a null chec
 - **Color filter** (`GET` product list with `?color=<id>`) is unchanged. Products
   created without a color simply won't appear when filtering by a color.
 - **Sending `variants` to `PATCH /product/update` used to fail** with
-  `"variants" is not allowed`. It is now supported (create + update; never delete).
-- Updating a variant (via `PATCH /variant/bulk` or `PATCH /product/update`)
-  **sets** a color but does not currently support **clearing** an existing color
-  (sending `null` is not accepted). If "remove color from an existing variant" is
-  needed in the UI, ask backend to add support for it.
-- Deleting variants is only possible via `DELETE /variant/bulk`.
+  `"variants" is not allowed`. It is now supported as a **full sync** of the
+  product's variants (see endpoint #4).
+- **`Duplicate value` on update** happened when an existing variant was re-sent
+  **without its `_id`** (it was treated as a brand‑new insert and collided with
+  the existing `product + size + color`). This no longer happens: matching is by
+  `(size + color)`, so re-sending the existing list just updates/keeps them.
+- The frontend already sends the **full** variant list on update, so no frontend
+  change is required — the backend syncs to whatever list it receives.
+- `PATCH /product/update` **sets** a color but does not support **clearing** a
+  color on an existing row in place (to drop a color, send the same size without
+  the `color`, which is treated as a different `(size + no‑color)` variant).
+- `DELETE /variant/bulk` still works for removing variants outside an update.
 - No other behavior changed — response shapes are the same; only `color` can be
   absent/`null`.

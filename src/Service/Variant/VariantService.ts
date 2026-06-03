@@ -26,38 +26,43 @@ export const createManyVariants = async (variants: IVariant[], session?: mongoos
 };
 export const upsertProductVariants = async (
   productId: string,
-  variants: { _id?: string; size?: string; color?: string; quantity?: number }[],
+  variants: { size?: string; color?: string; quantity?: number }[],
   session?: mongoose.ClientSession
 ) => {
-  // Items without `_id` are new variants to create; items with `_id` update an
-  // existing variant of this product. Nothing is deleted here — removing a
-  // variant stays a separate, explicit action (DELETE /variant/bulk).
-  const toCreate = variants
-    .filter((v) => !v._id)
-    .map((v) => ({
+  // Full sync: the incoming list is the product's COMPLETE desired variant set.
+  // Identity is (product + size + color), already unique via the schema index, so
+  // no `_id` is needed. We upsert every listed variant and delete any existing one
+  // that's no longer in the list — this covers add / edit-quantity / remove /
+  // change-size-or-color in a single call, with no duplicates.
+  //
+  // Guard: an empty list is treated as "no change" (it never wipes all variants);
+  // removing every variant must go through DELETE /variant/bulk explicitly.
+  if (!variants.length) return;
+
+  const identities = variants.map((v) => ({
+    size: v.size ?? "one size",
+    color: v.color ?? null,
+  }));
+
+  // 1) Upsert each desired variant by (product + size + color). Mongoose casts the
+  //    `color` string -> ObjectId so the ref stays valid; `null` = colorless.
+  const ops = variants.map((v, i) => ({
+    updateOne: {
+      filter: { product: productId, size: identities[i].size, color: identities[i].color },
+      update: { $set: { quantity: v.quantity ?? 0 } },
+      upsert: true,
+    },
+  }));
+  await VariantModel.bulkWrite(ops, { session });
+
+  // 2) Delete any existing variant for this product that isn't in the desired set.
+  await VariantModel.deleteMany(
+    {
       product: productId,
-      size: v.size ?? "one size",
-      color: v.color,
-      quantity: v.quantity ?? 0,
-    }));
-
-  const updateOps = variants
-    .filter((v) => v._id)
-    .map((v) => ({
-      updateOne: {
-        filter: { _id: v._id, product: productId },
-        update: {
-          $set: {
-            ...(v.size !== undefined && { size: v.size }),
-            ...(v.color !== undefined && { color: v.color }),
-            ...(v.quantity !== undefined && { quantity: v.quantity }),
-          },
-        },
-      },
-    }));
-
-  if (toCreate.length) await VariantModel.insertMany(toCreate, { session });
-  if (updateOps.length) await VariantModel.bulkWrite(updateOps, { session });
+      $nor: identities.map((id) => ({ size: id.size, color: id.color })),
+    },
+    { session }
+  );
 };
 export const updateManyVariants = async (
   productId: string,
