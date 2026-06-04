@@ -7,6 +7,9 @@ const VariantSchema = new Schema<IVariant>({
   size: RequiredDefaultStringSize,
   color: RefType(SchemaTypesReference.Color, false),
   quantity: RequiredMinNumber,
+  // Display order copied from SizeCategory.order so variants render S,M,L,XL…
+  // Unknown/ungrouped sizes default to 9999 (sorted last).
+  order: { type: Number, default: 9999 },
 });
 VariantSchema.set("toJSON", {
   transform: (doc, ret) => {
