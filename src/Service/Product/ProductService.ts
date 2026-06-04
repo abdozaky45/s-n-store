@@ -249,6 +249,134 @@ export const getAllProductsForUser = async ({
     totalPages: Math.ceil(totalItems / limit),
   };
 };
+
+/* ----------------------------- Home page feed ----------------------------- *
+ * A diversified "newest first" feed for the storefront home page.
+ * Goals: max 20 products, never more than 3 from the same category, prefer
+ * different subcategories inside a category, and interleave categories so no
+ * single category dominates. Deleted products and wholesale price are never
+ * exposed (same guards as get-all-products).
+ * --------------------------------------------------------------------------- */
+const HOME_LIMIT = 20;
+const HOME_MAX_PER_CATEGORY = 3;
+// Newest-per-category pool pulled from the DB; larger than the cap so the
+// in-memory step has room to diversify subcategories before trimming to 3.
+const HOME_PER_CATEGORY_POOL = 8;
+
+type HomeCandidate = {
+  _id: Types.ObjectId;
+  subCategory?: Types.ObjectId | null;
+  createdAt: number;
+};
+
+// From one category's newest candidates, pick up to `max`, preferring distinct
+// subcategories first, then filling the remaining slots by recency.
+const pickWithSubcategoryDiversity = (
+  items: HomeCandidate[],
+  max: number
+): Types.ObjectId[] => {
+  const picked: Types.ObjectId[] = [];
+  const pickedIds = new Set<string>();
+  const usedSub = new Set<string>();
+  // Pass 1 — newest-first, one product per distinct subcategory.
+  for (const it of items) {
+    if (picked.length >= max) break;
+    const sub = it.subCategory ? it.subCategory.toString() : "__none__";
+    if (!usedSub.has(sub)) {
+      picked.push(it._id);
+      pickedIds.add(it._id.toString());
+      usedSub.add(sub);
+    }
+  }
+  // Pass 2 — fill leftover slots by recency (subcategory may repeat now).
+  for (const it of items) {
+    if (picked.length >= max) break;
+    if (!pickedIds.has(it._id.toString())) {
+      picked.push(it._id);
+      pickedIds.add(it._id.toString());
+    }
+  }
+  return picked;
+};
+
+// Round-robin across categories (newest category first) to interleave results.
+const interleaveByCategory = (
+  buckets: { _id: Types.ObjectId; items: HomeCandidate[] }[]
+): Types.ObjectId[] => {
+  const sorted = [...buckets].sort(
+    (a, b) => (b.items[0]?.createdAt ?? 0) - (a.items[0]?.createdAt ?? 0)
+  );
+  const perCategory = sorted.map((b) =>
+    pickWithSubcategoryDiversity(b.items, HOME_MAX_PER_CATEGORY)
+  );
+  const result: Types.ObjectId[] = [];
+  for (let round = 0; round < HOME_MAX_PER_CATEGORY && result.length < HOME_LIMIT; round++) {
+    for (const picks of perCategory) {
+      if (round < picks.length) {
+        result.push(picks[round]);
+        if (result.length >= HOME_LIMIT) break;
+      }
+    }
+  }
+  return result;
+};
+
+export const getHomeProducts = async ({ isSale }: { isSale: boolean }) => {
+  // isSale is the single source of truth for "on sale".
+  const match: Record<string, any> = {
+    isDeleted: false,
+    isSale: isSale ? true : { $ne: true },
+  };
+
+  // Step 1 — newest HOME_PER_CATEGORY_POOL products per category (ids only).
+  const buckets = await ProductModel.aggregate<{
+    _id: Types.ObjectId;
+    items: HomeCandidate[];
+  }>([
+    { $match: match },
+    { $sort: { createdAt: -1 } },
+    {
+      $group: {
+        _id: "$category",
+        items: {
+          $push: { _id: "$_id", subCategory: "$subCategory", createdAt: "$createdAt" },
+        },
+      },
+    },
+    { $project: { items: { $slice: ["$items", HOME_PER_CATEGORY_POOL] } } },
+  ]);
+
+  // Step 2 — diversify + interleave in memory (bounded, tiny dataset).
+  const orderedIds = interleaveByCategory(buckets);
+  if (orderedIds.length === 0) {
+    return { products: [], currentPage: 1, totalItems: 0, totalPages: 1 };
+  }
+
+  // Step 3 — fetch full docs with the SAME shape as get-all-products.
+  // `isDeleted: false` is repeated as a second guard; wholesalePrice is stripped.
+  const products = await ProductModel.find({ _id: { $in: orderedIds }, isDeleted: false })
+    .select("-wholesalePrice -isDeleted -__v")
+    .populate({ path: "category", select: "-__v" })
+    .populate({ path: "subCategory", select: "-__v" })
+    .populate({
+      path: "variants",
+      select: "color size quantity",
+      populate: { path: SchemaTypesReference.Color, select: "-_id -__v" },
+    });
+
+  // Step 4 — restore the diversified order (find() does not preserve $in order).
+  const byId = new Map(products.map((p) => [p._id.toString(), p]));
+  const ordered = orderedIds
+    .map((id) => byId.get(id.toString()))
+    .filter((p): p is NonNullable<typeof p> => p != null);
+
+  return {
+    products: ordered,
+    currentPage: 1,
+    totalItems: ordered.length,
+    totalPages: 1,
+  };
+};
 export const softDeleteProduct = async (_id: string | Types.ObjectId) => {
   const product = await ProductModel.findByIdAndUpdate(_id, {
     isDeleted: true,

@@ -72,8 +72,40 @@ class OrderController {
     async (req: Request, res: Response) => {
       const { orderId } = req.params as { orderId: string };
       const { status } = req.body;
-      const order = await OrderService.updateOrderStatus(orderId, status);
+      const recordedBy = req.body.currentUser.userInfo._id;
+      const order = await OrderService.updateOrderStatus(orderId, status, recordedBy);
       return res.json(new ApiResponse(200, { order }, SuccessMessage.ORDER_UPDATED));
+    }
+  );
+  // ✅ Record a deposit / manual payment (Admin)
+  recordPaymentController = asyncHandler(
+    async (req: Request, res: Response) => {
+      const { orderId } = req.params as { orderId: string };
+      const { amount, method, note, receiptImageUrl } = req.body;
+      const recordedBy = req.body.currentUser.userInfo._id;
+      const order = await OrderService.recordPayment(orderId, {
+        amount,
+        method,
+        note,
+        receiptImageUrl,
+        recordedBy,
+      });
+      return res.json(new ApiResponse(200, { order }, SuccessMessage.ORDER_PAYMENT_RECORDED));
+    }
+  );
+  // ✅ Record a refund of a collected deposit (Admin)
+  recordRefundController = asyncHandler(
+    async (req: Request, res: Response) => {
+      const { orderId } = req.params as { orderId: string };
+      const { method, note, receiptImageUrl } = req.body;
+      const recordedBy = req.body.currentUser.userInfo._id;
+      const order = await OrderService.recordRefund(orderId, {
+        method,
+        note,
+        receiptImageUrl,
+        recordedBy,
+      });
+      return res.json(new ApiResponse(200, { order }, SuccessMessage.ORDER_REFUND_RECORDED));
     }
   );
   // ✅ Apply Free Shipping (Admin)

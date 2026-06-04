@@ -254,6 +254,20 @@ export const getAllProductsForUser = asyncHandler(
     return res.json(new ApiResponse(200, products, SuccessMessage.PRODUCT_FOUND));
   }
 );
+// Diversified home feed — non-sale products.
+export const getHomeProducts = asyncHandler(
+  async (_req: Request, res: Response) => {
+    const products = await ProductService.getHomeProducts({ isSale: false });
+    return res.json(new ApiResponse(200, products, SuccessMessage.PRODUCT_FOUND));
+  }
+);
+// Diversified home feed — sale products only.
+export const getHomeSaleProducts = asyncHandler(
+  async (_req: Request, res: Response) => {
+    const products = await ProductService.getHomeProducts({ isSale: true });
+    return res.json(new ApiResponse(200, products, SuccessMessage.PRODUCT_FOUND));
+  }
+);
 export const getUserProductById = asyncHandler(
   async (req: Request, res: Response) => {
     const { productId } = req.params as { productId: string };

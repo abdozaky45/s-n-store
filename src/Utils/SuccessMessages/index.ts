@@ -45,6 +45,8 @@ enum SuccessMessage {
   ORDER_FOUND = "Order found successfully",
   ORDER_UPDATED = "Order updated successfully",
   ORDER_FETCHED = "Orders fetched successfully",
+  ORDER_PAYMENT_RECORDED = "Payment recorded successfully",
+  ORDER_REFUND_RECORDED = "Refund recorded successfully",
   COLOR_CREATED = "Color created successfully",
   COLOR_UPDATED = "Color updated successfully",
   COLOR_FOUND = "Color found successfully",

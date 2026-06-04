@@ -2,6 +2,7 @@
 import joi from "joi";
 import { baseSchema } from "../baseSchema";
 import { orderStatusArray } from "../../Utils/OrderStatusType";
+import { paymentMethodArray } from "../../Utils/PaymentType";
 export const createOrderValidation = joi.object({
   customer: joi.string().required(),
   customerInfo: joi.string().required(),
@@ -49,6 +50,25 @@ export const getAllOrdersValidation = baseSchema.concat(
     status: joi.string().valid(...orderStatusArray).optional(),
     search: joi.string().optional(),
     page: joi.number().optional(),
+  }).required()
+);
+
+export const recordPaymentValidation = baseSchema.concat(
+  joi.object({
+    orderId: joi.string().required(),
+    amount: joi.number().positive().required(),
+    method: joi.string().valid(...paymentMethodArray).required(),
+    note: joi.string().optional(),
+    receiptImageUrl: joi.string().optional(),
+  }).required()
+);
+
+export const recordRefundValidation = baseSchema.concat(
+  joi.object({
+    orderId: joi.string().required(),
+    method: joi.string().valid(...paymentMethodArray).required(),
+    note: joi.string().optional(),
+    receiptImageUrl: joi.string().optional(),
   }).required()
 );
 

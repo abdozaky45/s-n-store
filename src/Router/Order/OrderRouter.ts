@@ -26,4 +26,16 @@ OrderRouter.patch(
   Validation(orderValidation.AdminOrderIdValidation),
   OrderController.applyFreeShippingController
 );
+
+OrderRouter.post(
+  "/admin/payment/:orderId",
+  Validation(orderValidation.recordPaymentValidation),
+  OrderController.recordPaymentController
+);
+
+OrderRouter.post(
+  "/admin/refund/:orderId",
+  Validation(orderValidation.recordRefundValidation),
+  OrderController.recordRefundController
+);
 export default OrderRouter;
