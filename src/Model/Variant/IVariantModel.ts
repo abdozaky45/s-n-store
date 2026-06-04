@@ -5,4 +5,5 @@ export default interface IVariant {
   size: string;
   color?: Types.ObjectId | string;
   quantity: number;
+  order?: number;
 }

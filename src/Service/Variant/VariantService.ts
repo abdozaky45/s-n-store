@@ -2,7 +2,51 @@ import VariantModel from "../../Model/Variant/VariantModel";
 import ProductModel from "../../Model/Product/ProductModel";
 import IVariant from "../../Model/Variant/IVariantModel";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
+import SizeCategoryModel from "../../Model/SizeCategory/SizeCategoryModel";
+import CategoryModel from "../../Model/Category/CategoryModel";
+import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import mongoose from "mongoose";
+
+// Sizes not defined in the product's SizeCategory group sort last.
+const UNKNOWN_SIZE_ORDER = 9999;
+
+// Resolve the display order (SizeCategory.order) for a product's sizes.
+// The product's group comes from its subCategory (more specific) or category.
+export const getSizeOrderMap = async (
+  productId: string | mongoose.Types.ObjectId,
+  sizes: string[],
+  session?: mongoose.ClientSession
+): Promise<Map<string, number>> => {
+  const map = new Map<string, number>();
+  const uniqueSizes = [...new Set(sizes.filter(Boolean))];
+  if (!uniqueSizes.length) return map;
+
+  const product = await ProductModel.findById(productId)
+    .select("category subCategory")
+    .session(session ?? null);
+  if (!product) return map;
+
+  let groupSize: mongoose.Types.ObjectId | string | null = null;
+  if (product.subCategory) {
+    const sub = await SubCategoryModel.findById(product.subCategory)
+      .select("groupSize")
+      .session(session ?? null);
+    groupSize = (sub?.groupSize as mongoose.Types.ObjectId) ?? null;
+  }
+  if (!groupSize && product.category) {
+    const cat = await CategoryModel.findById(product.category)
+      .select("groupSize")
+      .session(session ?? null);
+    groupSize = (cat?.groupSize as mongoose.Types.ObjectId) ?? null;
+  }
+  if (!groupSize) return map;
+
+  const sizeDocs = await SizeCategoryModel.find({ groupSize, size: { $in: uniqueSizes } })
+    .select("size order")
+    .session(session ?? null);
+  for (const doc of sizeDocs) map.set(doc.size, doc.order);
+  return map;
+};
 
 export const updateProductSoldOutStatus = async (productId: string) => {
   const hasStock = await VariantModel.exists({
@@ -14,13 +58,22 @@ export const updateProductSoldOutStatus = async (productId: string) => {
   });
 };
 export const createVariant = async (variantData: IVariant) => {
-  const variant = await VariantModel.create(variantData);
+  const orderMap = await getSizeOrderMap(variantData.product, [variantData.size]);
+  const variant = await VariantModel.create({
+    ...variantData,
+    order: orderMap.get(variantData.size) ?? UNKNOWN_SIZE_ORDER,
+  });
   await updateProductSoldOutStatus(variantData.product.toString());
   return variant;
 };
 export const createManyVariants = async (variants: IVariant[], session?: mongoose.ClientSession) => {
-  const created = await VariantModel.insertMany(variants, { session });
   const productId = variants[0].product.toString();
+  const orderMap = await getSizeOrderMap(productId, variants.map((v) => v.size), session);
+  const variantsWithOrder = variants.map((v) => ({
+    ...v,
+    order: orderMap.get(v.size) ?? UNKNOWN_SIZE_ORDER,
+  }));
+  const created = await VariantModel.insertMany(variantsWithOrder, { session });
   await updateProductSoldOutStatus(productId);
   return created;
 };
@@ -44,12 +97,24 @@ export const upsertProductVariants = async (
     color: v.color ?? null,
   }));
 
+  // Resolve the display order for every desired size up front (one lookup).
+  const orderMap = await getSizeOrderMap(
+    productId,
+    identities.map((id) => id.size),
+    session
+  );
+
   // 1) Upsert each desired variant by (product + size + color). Mongoose casts the
   //    `color` string -> ObjectId so the ref stays valid; `null` = colorless.
   const ops = variants.map((v, i) => ({
     updateOne: {
       filter: { product: productId, size: identities[i].size, color: identities[i].color },
-      update: { $set: { quantity: v.quantity ?? 0 } },
+      update: {
+        $set: {
+          quantity: v.quantity ?? 0,
+          order: orderMap.get(identities[i].size) ?? UNKNOWN_SIZE_ORDER,
+        },
+      },
       upsert: true,
     },
   }));
@@ -68,12 +133,23 @@ export const updateManyVariants = async (
   productId: string,
   variants: { _id: string; size?: string; color?: string; quantity?: number }[]
 ) => {
+  // Re-stamp order only for variants whose size is changing.
+  const changedSizes = variants
+    .filter((v) => v.size !== undefined)
+    .map((v) => v.size as string);
+  const orderMap = changedSizes.length
+    ? await getSizeOrderMap(productId, changedSizes)
+    : new Map<string, number>();
+
   const bulkOps = variants.map(variant => ({
     updateOne: {
       filter: { _id: variant._id, product: productId },
       update: {
         $set: {
-          ...(variant.size !== undefined && { size: variant.size }),
+          ...(variant.size !== undefined && {
+            size: variant.size,
+            order: orderMap.get(variant.size) ?? UNKNOWN_SIZE_ORDER,
+          }),
           ...(variant.color !== undefined && { color: variant.color }),
           ...(variant.quantity !== undefined && { quantity: variant.quantity }),
         }
@@ -94,6 +170,7 @@ export const deleteManyVariants = async (
 };
 export const getVariantsByProduct = async (productId: string) => {
   const variants = await VariantModel.find({ product: productId })
+    .sort({ order: 1, _id: 1 })
     .populate({ path: SchemaTypesReference.Color, select: "-__v" })
     .select("-__v");
   return variants;

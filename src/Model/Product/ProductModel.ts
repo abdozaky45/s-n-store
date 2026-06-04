@@ -52,6 +52,8 @@ ProductSchema.virtual("variants", {
   ref: SchemaTypesReference.Variant,
   localField: "_id",
   foreignField: SchemaTypesReference.Product,
+  // Always return variants in size order (S,M,L,XL…) via SizeCategory.order.
+  options: { sort: { order: 1, _id: 1 } },
 });
 ProductSchema.virtual("discount").get(function () {
   if (!this.salePrice) return 0;
