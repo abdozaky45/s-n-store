@@ -1,4 +1,4 @@
-import { ProductOrder } from "../../Model/Order/Iorder";
+import { ProductOrder, PaymentTransaction } from "../../Model/Order/Iorder";
 import OrderModel from "../../Model/Order/OrderModel";
 import { Types } from "mongoose";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
@@ -7,17 +7,146 @@ import { OfferTypeEnum } from "../../Utils/OfferType";
 import mongoose from "mongoose";
 import ProductModel from "../../Model/Product/ProductModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
+import { paymentStatusType } from "../../Utils/PaymentStatusType";
+import { paymentMethodType, paymentTransactionType } from "../../Utils/PaymentType";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { getVariantsByIds, updateProductSoldOutStatus } from "../Variant/VariantService"; // not forget to implement this function in VariantService ,controller and route
 import IShipping from "../../Model/Shipping/Ishipping";
 import { checkCustomerInfo } from "../User/CustomerInfoService";
 import ErrorMessages from "../../Utils/Error";
+import { ApiError } from "../../Utils/ErrorHandling";
+import { extractMediaId } from "../../Shared/MediaServiceShared";
 import { getProductsByIds } from "../../Shared/ProductServiceShared";
 class OrderService {
   generateOrderNumber = (): string => {
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
     return `ORD-${timestamp}-${random}`;
+  };
+  // Build a payment ledger entry (deposit / balance-on-delivery / refund).
+  buildTransaction = (data: {
+    amount: number;
+    type: paymentTransactionType;
+    method: string;
+    note?: string;
+    receiptImageUrl?: string;
+    recordedBy: string;
+  }): PaymentTransaction => {
+    const transaction: PaymentTransaction = {
+      amount: data.amount,
+      type: data.type,
+      method: data.method,
+      recordedBy: new Types.ObjectId(data.recordedBy),
+      recordedAt: new Date(),
+    };
+    if (data.note) transaction.note = data.note;
+    if (data.receiptImageUrl) {
+      transaction.receiptImage = {
+        mediaUrl: data.receiptImageUrl,
+        mediaId: extractMediaId(data.receiptImageUrl),
+      };
+    }
+    return transaction;
+  };
+  // Ensure the payment object exists on legacy orders created before this feature.
+  ensurePayment = (order: any) => {
+    if (!order.payment) {
+      order.payment = {
+        totalCollected: 0,
+        status: paymentStatusType.unpaid,
+        transactions: [],
+      };
+    }
+  };
+  // Recompute net collected + payment status from the transaction ledger and order status.
+  syncPaymentState = (order: any) => {
+    this.ensurePayment(order);
+    const transactions: PaymentTransaction[] = order.payment.transactions ?? [];
+    const collected = transactions.reduce((sum, t) => {
+      return t.type === paymentTransactionType.refund ? sum - t.amount : sum + t.amount;
+    }, 0);
+    const netCollected = Math.max(0, collected);
+    const hasRefund = transactions.some((t) => t.type === paymentTransactionType.refund);
+    const isClosed = [orderStatusType.cancelled, orderStatusType.deleted].includes(order.status);
+
+    let status: paymentStatusType;
+    if (hasRefund && netCollected <= 0) {
+      status = paymentStatusType.refunded;
+    } else if (isClosed && netCollected > 0) {
+      status = paymentStatusType.refund_pending;
+    } else if (netCollected <= 0) {
+      status = paymentStatusType.unpaid;
+    } else if (netCollected >= order.totalAmount) {
+      status = paymentStatusType.paid;
+    } else {
+      status = paymentStatusType.partially_paid;
+    }
+    order.payment.totalCollected = netCollected;
+    order.payment.status = status;
+  };
+  // Record a manual deposit / partial payment received outside the system (Admin).
+  recordPayment = async (
+    _id: string,
+    data: {
+      amount: number;
+      method: string;
+      note?: string;
+      receiptImageUrl?: string;
+      recordedBy: string;
+    }
+  ) => {
+    const order = await OrderModel.findById(_id);
+    if (!order) throw new ApiError(404, ErrorMessages.ORDER_NOT_FOUND);
+    if (([orderStatusType.cancelled, orderStatusType.deleted] as string[]).includes(order.status)) {
+      throw new ApiError(400, ErrorMessages.PAYMENT_NOT_ALLOWED_FOR_STATUS);
+    }
+    this.ensurePayment(order);
+    const settled: string[] = [
+      paymentStatusType.paid,
+      paymentStatusType.refund_pending,
+      paymentStatusType.refunded,
+    ];
+    if (settled.includes(order.payment.status)) {
+      throw new ApiError(400, ErrorMessages.PAYMENT_ALREADY_SETTLED);
+    }
+    if (order.payment.totalCollected + data.amount > order.totalAmount) {
+      throw new ApiError(400, ErrorMessages.PAYMENT_EXCEEDS_TOTAL);
+    }
+    order.payment.transactions.push(this.buildTransaction({
+      amount: data.amount,
+      type: paymentTransactionType.deposit,
+      method: data.method,
+      note: data.note,
+      receiptImageUrl: data.receiptImageUrl,
+      recordedBy: data.recordedBy,
+    }) as any);
+    this.syncPaymentState(order);
+    order.markModified("payment");
+    await order.save();
+    return order;
+  };
+  // Record that a collected deposit was returned to the customer outside the system (Admin).
+  recordRefund = async (
+    _id: string,
+    data: { method: string; note?: string; receiptImageUrl?: string; recordedBy: string }
+  ) => {
+    const order = await OrderModel.findById(_id);
+    if (!order) throw new ApiError(404, ErrorMessages.ORDER_NOT_FOUND);
+    if (!order.payment || order.payment.status !== paymentStatusType.refund_pending) {
+      throw new ApiError(400, ErrorMessages.NO_REFUND_PENDING);
+    }
+    order.payment.transactions.push(this.buildTransaction({
+      amount: order.payment.totalCollected,
+      type: paymentTransactionType.refund,
+      method: data.method,
+      note: data.note,
+      receiptImageUrl: data.receiptImageUrl,
+      recordedBy: data.recordedBy,
+    }) as any);
+    this.syncPaymentState(order);
+    order.markModified("payment");
+    await order.save();
+    return order;
   };
   async calculateOrderOffers(subTotal: number) {
     const offers = await OfferModel.find({ isActive: true })
@@ -193,7 +322,7 @@ class OrderService {
         .limit(limit)
         .populate({ path: "products.productId", select: "defaultImage" })
         .populate({ path: "products.color", select: "-_id -__v" })
-        .select("products orderNumber status subTotal shippingCost discount totalAmount freeShipping createdAt"),
+        .select("products orderNumber status subTotal shippingCost discount totalAmount freeShipping payment createdAt"),
       OrderModel.countDocuments(filter),
     ]);
 
@@ -244,6 +373,9 @@ class OrderService {
       }));
       await ProductModel.bulkWrite(productUpdates, { session });
       order.status = orderStatusType.cancelled;
+      // If a deposit was already collected, flag it for refund (handled by Admin outside the system).
+      this.syncPaymentState(order);
+      order.markModified("payment");
       await order.save({ session });
       await session.commitTransaction();
       const productIds = Object.keys(productQuantities);
@@ -263,23 +395,24 @@ class OrderService {
   // Apply Free Shipping Offer (Admin)
   async applyFreeShipping(_id: string) {
     const order = await OrderModel.findById(_id);
-    if (!order) throw new Error("Order not found");
-    const newTotal = order.totalAmount - order.shippingCost;
-    const updated = await OrderModel.findByIdAndUpdate(
-      _id,
-      { freeShipping: true, shippingCost: 0, totalAmount: newTotal },
-      { new: true }
-    ).select("-__v");
-    return updated;
+    if (!order) throw new ApiError(404, ErrorMessages.ORDER_NOT_FOUND);
+    order.totalAmount = order.totalAmount - order.shippingCost;
+    order.shippingCost = 0;
+    order.freeShipping = true;
+    // Total changed, so the payment status may flip (e.g. a deposit now covers the full amount).
+    this.syncPaymentState(order);
+    order.markModified("payment");
+    await order.save();
+    return await OrderModel.findById(_id).select("-__v");
   };
   // Update Order Status (Admin)
-  async updateOrderStatus(_id: string, newStatus: string) {
+  async updateOrderStatus(_id: string, newStatus: string, recordedBy: string) {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
       const order = await OrderModel.findById(_id).session(session);
       if (!order) {
-        throw new Error("Order not found");
+        throw new ApiError(404, ErrorMessages.ORDER_NOT_FOUND);
       }
       const currentStatus = order.status;
       const activeStatuses = [
@@ -330,7 +463,31 @@ class OrderService {
         }));
         await ProductModel.bulkWrite(productUpdates, { session });
       }
+      this.ensurePayment(order);
+      const becameDelivered =
+        newStatus === orderStatusType.delivered && currentStatus !== orderStatusType.delivered;
+      const leftDelivered =
+        currentStatus === orderStatusType.delivered && newStatus !== orderStatusType.delivered;
+      if (becameDelivered) {
+        // Reaching the customer means the remaining balance was collected cash-on-delivery.
+        const remaining = order.totalAmount - order.payment.totalCollected;
+        if (remaining > 0) {
+          order.payment.transactions.push(this.buildTransaction({
+            amount: remaining,
+            type: paymentTransactionType.balance_on_delivery,
+            method: paymentMethodType.cash,
+            recordedBy,
+          }) as any);
+        }
+      } else if (leftDelivered) {
+        // Reverting from delivered undoes the auto cash-on-delivery balance.
+        order.payment.transactions = order.payment.transactions.filter(
+          (t: PaymentTransaction) => t.type !== paymentTransactionType.balance_on_delivery
+        ) as any;
+      }
       order.status = newStatus;
+      this.syncPaymentState(order);
+      order.markModified("payment");
       await order.save({ session });
       await session.commitTransaction();
       if (stockAction !== 'none') {

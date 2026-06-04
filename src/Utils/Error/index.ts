@@ -66,6 +66,10 @@ enum ErrorMessages {
   CUSTOMER_INFO_NOT_FOUND_OR_INVALID = "Customer information not found or customer or invalid",
   PRODUCTS_NOT_FOUND = "Some products not found",
   CATEGORY_ICON_NOT_FOUND = "Category icon not found",
-  CATEGORY_ICON_KEY_EXISTS = "An icon with this key already exists"
+  CATEGORY_ICON_KEY_EXISTS = "An icon with this key already exists",
+  PAYMENT_EXCEEDS_TOTAL = "Payment amount exceeds the remaining order total",
+  PAYMENT_NOT_ALLOWED_FOR_STATUS = "Cannot record a payment for an order in its current status",
+  PAYMENT_ALREADY_SETTLED = "Order payment is already fully settled",
+  NO_REFUND_PENDING = "This order has no pending refund"
 }
 export default ErrorMessages;

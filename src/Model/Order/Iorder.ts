@@ -15,6 +15,27 @@ interface ProductOrder {
   totalPrice: number;
 }
 
+interface PaymentReceipt {
+  mediaUrl: string;
+  mediaId: string;
+}
+
+interface PaymentTransaction {
+  amount: number;
+  type: string;
+  method: string;
+  note?: string;
+  receiptImage?: PaymentReceipt;
+  recordedBy: Types.ObjectId | string;
+  recordedAt: Date;
+}
+
+interface OrderPayment {
+  totalCollected: number;
+  status: string;
+  transactions: PaymentTransaction[];
+}
+
 interface IOrder {
   orderNumber: string;
   customer: Types.ObjectId | string | ICustomer;
@@ -28,6 +49,9 @@ interface IOrder {
   appliedOffer: Types.ObjectId | string | null;
   freeShipping?: boolean;
   status: string;
+  payment: OrderPayment;
+  // virtual: totalAmount - payment.totalCollected
+  remainingAmount?: number;
 }
 
-export { IOrder, ProductOrder };
+export { IOrder, ProductOrder, OrderPayment, PaymentTransaction, PaymentReceipt };
