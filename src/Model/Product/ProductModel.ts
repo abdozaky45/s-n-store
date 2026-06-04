@@ -62,6 +62,8 @@ ProductSchema.virtual("discountPercentage").get(function () {
   return Math.round(((this.price - this.salePrice) / this.price) * 100);
 }
 );
+// Supports the diversified home feed: match (isDeleted + isSale) then sort by newest.
+ProductSchema.index({ isDeleted: 1, isSale: 1, createdAt: -1 });
 const ProductModel = model(SchemaTypesReference.Product, ProductSchema);
 export default ProductModel;
 /*
