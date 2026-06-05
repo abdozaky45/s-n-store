@@ -87,7 +87,7 @@ export const updateProduct = async (
   const simpleFields: (keyof IUpdateProductBody)[] = [
     "price", "salePrice", "wholesalePrice", "isSale",
     "saleStartDate", "saleEndDate", "category",
-    "subCategory", "isNewArrival", "isBestSeller", "finalPrice"
+    "subCategory", "isNewArrival", "finalPrice"
   ];
 
   simpleFields.forEach((field) => {
@@ -96,6 +96,15 @@ export const updateProduct = async (
       hasUpdates = true;
     }
   });
+
+  // Manual bestSeller override: whenever the admin sets isBestSeller (true or
+  // false), honor it and flag the product as manually controlled so the nightly
+  // agenda skips it and never overrides the admin's decision.
+  if (body.isBestSeller !== undefined && body.isBestSeller !== null) {
+    product.isBestSeller = body.isBestSeller;
+    product.bestSellerManual = true;
+    hasUpdates = true;
+  }
 
   return hasUpdates ? product : null;
 };

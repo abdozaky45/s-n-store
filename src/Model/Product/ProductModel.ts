@@ -42,6 +42,9 @@ const ProductSchema = new Schema<IProduct>(
     subCategory: RefType(SchemaTypesReference.SubCategory, false),
     isNewArrival: NotRequiredBoolean,
     isBestSeller: NotRequiredBoolean,
+    // internal flag: set when an admin manually controls isBestSeller, so the
+    // nightly agenda skips this product and never overrides the admin's choice.
+    bestSellerManual: NotRequiredBoolean,
     createdBy: RefType(SchemaTypesReference.User, true),
     createdAt: RequiredNumber,
     isDeleted: NotRequiredBoolean,

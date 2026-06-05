@@ -17,13 +17,12 @@ const appAgenda = async () => {
         { isDeleted: false, createdAt: { $lt: thirtyDaysAgo }, isNewArrival: true },
         { isNewArrival: false }
       ),
+      // bestSeller is sticky: a product earns it once it sells 5+ items and never
+      // loses it automatically (returns/cancellations lowering soldItems won't demote it).
+      // Products under manual admin control (bestSellerManual) are skipped entirely.
       ProductModel.updateMany(
-        { isDeleted: false, soldItems: { $gte: 5 } },
+        { isDeleted: false, soldItems: { $gte: 5 }, bestSellerManual: { $ne: true } },
         { isBestSeller: true }
-      ),
-      ProductModel.updateMany(
-        { isDeleted: false, soldItems: { $lt: 5 } },
-        { isBestSeller: false }
       ),
       ProductModel.updateMany(
         { isDeleted: false, isSale: true, saleEndDate: { $gt: 0, $lt: moment().valueOf() } },
