@@ -21,6 +21,7 @@ export  interface IProduct {
   subCategory?: Types.ObjectId | string;
   isNewArrival?: boolean;
   isBestSeller?: boolean;
+  bestSellerManual?: boolean;
   createdBy: Types.ObjectId | string;
   createdAt: number;
   isDeleted?: boolean;
