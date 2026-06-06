@@ -28,9 +28,17 @@ export const getPresignedURL = asyncHandler(
           key: file.fileName || fileName,
           contentType: file.contentType,
         });
+        // Upload still targets S3 directly (preSignedURL). The stored read URL
+        // (mediaUrl) points at CloudFront when CDN_BASE_URL is set — same key/path,
+        // only the host changes. Unset CDN_BASE_URL => identical S3 URL as before.
+        const s3Url = preSignedURL.split("?")[0];
+        const cdnBase = process.env.CDN_BASE_URL?.replace(/\/+$/, "");
+        const mediaUrl = cdnBase
+          ? s3Url.replace(/^https?:\/\/[^/]+/, cdnBase)
+          : s3Url;
         return {
           preSignedURL,
-          mediaUrl: preSignedURL.split("?")[0],
+          mediaUrl,
         };
       })
     );

@@ -5,4 +5,7 @@ postman_collection.json
 /dist
 src/seeds/
 
+# S3 cleanup reports (local records — never commit)
+orphan-s3-keys-*.txt
+
 
