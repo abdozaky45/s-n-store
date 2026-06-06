@@ -1,4 +1,5 @@
 import cors from "cors";
+import compression from "compression";
 import express, { Application } from "express";
 import { Request, Response, NextFunction } from "express";
 import { globalErrorHandling } from "./Utils/ErrorHandling";
@@ -28,6 +29,9 @@ import categoryIconRouter from "./Router/CategoryIcon/CategoryIconRouter";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Swagger/swagger";
 const app: Application = express();
+// gzip/brotli-compress JSON responses (product lists, etc.). Transparent to
+// clients — the browser decompresses automatically; response shape is unchanged.
+app.use(compression());
 app.use(express.json());
 const devCorsOptions: cors.CorsOptions = {
   origin: "*",
