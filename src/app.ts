@@ -29,6 +29,10 @@ import categoryIconRouter from "./Router/CategoryIcon/CategoryIconRouter";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Swagger/swagger";
 const app: Application = express();
+// Behind nginx + the Elastic Beanstalk load balancer: trust the proxy chain so
+// req.ip resolves to the real client IP (from X-Forwarded-For) instead of the
+// internal LB address. Used for per-session IP tracking.
+app.set("trust proxy", true);
 // gzip/brotli-compress JSON responses (product lists, etc.). Transparent to
 // clients — the browser decompresses automatically; response shape is unchanged.
 app.use(compression());

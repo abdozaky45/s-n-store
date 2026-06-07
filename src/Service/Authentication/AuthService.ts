@@ -58,17 +58,46 @@ export const updateUserAndDeleteActiveCode = async (searchKey: string) => {
   );
   return user;
 };
+// Max concurrent sessions (devices) allowed per user, e.g. mobile + laptop.
+export const MAX_SESSIONS_PER_USER = 2;
+
 export const createNewAccessTokenOrUpdate = async (
   accessToken: string,
   user: Types.ObjectId,
-  userAgent: string
+  userAgent: string,
+  ip: string
 ) => {
-  const token = await TokenModel.findOneAndUpdate(
-    { user },
-    { accessToken, userAgent },
-    { upsert: true, new: true }
-  );
+  // Create a fresh session for this device. Unlike before, this does NOT wipe
+  // the user's other devices — existing sessions stay logged in.
+  const token = await TokenModel.create({
+    accessToken,
+    user,
+    userAgent,
+    ip,
+    lastUsedAt: new Date(),
+  });
+  // Enforce the per-user device cap: keep the most-recently-used sessions and
+  // evict the rest (e.g. an old/forgotten device when a 3rd one logs in).
+  const sessions = await TokenModel.find({ user }).sort({ lastUsedAt: -1 });
+  if (sessions.length > MAX_SESSIONS_PER_USER) {
+    const staleIds = sessions
+      .slice(MAX_SESSIONS_PER_USER)
+      .map((session) => session._id);
+    await TokenModel.deleteMany({ _id: { $in: staleIds } });
+  }
   return token;
+};
+
+// Refresh a session's activity stamp (and last-seen IP) so the device-cap
+// eviction keeps the device that's actually in use.
+export const updateSessionLastUsed = async (
+  tokenId: Types.ObjectId,
+  ip: string
+) => {
+  await TokenModel.updateOne(
+    { _id: tokenId },
+    { lastUsedAt: new Date(), ip }
+  );
 };
 export const findRefreshToken = async (refreshToken: string) => {
   const token = await TokenModel.findOne({

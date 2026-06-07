@@ -79,10 +79,12 @@ export const activeAccount = asyncHandler(
       },
     });
     const agent = req.headers["user-agent"] || "unknown";
+    const ip = req.ip || "unknown";
     await createNewAccessTokenOrUpdate(
       accessToken,
       updateUser!._id,
-      agent
+      agent,
+      ip
     );
     return res
       .status(200)
