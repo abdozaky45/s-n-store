@@ -3,7 +3,14 @@ import { ApiResponse, asyncHandler } from "../Utils/ErrorHandling";
 import { ApiError } from "../Utils/ErrorHandling";
 import { verifyToken, TokenError, TokenErrorCode } from "../Utils/GenerateAndVerifyToken";
 import ErrorMessages from "../Utils/Error";
-import { findUserByAccessTokenAndUserId } from "../Service/Authentication/AuthService";
+import {
+  findUserByAccessTokenAndUserId,
+  updateSessionLastUsed,
+} from "../Service/Authentication/AuthService";
+
+// Refresh a session's activity stamp at most once per window to avoid a DB
+// write on every authenticated request.
+const SESSION_TOUCH_THROTTLE_MS = 5 * 60 * 1000;
 
 const checkAuthority = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -28,9 +35,16 @@ const checkAuthority = asyncHandler(
     if (!decoded?._id) {
       throw new ApiError(401, ErrorMessages.INVALID_PAYLOAD);
     }
-    const user = await findUserByAccessTokenAndUserId(decoded._id, token);
-    if (!user || !(user.accessToken === token)) {
+    const session = await findUserByAccessTokenAndUserId(decoded._id, token);
+    if (!session || !(session.accessToken === token)) {
       throw new ApiError(401, ErrorMessages.USER_TOKEN_IS_INVALID);
+    }
+    const lastUsed = session.lastUsedAt
+      ? new Date(session.lastUsedAt).getTime()
+      : 0;
+    if (Date.now() - lastUsed > SESSION_TOUCH_THROTTLE_MS) {
+      // Fire-and-forget: don't block the request on this bookkeeping write.
+      updateSessionLastUsed(session._id, req.ip ?? "unknown").catch(() => {});
     }
     const currentUser = {
       userInfo: decoded,

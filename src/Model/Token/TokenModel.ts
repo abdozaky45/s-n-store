@@ -3,6 +3,7 @@ import Itoken from "./Itoken";
 import {
   createdAtTokenModel,
   expiresAtTokenModel,
+  NotRequiredString,
   RefType,
   RequiredString,
 } from "../../Utils/Schemas";
@@ -11,6 +12,8 @@ const TokenSchema = new Schema<Itoken>({
   accessToken: RequiredString,
   user: RefType(SchemaTypesReference.User, true),
   userAgent: RequiredString,
+  ip: NotRequiredString,
+  lastUsedAt: { type: Date, default: () => new Date() },
   createdAt: createdAtTokenModel,
   expiresAt: expiresAtTokenModel,
 });
