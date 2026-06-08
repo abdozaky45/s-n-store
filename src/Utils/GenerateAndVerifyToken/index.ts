@@ -1,4 +1,5 @@
 import jwt, { JwtPayload, TokenExpiredError, JsonWebTokenError, NotBeforeError } from 'jsonwebtoken';
+import { nanoid } from 'nanoid';
 import ErrorMessages from '../Error';
 
 export enum TokenErrorCode {
@@ -30,7 +31,10 @@ export const generateAccessToken = ({
   signature = process.env.TOKEN_SIGNATURE,
 }: TokenOptions = {}): string => {
   const token = jwt.sign(payload, signature as string, {
-     expiresIn: "7d"
+     expiresIn: "7d",
+     // Unique per token so two logins (even within the same second) produce
+     // distinct tokens — lets each session be addressed/revoked individually.
+     jwtid: nanoid(),
   });
   return token;
 };

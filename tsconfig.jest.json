@@ -1,0 +1,15 @@
+{
+  // Jest/ts-jest runs in CommonJS. The base config uses NodeNext (for the
+  // production build), which trips up the test runner, so override module
+  // resolution here only for tests. rootDir is widened to include tests/.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "rootDir": ".",
+    "types": ["jest", "node"],
+    "noEmit": true
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
