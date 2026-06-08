@@ -4,7 +4,7 @@ import ISubCategory from "../../Model/SubCategory/ISubcategory";
 import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
-import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
+import { collectProductMediaIds, deleteMediaByIds } from "../../Controller/Aws/AwsController";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
 export const createSubCategory = async ({
   name,
@@ -129,15 +129,15 @@ export const restoreSubCategory = async (_id: string) => {
 export const hardDeleteSubCategory = async (_id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
+  const mediaIds: string[] = [];
   try {
     const products = await ProductModel.find({ subCategory: _id })
       .select("_id defaultImage albumImages sizeChartImage");
     const subCategory = await SubCategoryModel.findById(_id).select("image");
-    if (subCategory?.image?.mediaId) {
-      await deleteImage(subCategory.image.mediaId);
-    }
+    // Collect S3 keys now; they're deleted only AFTER the DB commit below.
+    if (subCategory?.image?.mediaId) mediaIds.push(subCategory.image.mediaId);
     for (const product of products) {
-      await deleteProductImages(product);
+      mediaIds.push(...collectProductMediaIds(product));
     }
     const productIds = products.map((p) => p._id);
     await VariantModel.deleteMany({ product: { $in: productIds } }, { session });
@@ -150,4 +150,6 @@ export const hardDeleteSubCategory = async (_id: string) => {
   } finally {
     session.endSession();
   }
+  // DB is committed; remove the S3 media best-effort (orphans are swept later).
+  await deleteMediaByIds(mediaIds);
 };
