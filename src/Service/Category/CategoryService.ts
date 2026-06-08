@@ -4,7 +4,7 @@ import SchemaTypesReference from "../../Utils/Schemas/SchemaTypesReference";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
-import { deleteImage, deleteProductImages } from "../../Controller/Aws/AwsController";
+import { collectProductMediaIds, deleteMediaByIds } from "../../Controller/Aws/AwsController";
 import ICategory from "../../Model/Category/Icategory";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
 export const createCategory = async ({
@@ -172,20 +172,18 @@ export const getDeletedCategoryList = async () => {
 export const hardDeleteCategory = async (_id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
+  const mediaIds: string[] = [];
   try {
     const products = await ProductModel.find({ category: _id }).select("_id defaultImage albumImages sizeChartImage");
     const subCategories = await SubCategoryModel.find({ category: _id }).select("_id image");
     const category = await CategoryModel.findById(_id).select("image");
-    if (category?.image?.mediaId) {
-      await deleteImage(category.image.mediaId);
-    }
+    // Collect S3 keys now; they're deleted only AFTER the DB commit below.
+    if (category?.image?.mediaId) mediaIds.push(category.image.mediaId);
     for (const sub of subCategories) {
-      if (sub.image?.mediaId) {
-        await deleteImage(sub.image.mediaId);
-      }
+      if (sub.image?.mediaId) mediaIds.push(sub.image.mediaId);
     }
     for (const product of products) {
-      await deleteProductImages(product);
+      mediaIds.push(...collectProductMediaIds(product));
     }
     const productIds = products.map((p) => p._id);
     await VariantModel.deleteMany({ product: { $in: productIds } }, { session });
@@ -199,4 +197,6 @@ export const hardDeleteCategory = async (_id: string) => {
   } finally {
     session.endSession();
   }
+  // DB is committed; remove the S3 media best-effort (orphans are swept later).
+  await deleteMediaByIds(mediaIds);
 };

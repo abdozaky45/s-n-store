@@ -9,7 +9,7 @@ import OrderModel from "../../Model/Order/OrderModel";
 import { orderStatusType } from "../../Utils/OrderStatusType";
 import AuthModel from "../../Model/User/auth/AuthModel";
 import VariantModel from "../../Model/Variant/VariantModel";
-import { deleteProductImages } from "../../Controller/Aws/AwsController";
+import { collectProductMediaIds, deleteMediaByIds } from "../../Controller/Aws/AwsController";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
 import { getVariantStock } from "../Variant/VariantService";
 import CategoryModel from "../../Model/Category/CategoryModel";
@@ -402,12 +402,11 @@ export const restoreProduct = async (_id: string) => {
 export const hardDeleteProduct = async (_id: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
+  let mediaIds: string[] = [];
   try {
     const product = await ProductModel.findById(_id)
       .select("defaultImage albumImages sizeChartImage");
-    if (product) {
-      await deleteProductImages(product);
-    }
+    if (product) mediaIds = collectProductMediaIds(product);
     await VariantModel.deleteMany({ product: _id }, { session });
     await ProductModel.findByIdAndDelete(_id, { session });
     await session.commitTransaction();
@@ -417,6 +416,8 @@ export const hardDeleteProduct = async (_id: string) => {
   } finally {
     session.endSession();
   }
+  // DB (the source of truth) is committed; remove the S3 media best-effort.
+  await deleteMediaByIds(mediaIds);
 };
 export const getProductsStock = async (variantIds: string[]) => {
  const variants = await getVariantStock(variantIds);

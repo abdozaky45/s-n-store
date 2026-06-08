@@ -50,19 +50,24 @@ export const getPresignedURL = asyncHandler(
     );
   }
 );
-export const deleteProductImages = async (product: any) => {
-  const aws = new s3_service();
-  const bucketName = process.env.AWS_BUCKET_NAME!;
-  const imageIds = [
+// Collect the S3 object keys (mediaIds) attached to a product document.
+export const collectProductMediaIds = (product: any): string[] =>
+  [
     product.defaultImage?.mediaId,
     product.sizeChartImage?.mediaId,
     ...(product.albumImages?.map((img: any) => img.mediaId) || []),
   ].filter(Boolean);
 
-  await Promise.all(
-    imageIds.map((mediaId) =>
-      aws.deletePresignedUrl({ bucket: bucketName, key: mediaId })
-    )
+// Best-effort S3 cleanup. Meant to run AFTER the DB delete has committed, so a
+// failure here only leaves an orphaned object (swept by cleanupOrphanS3Images),
+// never a DB record pointing at an already-deleted image.
+export const deleteMediaByIds = async (mediaIds: string[]) => {
+  const keys = mediaIds.filter(Boolean);
+  if (!keys.length) return;
+  const aws = new s3_service();
+  const bucketName = process.env.AWS_BUCKET_NAME!;
+  await Promise.allSettled(
+    keys.map((key) => aws.deletePresignedUrl({ bucket: bucketName, key }))
   );
 };
 export const deleteImage = async (mediaId: string) => {
