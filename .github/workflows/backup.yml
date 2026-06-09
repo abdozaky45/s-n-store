@@ -2,9 +2,10 @@ name: Daily MongoDB Backup to S3 (Tokyo)
 
 on:
   schedule:
-    # Runs every day at 02:00 UTC (~04:00 Cairo). Scheduled runs only fire
-    # from the default branch (main), so this file must be merged to main.
-    - cron: '0 2 * * *'
+    # Runs every day at 02:37 UTC (~04:37 Cairo). The minute is deliberately off
+    # the top of the hour — GitHub delays (and sometimes drops) cron runs most at
+    # :00 under load. Scheduled runs only fire from the default branch (main).
+    - cron: '37 2 * * *'
   workflow_dispatch: {}   # manual "Run workflow" button for testing
 
 # Never let two backup runs overlap.
