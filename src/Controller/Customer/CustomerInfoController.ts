@@ -33,16 +33,14 @@ export const addCustomerInfo = asyncHandler(
 );
 export const updateCustomerInfo = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    if (req.body.customer) {
-      const checkCustomer = await checkCustomerExists(req.body.customer);
-      if (!checkCustomer) throw new ApiError(404, ErrorMessages.CUSTOMER_NOT_FOUND);
-    }
     if (req.body.shipping) {
       const checkShipping = await ShippingService.checkShippingExists(req.body.shipping);
       if (!checkShipping) throw new ApiError(404, ErrorMessages.SHIPPING_NOT_FOUND);
     }
+    // `customer` is deliberately not updatable: this endpoint is public, and
+    // allowing it would let anyone reassign an address to another customer.
     const allowedFields: (keyof ICustomerInfo)[] = [
-      'customer', 'firstName', 'lastName', 'address',
+      'firstName', 'lastName', 'address',
       'apartmentSuite', 'shipping', 'postalCode', 'additionalPhone', 'email'
     ];
     const customerData = allowedFields.reduce((acc, field) => {

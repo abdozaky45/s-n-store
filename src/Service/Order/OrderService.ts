@@ -12,7 +12,7 @@ import { paymentMethodType, paymentTransactionType } from "../../Utils/PaymentTy
 import VariantModel from "../../Model/Variant/VariantModel";
 import { getVariantsByIds, updateProductSoldOutStatus } from "../Variant/VariantService"; // not forget to implement this function in VariantService ,controller and route
 import IShipping from "../../Model/Shipping/Ishipping";
-import { checkCustomerInfo } from "../User/CustomerInfoService";
+import { checkCustomerInfo, createOrderAddressSnapshot } from "../User/CustomerInfoService";
 import ErrorMessages from "../../Utils/Error";
 import { ApiError } from "../../Utils/ErrorHandling";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
@@ -195,6 +195,10 @@ class OrderService {
       }
       const shipping = CustomerInfo.shipping as IShipping;
       const shippingCost = shipping.cost;
+      // Freeze the address as of checkout: the order references an immutable
+      // snapshot, so the customer editing or deleting their saved address
+      // later can't change or break this order's shipping details.
+      const addressSnapshot = await createOrderAddressSnapshot(CustomerInfo, session);
       const variantIds = orderData.products.map((p) => p.variantId);
       const variants = await getVariantsByIds(variantIds, session);
       if (variants.length !== variantIds.length) {
@@ -239,8 +243,8 @@ class OrderService {
       const totalAmount = subTotal - discount + finalShippingCost;
       const order = await OrderModel.create([{
         customer: orderData.customer,
-        customerInfo: orderData.customerInfo,
-        shipping: CustomerInfo.shipping,
+        customerInfo: addressSnapshot._id,
+        shipping: addressSnapshot.shipping,
         products,
         subTotal,
         shippingCost: finalShippingCost,
