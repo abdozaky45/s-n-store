@@ -19,7 +19,10 @@ const envOrigins = (process.env.ALLOWED_ORIGINS?.split(",") || [])
     .map((origin) => origin.trim().replace(/\/+$/, ""))
     .filter(Boolean);
 
-export const allowedOrigins = envOrigins.length > 0 ? envOrigins : DEFAULT_ALLOWED_ORIGINS;
+// Env origins EXTEND the defaults instead of replacing them: a stale
+// ALLOWED_ORIGINS value left on the server must never be able to lock the
+// real storefront/dashboard domains out of their own API.
+export const allowedOrigins = [...new Set([...DEFAULT_ALLOWED_ORIGINS, ...envOrigins])];
 
 export const isAllowedOrigin = (origin: string) =>
     allowedOrigins.includes(origin) || LOCAL_ORIGIN_REGEX.test(origin);
