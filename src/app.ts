@@ -9,6 +9,12 @@ import {
   checkAuthority,
   checkRole,
 } from "./middleware/AuthenticationMiddleware";
+import {
+  enforcePublicApiRestrictions,
+  blockScrapers,
+  publicMutationRateLimit,
+} from "./middleware/Security";
+import { getCorsOptions } from "./config";
 import { UserTypeEnum } from "./Utils/UserType";
 import categoryRouter from "./Router/Category/CategoryRouter";
 import publicRouter from "./Router/PublicRouters/PublicRouter";
@@ -38,22 +44,23 @@ app.set("trust proxy", true);
 // clients — the browser decompresses automatically; response shape is unchanged.
 app.use(compression());
 app.use(express.json());
-const devCorsOptions: cors.CorsOptions = {
-  origin: "*",
-  methods: "*",
-  allowedHeaders: "*",
-  credentials: false,
-};
-app.use(cors(devCorsOptions));
-app.options(/.*/, cors(devCorsOptions));
+app.use(cors(getCorsOptions()));
+app.options(/.*/, cors(getCorsOptions()));
 app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get("/", async (_, res) => {
   return res.json("Hello world!");
 });
 app.use(`/${RouterEnum.authentication}`, authenticationRouter);
-//app.use(`/${RouterEnum.public}`, enforcePublicApiRestrictions, blockScrapers, publicRouter);
-app.use(`/${RouterEnum.public}`, publicRouter);
+// Guards apply to mutating (POST/PUT/PATCH/DELETE) requests only — public GETs
+// (product lists etc.) stay open. See middleware/Security.ts.
+app.use(
+  `/${RouterEnum.public}`,
+  enforcePublicApiRestrictions,
+  blockScrapers,
+  publicMutationRateLimit,
+  publicRouter
+);
 app.use(checkAuthority);
 app.use(
   `/${RouterEnum.aws}`,

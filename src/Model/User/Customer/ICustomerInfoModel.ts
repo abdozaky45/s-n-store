@@ -11,4 +11,6 @@ export default interface ICustomerInfo {
   postalCode?: string;
   additionalPhone?: string;
   email?: string;
+  isDeleted?: boolean;
+  isOrderSnapshot?: boolean;
 }
