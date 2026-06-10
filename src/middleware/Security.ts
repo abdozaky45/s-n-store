@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
-import { allowedOrigins } from "../config";
+import { isAllowedOrigin } from "../config";
 
 // Browsers always send an Origin header on cross- and same-origin POST/PUT/
 // PATCH/DELETE fetches, but NOT on same-origin GET — so these guards must only
@@ -12,17 +12,17 @@ const isMutating = (req: Request) => MUTATING_METHODS.includes(req.method);
 export function enforcePublicApiRestrictions(req: Request, res: Response, next: NextFunction) {
   if (!isMutating(req)) return next();
 
-  const origin = req.get("origin") || req.get("referer");
-  const allowed =
-    !!origin &&
-    allowedOrigins.some(
-      // Origin is exact ("https://sn-lingerie.com"); Referer carries a path
-      // ("https://sn-lingerie.com/checkout"). Require the "/" boundary so
-      // "https://sn-lingerie.com.evil.com" can't pass a prefix check.
-      (o) => origin === o || origin.startsWith(`${o}/`)
-    );
+  // Origin is bare ("https://sn-lingerie.com"); Referer carries a path
+  // ("https://sn-lingerie.com/checkout") — URL.origin normalizes both.
+  const headerValue = req.get("origin") || req.get("referer");
+  let origin: string | null = null;
+  try {
+    origin = headerValue ? new URL(headerValue).origin : null;
+  } catch {
+    origin = null;
+  }
 
-  if (!allowed) {
+  if (!origin || !isAllowedOrigin(origin)) {
     return res.status(403).json({ message: "Forbidden: unauthorized origin" });
   }
 
