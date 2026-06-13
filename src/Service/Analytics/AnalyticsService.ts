@@ -4,15 +4,24 @@ dotenv.config();
 
 const propertyId = process.env.GA_PROPERTY_ID;
 
-// Authenticate the GA4 client straight from env vars — no key file on disk or
-// in git, and identical between local dev and Elastic Beanstalk. GA_PRIVATE_KEY
-// is stored as a single line with literal "\n" escapes (so it survives .env and
-// the EB console), and we expand those back into real newlines here, which is
-// what Google's auth library expects.
+// Resolve the service-account private key from env. Two accepted forms:
+//   1. GA_PRIVATE_KEY_BASE64 — base64 of the raw PEM. PREFERRED in production
+//      (Elastic Beanstalk): base64 has no backslashes/newlines/quotes, so it
+//      survives the EB console injection untouched. The "\n"-escaped form gets
+//      mangled by some EB platforms, which breaks PEM parsing
+//      (error:1E08010C:DECODER routines::unsupported).
+//   2. GA_PRIVATE_KEY — single line with literal "\n" escapes (what dotenv reads
+//      from .env locally); we expand them back into real newlines here.
+const resolvePrivateKey = (): string | undefined => {
+  const b64 = process.env.GA_PRIVATE_KEY_BASE64;
+  if (b64) return Buffer.from(b64, "base64").toString("utf8");
+  return process.env.GA_PRIVATE_KEY?.replace(/\\n/g, "\n");
+};
+
 const analyticsClient = new BetaAnalyticsDataClient({
   credentials: {
     client_email: process.env.GA_CLIENT_EMAIL,
-    private_key: process.env.GA_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    private_key: resolvePrivateKey(),
   },
   projectId: process.env.GA_PROJECT_ID,
 });
