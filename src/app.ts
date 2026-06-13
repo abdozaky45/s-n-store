@@ -33,6 +33,7 @@ import SocialReviewRouter from "./Router/SocialReview/SocialReviewRouter";
 import wishlistRouter from "./Router/Wishlist/WishlistRouter";
 import categoryIconRouter from "./Router/CategoryIcon/CategoryIconRouter";
 import BackupRouter from "./Router/Backup/BackupRouter";
+import AnalyticsRouter from "./Router/Analytics/AnalyticsRouter";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Swagger/swagger";
 const app: Application = express();
@@ -133,6 +134,11 @@ app.use(
   `/${RouterEnum.backup}`,
   checkRole([UserTypeEnum.ADMIN]),
   BackupRouter
+);
+app.use(
+  `/${RouterEnum.analytics}`,
+  checkRole([UserTypeEnum.ADMIN]),
+  AnalyticsRouter
 );
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   globalErrorHandling(error, req, res, next);

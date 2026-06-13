@@ -1,0 +1,174 @@
+{
+  "info": {
+    "name": "SN Store - Analytics (GA4)",
+    "_postman_id": "a1f4c2e0-9b3d-4f7a-8e1c-ga4analytics01",
+    "description": "Tests for the GA4 Data API endpoints (/analytics/*). These routes require an ADMIN access token.\n\nHOW TO USE:\n1. Set the `baseUrl` and `adminEmail` collection variables.\n2. Run \"Auth > 1. Request login code\", then check the admin email for the code.\n3. Put the code in the `activeCode` variable, run \"Auth > 2. Activate & get token\" — it auto-saves `adminToken`.\n4. Run any of the Analytics requests; they inherit the Bearer token automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{adminToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@example.com",
+      "type": "string"
+    },
+    {
+      "key": "activeCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "startDate",
+      "value": "7daysAgo",
+      "type": "string"
+    },
+    {
+      "key": "endDate",
+      "value": "today",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth (get admin token)",
+      "item": [
+        {
+          "name": "1. Request login code",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/authentication/register-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["authentication", "register-email"]
+            },
+            "description": "Sends a one-time activation code to the admin email. Check the inbox, then put the code in the `activeCode` variable."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Activate & get token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Save the returned accessToken into the collection variable so the",
+                  "// Analytics requests can use it via the collection-level Bearer auth.",
+                  "const json = pm.response.json();",
+                  "const token = json && json.data && json.data.accessToken;",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('adminToken', token);",
+                  "  pm.test('accessToken saved to adminToken', () => pm.expect(token).to.be.a('string'));",
+                  "} else {",
+                  "  pm.test('accessToken present in response', () => pm.expect.fail('No accessToken in response: ' + pm.response.text()));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"activeCode\": \"{{activeCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/authentication/active-account",
+              "host": ["{{baseUrl}}"],
+              "path": ["authentication", "active-account"]
+            },
+            "description": "Verifies the activation code and returns an admin accessToken. The test script stores it in `adminToken`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Overview (daily KPIs)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/overview?startDate={{startDate}}&endDate={{endDate}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "overview"],
+              "query": [
+                { "key": "startDate", "value": "{{startDate}}" },
+                { "key": "endDate", "value": "{{endDate}}" }
+              ]
+            },
+            "description": "activeUsers, sessions, screenPageViews, newUsers, averageSessionDuration grouped by date."
+          },
+          "response": []
+        },
+        {
+          "name": "Top Pages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/top-pages?startDate={{startDate}}&endDate={{endDate}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "top-pages"],
+              "query": [
+                { "key": "startDate", "value": "{{startDate}}" },
+                { "key": "endDate", "value": "{{endDate}}" }
+              ]
+            },
+            "description": "Most-visited pages (pagePath) by screenPageViews, busiest first."
+          },
+          "response": []
+        },
+        {
+          "name": "Traffic Sources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/traffic-sources?startDate={{startDate}}&endDate={{endDate}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "traffic-sources"],
+              "query": [
+                { "key": "startDate", "value": "{{startDate}}" },
+                { "key": "endDate", "value": "{{endDate}}" }
+              ]
+            },
+            "description": "Session sources (sessionSource) by sessions, largest first."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

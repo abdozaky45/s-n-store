@@ -31,6 +31,7 @@
     "@aws-sdk/client-s3": "^3.1006.0",
     "@aws-sdk/client-sns": "^3.1006.0",
     "@aws-sdk/s3-request-presigner": "^3.1006.0",
+    "@google-analytics/data": "^6.1.0",
     "agenda": "^5.0.0",
     "aws-sdk": "^1.18.0",
     "bcrypt": "^6.0.0",
