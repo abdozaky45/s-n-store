@@ -8,4 +8,10 @@ src/seeds/
 # S3 cleanup reports (local records — never commit)
 orphan-s3-keys-*.txt
 
+# Google service-account credentials (GA4) — never commit.
+# Credentials now live in env vars, but keep ignoring any stray key JSON so a
+# downloaded service-account file can never be committed by accident.
+sn-sn-store-*.json
+*-service-account*.json
+
 
