@@ -1,6 +1,7 @@
 import { Agenda } from "agenda";
 import moment, { BeforeDays } from "../../Utils/DateAndTime";
 import ProductModel from "../Product/ProductModel";
+import { invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
 
 const appAgenda = async () => {
   const agenda = new Agenda({
@@ -29,6 +30,9 @@ const appAgenda = async () => {
         [{ $set: { isSale: false, salePrice: 0, saleStartDate: 0, saleEndDate: 0, finalPrice: "$price" } }]
       ),
     ]);
+    // These flag/price flips are reflected in the cached home feeds and product
+    // listings, so drop the product caches once the nightly sweep finishes.
+    await invalidatePattern(CacheKeys.productsPattern);
   });
 
   await agenda.start();

@@ -7,6 +7,19 @@ import VariantModel from "../../Model/Variant/VariantModel";
 import { collectProductMediaIds, deleteMediaByIds } from "../../Controller/Aws/AwsController";
 import ICategory from "../../Model/Category/Icategory";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
+import { getOrSet, invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
+
+// Category writes cascade widely: a category's name/image is embedded in the
+// cached sub-categories list AND in product responses, and soft/hard delete &
+// restore also flip the deleted flag on its sub-categories and products. So any
+// category write busts categories + sub-categories + products to avoid any
+// stale copy surviving anywhere.
+const bustCategories = async () => {
+  await invalidatePattern(CacheKeys.categoriesPattern);
+  await invalidatePattern(CacheKeys.subCategoriesPattern);
+  await invalidatePattern(CacheKeys.productsPattern);
+};
+
 export const createCategory = async ({
   name,
   groupSize,
@@ -32,6 +45,7 @@ export const createCategory = async ({
     ...(order !== undefined ? { order } : {}),
     createdBy,
   });
+  await bustCategories();
   return category;
 };
 export const getCategoryById = async (_id: string) => {
@@ -121,6 +135,7 @@ export const softDeleteCategory = async (_id: string) => {
   } finally {
     session.endSession();
   }
+  await bustCategories();
 };
 export const restoreCategory = async (_id: string) => {
   const session = await mongoose.startSession();
@@ -145,25 +160,30 @@ export const restoreCategory = async (_id: string) => {
   } finally {
     session.endSession();
   }
+  await bustCategories();
 };
 export const getAllCategories = async () => {
-  const categories =
-    await CategoryModel.find({ isDeleted: false })
-      .sort({ order: 1, createdAt: -1 })
-      .select("name image image_svg groupSize order")
-      .populate({
-        path: SchemaTypesReference.SubCategory,
-        select: "name image -category",
-      })
-      .populate({
-        path: SchemaTypesReference.GroupSize,
-        select: 'name',
-      })
-      .populate({
-        path: 'image_svg',
-        select: 'key svg',
-      });
-  return categories;
+  // Storefront navigation list — read on nearly every page, changes rarely.
+  return getOrSet(
+    CacheKeys.categoriesAll,
+    () =>
+      CategoryModel.find({ isDeleted: false })
+        .sort({ order: 1, createdAt: -1 })
+        .select("name image image_svg groupSize order")
+        .populate({
+          path: SchemaTypesReference.SubCategory,
+          select: "name image -category",
+        })
+        .populate({
+          path: SchemaTypesReference.GroupSize,
+          select: 'name',
+        })
+        .populate({
+          path: 'image_svg',
+          select: 'key svg',
+        }),
+    1800 // 30 min
+  );
 };
 export const getDeletedCategoryList = async () => {
   const categories = await CategoryModel.find({ isDeleted: true }).sort({ createdAt: -1 }).populate(SchemaTypesReference.SubCategory).select("-isDeleted -__v");
@@ -199,4 +219,5 @@ export const hardDeleteCategory = async (_id: string) => {
   }
   // DB is committed; remove the S3 media best-effort (orphans are swept later).
   await deleteMediaByIds(mediaIds);
+  await bustCategories();
 };

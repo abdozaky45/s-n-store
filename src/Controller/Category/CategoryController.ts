@@ -6,6 +6,7 @@ import SuccessMessage from "../../Utils/SuccessMessages";
 import { checkGroupSizeExists } from "../../Shared/GroupSizeServiceShared";
 import { checkCategoryExists, findCategoryById } from "../../Shared/CategoryServiceShared";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
+import { invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
 export const CreateCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -71,6 +72,11 @@ export const updateCategory = asyncHandler(
     }
 
     await Category.save();
+    // Category changed -> bust category list + sub-category list + product
+    // caches (the category's name/image is embedded in all three).
+    await invalidatePattern(CacheKeys.categoriesPattern);
+    await invalidatePattern(CacheKeys.subCategoriesPattern);
+    await invalidatePattern(CacheKeys.productsPattern);
     return res.json(
       new ApiResponse(
         200,

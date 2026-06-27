@@ -6,6 +6,7 @@ import SizeCategoryModel from "../../Model/SizeCategory/SizeCategoryModel";
 import CategoryModel from "../../Model/Category/CategoryModel";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import mongoose from "mongoose";
+import { invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
 
 // Sizes not defined in the product's SizeCategory group sort last.
 const UNKNOWN_SIZE_ORDER = 9999;
@@ -56,6 +57,11 @@ export const updateProductSoldOutStatus = async (productId: string) => {
   await ProductModel.findByIdAndUpdate(productId, {
     isSoldOut: !hasStock,
   });
+  // Central chokepoint: this runs after every stock-changing operation (order
+  // placement, cancellation, status changes, variant edits). Variant quantity
+  // and isSoldOut are embedded in the cached home feeds and product listings,
+  // so drop the product caches here to keep stock-related data fresh.
+  await invalidatePattern(CacheKeys.productsPattern);
 };
 export const createVariant = async (variantData: IVariant) => {
   const orderMap = await getSizeOrderMap(variantData.product, [variantData.size]);
@@ -157,16 +163,21 @@ export const updateManyVariants = async (
     }
   }));
 
-  return VariantModel.bulkWrite(bulkOps);
+  const result = await VariantModel.bulkWrite(bulkOps);
+  // Variant size/color/quantity are embedded in cached product responses.
+  await invalidatePattern(CacheKeys.productsPattern);
+  return result;
 };
 export const deleteManyVariants = async (
   productId: string,
   variantIds: string[]
 ) => {
-  return VariantModel.deleteMany({
+  const result = await VariantModel.deleteMany({
     _id: { $in: variantIds },
     product: productId,
   });
+  await invalidatePattern(CacheKeys.productsPattern);
+  return result;
 };
 export const getVariantsByProduct = async (productId: string) => {
   const variants = await VariantModel.find({ product: productId })
