@@ -28,6 +28,7 @@ export const updateSocialReviewController = asyncHandler(
         const updatedReview = await SocialReviewService.updateSocialReview(reviewId, review, req.body.imageUrl);
         if (updatedReview) {
             await review.save();
+            await SocialReviewService.bustSocialReviews();
             return res.json(
                 new ApiResponse(
                     200,

@@ -3,6 +3,11 @@ import ISocialReview from "../../Model/SocialReview/ISocialReviewModel";
 import SocialReviewModel from "../../Model/SocialReview/SocialReviewModel";
 import { Types } from "mongoose";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
+import { getOrSet, invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
+
+// Drop the cached reviews list right after any write so nothing stale lingers.
+export const bustSocialReviews = () => invalidatePattern(CacheKeys.socialReviewsPattern);
+
 export const checkSocialReviewExists = async (_id: string | Types.ObjectId) => {
     return await SocialReviewModel.exists({ _id });
 }
@@ -11,6 +16,7 @@ export const findSocialReviewById = async (_id: string) => {
 }
 export const AddNewSocialReview = async (socialReviewData: ISocialReview) => {
     const review = await SocialReviewModel.create(socialReviewData);
+    await bustSocialReviews();
     return review;
 };
 export const updateSocialReview = async (reviewId: string, reviewData:ISocialReview&{ _id: string | Types.ObjectId }, imageUrl?: string) => {
@@ -30,11 +36,15 @@ export const deleteSocialReview = async (review: ISocialReview&{ _id: string | T
         await deleteImage(review.image.mediaId);
     }
     const deletedReview = await SocialReviewModel.deleteOne({ _id: review._id });
+    await bustSocialReviews();
     return deletedReview;
 };
 export const getAllSocialReviews = async () => {
-    const reviews = await SocialReviewModel.find({}).sort({ createdAt: -1 })
-    return reviews;
+    return getOrSet(
+        CacheKeys.socialReviewsAll,
+        () => SocialReviewModel.find({}).sort({ createdAt: -1 }),
+        900 // 15 min
+    );
 }
 export const getSocialReviewById = async (reviewId: string) => {
     const review = await SocialReviewModel.findById(reviewId).select("-__v");

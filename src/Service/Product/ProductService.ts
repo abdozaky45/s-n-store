@@ -15,6 +15,7 @@ import { getVariantStock } from "../Variant/VariantService";
 import CategoryModel from "../../Model/Category/CategoryModel";
 import SubCategoryModel from "../../Model/SubCategory/SubCategoryModel";
 import WishListModel from "../../Model/Wishlist/WishlistModel";
+import { getOrSet, invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
 export const ratioCalculatePrice = (price: number, salePrice: number, saleStartDate: number, saleEndDate: number) => {
   if (!salePrice || salePrice === 0 || salePrice >= price) {
     return {
@@ -182,17 +183,7 @@ export const getUserProductById = async (id: string | Types.ObjectId) => {
     .populate({ path: "variants", select: "-__v", populate: { path: SchemaTypesReference.Color, select: "-__v" } })
   return product;
 }
-export const getAllProductsForUser = async ({
-  category,
-  subCategory,
-  size,
-  color,
-  isSale,
-  isNewArrival,
-  isBestSeller,
-  sort,
-  page,
-}: {
+type UserProductFilters = {
   category?: string;
   subCategory?: string;
   size?: string;
@@ -202,7 +193,28 @@ export const getAllProductsForUser = async ({
   isBestSeller?: boolean;
   sort?: string;
   page?: number;
-}) => {
+};
+
+export const getAllProductsForUser = async (filters: UserProductFilters) => {
+  // Cache-aside per filter combination. The key is derived from the (sorted)
+  // filter set, so each distinct category/filter/page view gets its own entry.
+  // TTL is short (listings change with stock/new arrivals) and allkeys-lru
+  // evicts cold filter combos automatically, so this stays well within 30MB.
+  const key = CacheKeys.productList(filters as Record<string, unknown>);
+  return getOrSet(key, () => getAllProductsForUserFromDb(filters), 180);
+};
+
+const getAllProductsForUserFromDb = async ({
+  category,
+  subCategory,
+  size,
+  color,
+  isSale,
+  isNewArrival,
+  isBestSeller,
+  sort,
+  page,
+}: UserProductFilters) => {
   const limit = 20;
   page = !page || page < 1 || isNaN(page) ? 1 : page;
   const skip = limit * (page - 1);
@@ -331,6 +343,15 @@ const interleaveByCategory = (
 };
 
 export const getHomeProducts = async ({ isSale }: { isSale: boolean }) => {
+  // Cache-aside: the home feed is the most-hit, heaviest read in the app
+  // (aggregation + multi-populate) and is identical for every visitor, so it is
+  // the highest-value thing to cache. Writes bust these keys via
+  // invalidatePattern(CacheKeys.productsPattern); the TTL is only a safety net.
+  const key = isSale ? CacheKeys.homeSaleProducts : CacheKeys.homeProducts;
+  return getOrSet(key, () => getHomeProductsFromDb({ isSale }));
+};
+
+const getHomeProductsFromDb = async ({ isSale }: { isSale: boolean }) => {
   // isSale is the single source of truth for "on sale".
   const match: Record<string, any> = {
     isDeleted: false,
@@ -390,14 +411,17 @@ export const softDeleteProduct = async (_id: string | Types.ObjectId) => {
   const product = await ProductModel.findByIdAndUpdate(_id, {
     isDeleted: true,
   });
+  await invalidatePattern(CacheKeys.productsPattern);
   return product;
 };
 export const restoreProduct = async (_id: string) => {
-  return ProductModel.findByIdAndUpdate(
+  const product = await ProductModel.findByIdAndUpdate(
     _id,
     { isDeleted: false },
     { new: true }
   );
+  await invalidatePattern(CacheKeys.productsPattern);
+  return product;
 };
 export const hardDeleteProduct = async (_id: string) => {
   const session = await mongoose.startSession();
@@ -418,6 +442,7 @@ export const hardDeleteProduct = async (_id: string) => {
   }
   // DB (the source of truth) is committed; remove the S3 media best-effort.
   await deleteMediaByIds(mediaIds);
+  await invalidatePattern(CacheKeys.productsPattern);
 };
 export const getProductsStock = async (variantIds: string[]) => {
  const variants = await getVariantStock(variantIds);

@@ -6,6 +6,17 @@ import ProductModel from "../../Model/Product/ProductModel";
 import VariantModel from "../../Model/Variant/VariantModel";
 import { collectProductMediaIds, deleteMediaByIds } from "../../Controller/Aws/AwsController";
 import { extractMediaId } from "../../Shared/MediaServiceShared";
+import { getOrSet, invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
+
+// A sub-category is populated inside the cached categories list, carries the
+// category's name/image in its own list, and (on delete/restore) cascades to
+// products — so any write busts all three namespaces to stay fully fresh.
+export const bustSubCategories = async () => {
+  await invalidatePattern(CacheKeys.subCategoriesPattern);
+  await invalidatePattern(CacheKeys.categoriesPattern);
+  await invalidatePattern(CacheKeys.productsPattern);
+};
+
 export const createSubCategory = async ({
   name,
   groupSize,
@@ -31,6 +42,7 @@ export const createSubCategory = async ({
     },
     createdBy,
   });
+  await bustSubCategories();
   return SubCategory;
 };
 export const getSubCategoryById = async (_id: string) => {
@@ -92,16 +104,21 @@ export const softDeleteSubCategory = async (_id: string) => {
   } finally {
     session.endSession();
   }
+  await bustSubCategories();
 };
 export const getAllSubCategories = async () => {
-  const subCategories = await SubCategoryModel.find({ isDeleted: false })
-  .sort({ createdAt: -1 })
-  .select("-isDeleted -__v")
-  .populate({
-    path: SchemaTypesReference.Category,
-    select: "name image",
-  });
-  return subCategories;
+  return getOrSet(
+    CacheKeys.subCategoriesAll,
+    () =>
+      SubCategoryModel.find({ isDeleted: false })
+        .sort({ createdAt: -1 })
+        .select("-isDeleted -__v")
+        .populate({
+          path: SchemaTypesReference.Category,
+          select: "name image",
+        }),
+    1800 // 30 min
+  );
 };
 export const findAllDeletedSubCategories = async () => {
   const subCategories = await SubCategoryModel.find({ isDeleted: true }).sort({ createdAt: -1 }).populate(SchemaTypesReference.Category).select("-isDeleted -__v");
@@ -125,6 +142,7 @@ export const restoreSubCategory = async (_id: string) => {
   } finally {
     session.endSession();
   }
+  await bustSubCategories();
 };
 export const hardDeleteSubCategory = async (_id: string) => {
   const session = await mongoose.startSession();
@@ -152,4 +170,5 @@ export const hardDeleteSubCategory = async (_id: string) => {
   }
   // DB is committed; remove the S3 media best-effort (orphans are swept later).
   await deleteMediaByIds(mediaIds);
+  await bustSubCategories();
 };

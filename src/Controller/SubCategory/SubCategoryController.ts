@@ -68,6 +68,7 @@ export const updateSubCategory = asyncHandler(
       return res.json(new ApiResponse(200, {}, SuccessMessage.NO_UPDATE_CATEGORY));
     }
     await subCategory.save();
+    await SubCategoryService.bustSubCategories();
     return res.json(new ApiResponse(200, { updates }, SuccessMessage.SUBCATEGORY_UPDATED));
   }
 );
