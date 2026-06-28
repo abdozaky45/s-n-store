@@ -72,6 +72,10 @@ export const getUserProductByIdValidation = joi.object({
     productId: joi.string().required(),
 }).required();
 
+export const getProductShareValidation = joi.object({
+    productId: joi.string().required(),
+}).required();
+
 export const getAdminProductsValidation = baseSchema.concat(
     joi.object({
         category: joi.string().optional(),

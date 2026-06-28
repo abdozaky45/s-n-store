@@ -14,6 +14,8 @@ import { checkSubCategoryExists } from "../../Shared/SubCategoryServiceShared";
 import { checkProductExists, findProductById } from "../../Shared/ProductServiceShared";
 import { getProductWishlist } from "../../Service/Wishlist/WishlistService";
 import { invalidatePattern, CacheKeys } from "../../Utils/Cache/cache";
+import { renderProductShareHtml } from "../../Utils/ShareHtml";
+import { getStorefrontProductUrl, STOREFRONT_URL } from "../../config";
 export const CreateProduct = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -286,6 +288,55 @@ export const getUserProductById = asyncHandler(
       liked = wishlistEntry ? true : false;
     }
    return res.json(new ApiResponse(200, { product, liked }, SuccessMessage.PRODUCT_FOUND));
+  }
+);
+// Social share / Open Graph preview page for a single product.
+// Returns HTML (not JSON) so WhatsApp/Messenger/Facebook crawlers can read the
+// og:* meta tags and render a preview card with the product image, name and
+// description; real browsers are redirected to the storefront product page.
+export const getProductSharePreview = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { productId } = req.params as { productId: string };
+    const redirectUrl = getStorefrontProductUrl(productId);
+    const shareUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+
+    const product = mongoose.isValidObjectId(productId)
+      ? await ProductService.getProductForShare(productId)
+      : null;
+
+    // Never error out on a shared link: if the product is gone, still serve a
+    // valid page that bounces the visitor to the storefront.
+    if (!product) {
+      res.set("Cache-Control", "public, max-age=60");
+      return res
+        .status(200)
+        .type("html")
+        .send(
+          renderProductShareHtml({
+            title: "SN Lingerie",
+            description: "تسوّقي أحدث تشكيلات SN Lingerie",
+            imageUrl: "",
+            shareUrl,
+            redirectUrl: STOREFRONT_URL,
+          })
+        );
+    }
+
+    // Arabic preview text (per product owner request); the storefront itself
+    // localizes to the visitor's device language after the redirect.
+    res.set("Cache-Control", "public, max-age=300");
+    return res
+      .status(200)
+      .type("html")
+      .send(
+        renderProductShareHtml({
+          title: product.name?.ar || product.name?.en || "SN Lingerie",
+          description: product.description?.ar || product.description?.en || "",
+          imageUrl: product.defaultImage?.mediaUrl || "",
+          shareUrl,
+          redirectUrl,
+        })
+      );
   }
 );
 export const getStockForProducts = asyncHandler(
