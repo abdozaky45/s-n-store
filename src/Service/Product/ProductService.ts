@@ -183,6 +183,15 @@ export const getUserProductById = async (id: string | Types.ObjectId) => {
     .populate({ path: "variants", select: "-__v", populate: { path: SchemaTypesReference.Color, select: "-__v" } })
   return product;
 }
+// Lean fetch for the social share/Open Graph preview page: only the fields the
+// preview needs (name, description, default image). No populate/variants — this
+// endpoint is hit by crawlers, so keep it cheap.
+export const getProductForShare = async (id: string | Types.ObjectId) => {
+  return ProductModel.findOne({ _id: id, isDeleted: false })
+    .select("name description defaultImage")
+    .lean();
+};
+
 type UserProductFilters = {
   category?: string;
   subCategory?: string;

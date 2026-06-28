@@ -27,6 +27,17 @@ export const allowedOrigins = [...new Set([...DEFAULT_ALLOWED_ORIGINS, ...envOri
 export const isAllowedOrigin = (origin: string) =>
     allowedOrigins.includes(origin) || LOCAL_ORIGIN_REGEX.test(origin);
 
+// Public storefront base URL. The product share endpoint builds Open Graph
+// preview pages that redirect real visitors here. Overridable via env, but
+// defaults to the production storefront so previews work out of the box.
+export const STOREFRONT_URL = (process.env.STOREFRONT_URL || "https://sn-lingerie.com")
+    .trim()
+    .replace(/\/+$/, "");
+
+// Frontend route for a single product page, e.g. .../products/<id>.
+export const getStorefrontProductUrl = (productId: string) =>
+    `${STOREFRONT_URL}/products/${productId}`;
+
 export function getCorsOptions(): cors.CorsOptions {
     return {
         // Requests without an Origin header (same-origin navigations, curl,
