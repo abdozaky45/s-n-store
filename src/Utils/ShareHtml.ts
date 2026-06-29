@@ -18,10 +18,35 @@ export const escapeHtml = (value: string): string =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
-// Collapse whitespace/newlines and cap length so the preview description stays
-// within what crawlers display (~300 chars).
+// Decode the HTML entities that survive after tags are removed, so e.g.
+// "&amp;", "&nbsp;" or "&#39;" become real characters instead of leaking into
+// the preview text.
+const decodeHtmlEntities = (value: string): string =>
+  value
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/(?:&#0*39;|&apos;)/gi, "'")
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
+
+// Product descriptions are stored as rich-text HTML. Social crawlers render the
+// og:description as literal text, so any <p>/<strong>/<br> tags would show up
+// verbatim in the preview. Strip tags to plain text before it ever reaches the
+// meta tag (block-level boundaries become spaces so words don't glue together).
+export const stripHtml = (html: string): string =>
+  decodeHtmlEntities(
+    html
+      .replace(/<\s*\/?\s*(p|div|li|ul|ol|br|h[1-6]|tr|table)\b[^>]*>/gi, " ")
+      .replace(/<[^>]*>/g, "")
+  );
+
+// Strip HTML, collapse whitespace/newlines and cap length so the preview
+// description stays within what crawlers display (~300 chars).
 const normalizeDescription = (value: string, max = 300): string => {
-  const collapsed = value.replace(/\s+/g, " ").trim();
+  const collapsed = stripHtml(value).replace(/\s+/g, " ").trim();
   return collapsed.length > max ? `${collapsed.slice(0, max - 1).trimEnd()}…` : collapsed;
 };
 
