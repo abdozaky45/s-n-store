@@ -72,9 +72,12 @@ export const getUserProductByIdValidation = joi.object({
     productId: joi.string().required(),
 }).required();
 
+// Allow unknown query params: shared links often carry cache-busting (?v=2) or
+// tracking params (?fbclid=...). They must never turn the preview into a 400 —
+// the crawler would then get an error page and render no card.
 export const getProductShareValidation = joi.object({
     productId: joi.string().required(),
-}).required();
+}).unknown(true).required();
 
 export const getAdminProductsValidation = baseSchema.concat(
     joi.object({

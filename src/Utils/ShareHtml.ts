@@ -44,8 +44,8 @@ export const stripHtml = (html: string): string =>
   );
 
 // Strip HTML, collapse whitespace/newlines and cap length so the preview
-// description stays within what crawlers display (~300 chars).
-const normalizeDescription = (value: string, max = 300): string => {
+// description stays within what crawlers display (~160 chars).
+const normalizeDescription = (value: string, max = 160): string => {
   const collapsed = stripHtml(value).replace(/\s+/g, " ").trim();
   return collapsed.length > max ? `${collapsed.slice(0, max - 1).trimEnd()}…` : collapsed;
 };
@@ -59,6 +59,11 @@ export interface ProductShareMeta {
   // Storefront product page a real visitor should land on.
   redirectUrl: string;
   siteName?: string;
+  // Image hints for the preview card. Defaults assume square product images;
+  // pass the real dimensions per product when available.
+  imageWidth?: number;
+  imageHeight?: number;
+  imageType?: string;
 }
 
 export const renderProductShareHtml = (meta: ProductShareMeta): string => {
@@ -66,8 +71,25 @@ export const renderProductShareHtml = (meta: ProductShareMeta): string => {
   const description = escapeHtml(normalizeDescription(meta.description || meta.title));
   const imageUrl = escapeHtml(meta.imageUrl);
   const shareUrl = escapeHtml(meta.shareUrl);
-  const redirectUrl = escapeHtml(meta.redirectUrl);
   const siteName = escapeHtml(meta.siteName || "SN Lingerie");
+  const imageWidth = meta.imageWidth ?? 1080;
+  const imageHeight = meta.imageHeight ?? 1080;
+  const imageType = escapeHtml(meta.imageType || "image/jpeg");
+
+  // Only emit image tags when there actually is an image — an empty og:image
+  // would suppress the preview card entirely.
+  const imageTags = meta.imageUrl
+    ? `  <meta property="og:image" content="${imageUrl}" />
+  <meta property="og:image:secure_url" content="${imageUrl}" />
+  <meta property="og:image:type" content="${imageType}" />
+  <meta property="og:image:width" content="${imageWidth}" />
+  <meta property="og:image:height" content="${imageHeight}" />
+  <meta property="og:image:alt" content="${title}" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="${imageUrl}" />
+`
+    : `  <meta name="twitter:card" content="summary" />\n`;
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -82,24 +104,18 @@ export const renderProductShareHtml = (meta: ProductShareMeta): string => {
   <meta property="og:site_name" content="${siteName}" />
   <meta property="og:title" content="${title}" />
   <meta property="og:description" content="${description}" />
-  <meta property="og:image" content="${imageUrl}" />
-  <meta property="og:image:secure_url" content="${imageUrl}" />
-  <meta property="og:image:alt" content="${title}" />
   <meta property="og:url" content="${shareUrl}" />
-  <meta property="og:locale" content="ar_AR" />
-
+  <meta property="og:locale" content="ar_EG" />
+${imageTags}
   <!-- Twitter / X -->
-  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${title}" />
   <meta name="twitter:description" content="${description}" />
-  <meta name="twitter:image" content="${imageUrl}" />
-
-  <link rel="canonical" href="${redirectUrl}" />
-  <!-- Real browsers get redirected to the storefront; crawlers stop here. -->
-  <meta http-equiv="refresh" content="0; url=${redirectUrl}" />
 </head>
 <body>
-  <p>جارٍ تحويلك إلى المنتج… <a href="${redirectUrl}">اضغط هنا إذا لم يتم تحويلك تلقائيًا</a></p>
+  <p>جارٍ التحويل…</p>
+  <!-- Redirect via JS only. NOT meta-refresh / 3xx: social crawlers follow those
+       and leave this OG page before rendering the card. Crawlers don't run JS,
+       so they keep the preview; real browsers run this and go to the storefront. -->
   <script>window.location.replace(${JSON.stringify(meta.redirectUrl)});</script>
 </body>
 </html>`;
