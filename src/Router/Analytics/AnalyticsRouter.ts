@@ -4,6 +4,7 @@ import {
   getTopPagesController,
   getTrafficSourcesController,
 } from "../../Controller/Analytics/AnalyticsController";
+import { getClarityInsightsController } from "../../Controller/Analytics/ClarityController";
 
 const AnalyticsRouter = Router();
 
@@ -12,5 +13,11 @@ const AnalyticsRouter = Router();
 AnalyticsRouter.get("/overview", getOverviewController);
 AnalyticsRouter.get("/top-pages", getTopPagesController);
 AnalyticsRouter.get("/traffic-sources", getTrafficSourcesController);
+
+// Microsoft Clarity live-insights (heatmaps/session metrics). Cached in memory
+// because Clarity's Data Export API is limited to 10 calls/project/day.
+// ?dimension1=Browser|Device|Country|... optional breakdown; ?refresh=true
+// forces a live refetch (still bounded by the daily budget).
+AnalyticsRouter.get("/clarity", getClarityInsightsController);
 
 export default AnalyticsRouter;
