@@ -34,6 +34,7 @@ import wishlistRouter from "./Router/Wishlist/WishlistRouter";
 import categoryIconRouter from "./Router/CategoryIcon/CategoryIconRouter";
 import BackupRouter from "./Router/Backup/BackupRouter";
 import AnalyticsRouter from "./Router/Analytics/AnalyticsRouter";
+import CatalogRouter from "./Router/Catalog/CatalogRouter";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Swagger/swagger";
 const app: Application = express();
@@ -62,6 +63,9 @@ app.use(
   publicMutationRateLimit,
   publicRouter
 );
+// Product catalog feed for Meta / Google shopping ads: must stay public, so it
+// is mounted before checkAuthority.
+app.use(`/${RouterEnum.catalog}`, CatalogRouter);
 app.use(checkAuthority);
 app.use(
   `/${RouterEnum.aws}`,
