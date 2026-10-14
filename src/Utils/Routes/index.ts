@@ -19,6 +19,7 @@ enum RouterEnum {
   socialReview = "social-review",
   categoryIcon = "icons",
   backup = "backup",
-  analytics = "analytics"
+  analytics = "analytics",
+  catalog = "catalog"
 }
 export default RouterEnum;
