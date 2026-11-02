@@ -117,6 +117,7 @@ describe("buildFeedItem", () => {
   it("builds the title from whichever attributes exist", () => {
     expect(itemOf(makeProduct(), makeVariant({ color: null })).title).toBe("قميص نوم - M");
     expect(itemOf(makeProduct(), makeVariant({ size: "one Size" })).title).toBe("قميص نوم - أحمر");
+    expect(itemOf(makeProduct(), makeVariant({ size: "One Size" })).title).toBe("قميص نوم - أحمر");
     expect(itemOf(makeProduct(), makeVariant({ color: null, size: "one Size" })).title).toBe("قميص نوم");
   });
 
