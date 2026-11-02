@@ -15,8 +15,10 @@ import { stripHtml } from "../../Utils/ShareHtml";
 
 export const BRAND_NAME = "SN Lingerie";
 export const CURRENCY = "EGP";
-// Variant.size schema default — means "no real size", so keep it out of titles.
-const DEFAULT_SIZE = "one Size";
+// Variant.size schema default ("one Size") — means "no real size", so keep it
+// out of titles. Admins also type it as "One Size" / "one size", so compare
+// case-insensitively.
+const DEFAULT_SIZE = "one size";
 // Google caps descriptions at 5000 chars and additional images at 10.
 const MAX_DESCRIPTION_LENGTH = 5000;
 const MAX_ADDITIONAL_IMAGES = 10;
@@ -125,7 +127,7 @@ export const buildFeedItem = (
   const colorId = variant.color?._id?.toString();
   const colorName = localized(variant.color?.name ?? undefined);
   const size = variant.size?.trim() || undefined;
-  const titleSize = size && size !== DEFAULT_SIZE ? size : undefined;
+  const titleSize = size && size.toLowerCase() !== DEFAULT_SIZE ? size : undefined;
   const attributes = [colorName, titleSize].filter(Boolean).join(" / ");
 
   const categoryName = localized(product.category?.name);
